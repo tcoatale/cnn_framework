@@ -1,6 +1,6 @@
 import tensorflow as tf
 import os
-import helper
+from helper import _activation_summary, _variable_with_weight_decay, _variable_on_cpu
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -10,7 +10,7 @@ eval_dir = 'eval'
 ckpt_dir = 'ckpt'
 data_dir = 'data'
 raw_dir = 'raw'
-
+    
 #%% Directories
 tf.app.flags.DEFINE_string('log_dir', os.path.join(log_dir, application), """Directory where to write event logs and checkpoint.""")
 tf.app.flags.DEFINE_string('eval_dir', os.path.join(eval_dir, application), """Directory where to write event logs.""")
@@ -26,7 +26,7 @@ tf.app.flags.DEFINE_integer('original_shape', [32, 32, 3], """a""")
 
 #%% Training information
 tf.app.flags.DEFINE_integer('batch_size', 128, """Number of images to process in a batch.""")
-tf.app.flags.DEFINE_integer('max_steps', 900, """Number of batches to run.""")
+tf.app.flags.DEFINE_integer('max_steps', 100000, """Number of batches to run.""")
 tf.app.flags.DEFINE_integer('num_examples', 10000, """Number of examples to run.""")
 tf.app.flags.DEFINE_boolean('display_freq', 10, """q""")
 tf.app.flags.DEFINE_boolean('summary_freq', 100, """q""")
@@ -57,62 +57,67 @@ NUM_CLASSES = FLAGS.classes
 
 #%%
 def inference(images):
-  """Build the CIFAR model up to where it may be used for inference.
-  Args:
-  Returns:
-    logits: Output tensor with the   computed logits.
-  """
+  with tf.variable_scope('conv1') as scope:
+    kernel = _variable_with_weight_decay('weights', shape=[5, 5, 3, 64], stddev=1e-4, wd=0.0)
+    conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
+    biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.0))
+    bias = tf.nn.bias_add(conv, biases)
+    conv1 = tf.nn.relu(bias, name=scope.name)
+    _activation_summary(conv1)
 
-  # Reshape input picture
-  print('In Inference ', images.get_shape(), type(images))
-  images = tf.reshape(images, shape=[FLAGS.batch_size] + FLAGS.imshape)
+  # pool1
+  pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1],
+                         padding='SAME', name='pool1')
+  # norm1
+  norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
+                    name='norm1')
 
-  _dropout = tf.Variable(dropout)  # dropout (keep probability)
+  # conv2
+  with tf.variable_scope('conv2') as scope:
+    kernel = _variable_with_weight_decay('weights', shape=[5, 5, 64, 64],
+                                         stddev=1e-4, wd=0.0)
+    conv = tf.nn.conv2d(norm1, kernel, [1, 1, 1, 1], padding='SAME')
+    biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
+    bias = tf.nn.bias_add(conv, biases)
+    conv2 = tf.nn.relu(bias, name=scope.name)
+    _activation_summary(conv2)
 
-  # Store layers weight & bias
-  _weights = {
-    'wc1': helper.weight_variable([5, 5, 3, out_conv_1]),  # 5x5 conv, 3 input, 64 outputs
-    'wc2': helper.weight_variable([5, 5, out_conv_1, out_conv_2]),
-    'wd1': helper.weight_variable([out_conv_2 * 6 * 6, n_hidden_1]),
-    'wd2': helper.weight_variable([n_hidden_1, n_hidden_2]),
-    'out': helper.weight_variable([n_hidden_2, NUM_CLASSES])
-  }
+  # norm2
+  norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,
+                    name='norm2')
+  # pool2
+  pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],
+                         strides=[1, 2, 2, 1], padding='SAME', name='pool2')
 
-  _biases = {
-    'bc1': helper.bias_variable([out_conv_1]),
-    'bc2': helper.bias_variable([out_conv_2]),
-    'bd1': helper.bias_variable([n_hidden_1]),
-    'bd2': helper.bias_variable([n_hidden_2]),
-    'out': helper.bias_variable([NUM_CLASSES])
-  }
-  
-  with tf.name_scope('Conv1'):
-    conv1 = helper.conv2d(images, _weights['wc1'], _biases['bc1'])
-    conv1 = helper.max_pool(conv1, 2)
-    conv1 = tf.nn.lrn(conv1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm1')
-    helper._activation_summary(conv1)
-    
-  with tf.name_scope('Conv2'):
-    conv2 = helper.conv2d(conv1, _weights['wc2'], _biases['bc2'])
-    conv2 = helper.max_pool(conv2, 2)
-    conv2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm1')
-    helper._activation_summary(conv2)
+  # local3
+  with tf.variable_scope('local3') as scope:
+    # Move everything into depth so we can perform a single matrix multiply.
+    reshape = tf.reshape(pool2, [FLAGS.batch_size, -1])
+    dim = reshape.get_shape()[1].value
+    weights = _variable_with_weight_decay('weights', shape=[dim, 384],
+                                          stddev=0.04, wd=0.004)
+    biases = _variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
+    local3 = tf.nn.relu(tf.matmul(reshape, weights) + biases, name=scope.name)
+    _activation_summary(local3)
 
-  with tf.name_scope('Dense1'):
-    dense1 = tf.reshape(conv2, [-1, _weights['wd1'].get_shape().as_list()[0]])  # Reshape conv2 output to fit dense layer input
-    dense1 = tf.nn.relu_layer(dense1, _weights['wd1'], _biases['bd1'])  # Relu activation
-    dense1 = tf.nn.dropout(dense1, _dropout)  # Apply Dropout
-    helper._activation_summary(dense1)
+  # local4
+  with tf.variable_scope('local4') as scope:
+    weights = _variable_with_weight_decay('weights', shape=[384, 192],
+                                          stddev=0.04, wd=0.004)
+    biases = _variable_on_cpu('biases', [192], tf.constant_initializer(0.1))
+    local4 = tf.nn.relu(tf.matmul(local3, weights) + biases, name=scope.name)
+    _activation_summary(local4)
 
-  with tf.name_scope('Dense2'):
-    dense2 = tf.nn.relu_layer(dense1, _weights['wd2'], _biases['bd2'])  # Relu activation
-    helper._activation_summary(dense2)
+  # softmax, i.e. softmax(WX + b)
+  with tf.variable_scope('softmax_linear') as scope:
+    weights = _variable_with_weight_decay('weights', [192, NUM_CLASSES],
+                                          stddev=1/192.0, wd=0.0)
+    biases = _variable_on_cpu('biases', [NUM_CLASSES],
+                              tf.constant_initializer(0.0))
+    softmax_linear = tf.nn.softmax(tf.add(tf.matmul(local4, weights), biases, name=scope.name))
+    _activation_summary(softmax_linear)
 
-  # Output, class prediction
-  logits = tf.nn.softmax(tf.matmul(dense2, _weights['out']) + _biases['out'])
-  helper._activation_summary(logits)
-
-  return logits
+  return softmax_linear
 
 
 def loss(logits, labels):
@@ -134,3 +139,23 @@ def loss(logits, labels):
   # The total loss is defined as the cross entropy loss plus all of the weight
   # decay terms (L2 loss).
   return tf.add_n(tf.get_collection('losses'), name='total_loss')
+  
+def distorted_inputs(reshaped_image):
+  # Image processing for training the network. Note the many random
+  # distortions applied to the image.
+
+  # Randomly crop a [height, width] section of the image.
+  distorted_image = tf.random_crop(reshaped_image, [FLAGS.imsize, FLAGS.imsize, 3])
+
+  # Randomly flip the image horizontally.
+  distorted_image = tf.image.random_flip_left_right(distorted_image)
+
+  # Because these operations are not commutative, consider randomizing
+  # the order their operation.
+  distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
+  distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
+
+  # Subtract off the mean and divide by the variance of the pixels.
+  float_image = tf.image.per_image_whitening(distorted_image)
+  
+  return float_image

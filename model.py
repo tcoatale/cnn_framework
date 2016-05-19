@@ -32,22 +32,20 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-import cifar10 as application
+import driver as application
 import _input
 
 FLAGS = tf.app.flags.FLAGS
-
 
 # Global constants describing the CIFAR-10 data set.
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = FLAGS.train_size
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = FLAGS.valid_size
 
-
 # Constants describing the training process.
-MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.
-NUM_EPOCHS_PER_DECAY = 350.0      # Epochs after which learning rate decays.
-LEARNING_RATE_DECAY_FACTOR = 0.1  # Learning rate decay factor.
-INITIAL_LEARNING_RATE = 0.1       # Initial learning rate.
+MOVING_AVERAGE_DECAY = FLAGS.moving_average_decay
+NUM_EPOCHS_PER_DECAY = FLAGS.num_epochs_per_decay
+LEARNING_RATE_DECAY_FACTOR = FLAGS.learning_rate_decay_factor
+INITIAL_LEARNING_RATE = FLAGS.initial_learning_rate
 
 # If a model is trained with multiple GPUs, prefix all Op names with tower_name
 # to differentiate the operations. Note that this prefix is removed from the
@@ -111,13 +109,12 @@ def _add_loss_summaries(total_loss):
 
 
 def train(total_loss, global_step):
-  """Train CIFAR-10 model.
+  """Train model.
   Create an optimizer and apply to all trainable variables. Add moving
   average for all trainable variables.
   Args:
     total_loss: Total loss from loss().
-    global_step: Integer Variable counting the number of training steps
-      processed.
+    global_step: Integer Variable counting the number of training steps processed.
   Returns:
     train_op: op for training.
   """
@@ -154,8 +151,7 @@ def train(total_loss, global_step):
       tf.histogram_summary(var.op.name + '/gradients', grad)
 
   # Track the moving averages of all trainable variables.
-  variable_averages = tf.train.ExponentialMovingAverage(
-      MOVING_AVERAGE_DECAY, global_step)
+  variable_averages = tf.train.ExponentialMovingAverage(MOVING_AVERAGE_DECAY, global_step)
   variables_averages_op = variable_averages.apply(tf.trainable_variables())
 
   with tf.control_dependencies([apply_gradient_op, variables_averages_op]):

@@ -4,13 +4,11 @@ from __future__ import print_function
 
 import os
 
-from six.moves import xrange
 import tensorflow as tf
 import glob
+import driver as application
 
 FLAGS = tf.app.flags.FLAGS
-
-IMAGE_SIZE = FLAGS.imsize
 
 # Global constants describing the data set.
 NUM_CLASSES = FLAGS.classes
@@ -121,29 +119,10 @@ def distorted_inputs(data_dir, batch_size):
   # Read examples from files in the filename queue.
   read_input = read_binary(filename_queue)
   reshaped_image = tf.cast(read_input.uint8image, tf.float32)
-
-  height = IMAGE_SIZE
-  width = IMAGE_SIZE
-
-  # Image processing for training the network. Note the many random
-  # distortions applied to the image.
-
-  # Randomly crop a [height, width] section of the image.
-  distorted_image = tf.random_crop(reshaped_image, [height, width, 3])
-
-  # Randomly flip the image horizontally.
-  distorted_image = tf.image.random_flip_left_right(distorted_image)
-
-  # Because these operations are not commutative, consider randomizing
-  # the order their operation.
-  distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
-  distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
-
-  # Subtract off the mean and divide by the variance of the pixels.
-  float_image = tf.image.per_image_whitening(distorted_image)
+  float_image = application.distorted_inputs(reshaped_image)
 
   # Ensure that the random shuffling has good mixing properties.
-  min_fraction_of_examples_in_queue = 0.4
+  min_fraction_of_examples_in_queue = 0.6
   min_queue_examples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN * min_fraction_of_examples_in_queue)
   print ('Filling queue with %d images before starting to train. This will take a few minutes.' % min_queue_examples)
 
@@ -179,8 +158,8 @@ def inputs(eval_data, data_dir, batch_size):
   read_input = read_binary(filename_queue)
   reshaped_image = tf.cast(read_input.uint8image, tf.float32)
 
-  height = IMAGE_SIZE
-  width = IMAGE_SIZE
+  height = FLAGS.imsize
+  width = FLAGS.imsize
 
   # Image processing for evaluation.
   # Crop the central [height, width] of the image.
@@ -195,6 +174,7 @@ def inputs(eval_data, data_dir, batch_size):
                            min_fraction_of_examples_in_queue)
 
   # Generate a batch of images and labels by building up a queue of examples.
-  return _generate_image_and_label_batch(float_image, read_input.label,
+  return _generate_image_and_label_batch(float_image, 
+                                         read_input.label,
                                          min_queue_examples, batch_size,
                                          shuffle=False)
