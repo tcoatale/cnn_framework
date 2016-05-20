@@ -13,7 +13,7 @@
 # limitations under the License.
 # ==============================================================================
 
-"""Builds the CIFAR-10 network.
+"""Builds the network.
 Summary of available functions:
  # Compute input images and labels for training. If you would like to run
  # evaluations, use inputs() instead.
@@ -32,20 +32,19 @@ from __future__ import print_function
 
 import tensorflow as tf
 
-import driver as application
 import _input
-
-FLAGS = tf.app.flags.FLAGS
+import application_interface
+application = application_interface.get_application()
 
 # Global constants describing the CIFAR-10 data set.
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = FLAGS.train_size
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = FLAGS.valid_size
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = application.train_size
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = application.valid_size
 
 # Constants describing the training process.
-MOVING_AVERAGE_DECAY = FLAGS.moving_average_decay
-NUM_EPOCHS_PER_DECAY = FLAGS.num_epochs_per_decay
-LEARNING_RATE_DECAY_FACTOR = FLAGS.learning_rate_decay_factor
-INITIAL_LEARNING_RATE = FLAGS.initial_learning_rate
+MOVING_AVERAGE_DECAY = application.moving_average_decay
+NUM_EPOCHS_PER_DECAY = application.num_epochs_per_decay
+LEARNING_RATE_DECAY_FACTOR = application.learning_rate_decay_factor
+INITIAL_LEARNING_RATE = application.initial_learning_rate
 
 # If a model is trained with multiple GPUs, prefix all Op names with tower_name
 # to differentiate the operations. Note that this prefix is removed from the
@@ -59,9 +58,9 @@ def distorted_inputs():
   Raises:
     ValueError: If no data_dir
   """
-  if not FLAGS.data_dir:
+  if not application.data_dir:
     raise ValueError('Please supply a data_dir')
-  return _input.distorted_inputs(data_dir=FLAGS.data_dir, batch_size=FLAGS.batch_size)
+  return _input.distorted_inputs(data_dir=application.data_dir, batch_size=application.batch_size)
 
 def inputs(eval_data):
   """Construct input for CIFAR evaluation using the Reader ops.
@@ -73,9 +72,9 @@ def inputs(eval_data):
   Raises:
     ValueError: If no data_dir
   """
-  if not FLAGS.data_dir:
+  if not application.data_dir:
     raise ValueError('Please supply a data_dir')
-  return _input.inputs(eval_data=eval_data, data_dir=FLAGS.data_dir, batch_size=FLAGS.batch_size)
+  return _input.inputs(eval_data=eval_data, data_dir=application.data_dir, batch_size=application.batch_size)
   
 def inference(images):
   return application.inference(images)
@@ -119,7 +118,7 @@ def train(total_loss, global_step):
     train_op: op for training.
   """
   # Variables that affect learning rate.
-  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / FLAGS.batch_size
+  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / application.batch_size
   decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
 
   # Decay the learning rate exponentially based on the number of steps.

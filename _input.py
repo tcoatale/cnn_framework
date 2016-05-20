@@ -6,14 +6,13 @@ import os
 
 import tensorflow as tf
 import glob
-import driver as application
-
-FLAGS = tf.app.flags.FLAGS
+import application_interface
+application = application_interface.get_application()
 
 # Global constants describing the data set.
-NUM_CLASSES = FLAGS.classes
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = FLAGS.train_size
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = FLAGS.valid_size
+NUM_CLASSES = application.classes
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = application.train_size
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = application.valid_size
 
 
 def read_binary(filename_queue):
@@ -39,9 +38,9 @@ def read_binary(filename_queue):
     pass
   result = Record()
 
-  label_bytes = FLAGS.label_bytes
-  result.height, result.width, result.depth = FLAGS.original_shape
-  image_bytes = reduce(int.__mul__, FLAGS.original_shape)
+  label_bytes = application.label_bytes
+  result.height, result.width, result.depth = application.original_shape
+  image_bytes = reduce(int.__mul__, application.original_shape)
   record_bytes = label_bytes + image_bytes
 
   reader = tf.FixedLengthRecordReader(record_bytes=record_bytes)
@@ -158,8 +157,8 @@ def inputs(eval_data, data_dir, batch_size):
   read_input = read_binary(filename_queue)
   reshaped_image = tf.cast(read_input.uint8image, tf.float32)
 
-  height = FLAGS.imsize
-  width = FLAGS.imsize
+  height = application.imsize
+  width = application.imsize
 
   # Image processing for evaluation.
   # Crop the central [height, width] of the image.

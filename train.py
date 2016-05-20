@@ -11,8 +11,8 @@ from six.moves import xrange
 import tensorflow as tf
 
 import model
-
-FLAGS = tf.app.flags.FLAGS
+import application_interface
+application = application_interface.get_application()
 
 def train():
   """Train model for a number of steps."""
@@ -44,23 +44,23 @@ def train():
 
     # Start running operations on the Graph.
     sess = tf.Session(config=tf.ConfigProto(
-        log_device_placement=FLAGS.log_device_placement))
+        log_device_placement=application.log_device_placement))
     sess.run(init)
 
     # Start the queue runners.
     tf.train.start_queue_runners(sess=sess)
 
-    summary_writer = tf.train.SummaryWriter(FLAGS.log_dir, sess.graph)
+    summary_writer = tf.train.SummaryWriter(application.log_dir, sess.graph)
 
-    for step in xrange(FLAGS.max_steps):
+    for step in xrange(application.max_steps):
       start_time = time.time()
       _, loss_value = sess.run([train_op, loss])
       duration = time.time() - start_time
 
       assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
 
-      if step % FLAGS.display_freq == 0:
-        num_examples_per_step = FLAGS.batch_size
+      if step % application.display_freq == 0:
+        num_examples_per_step = application.batch_size
         examples_per_sec = num_examples_per_step / duration
         sec_per_batch = float(duration)
 
@@ -68,13 +68,13 @@ def train():
         print (format_str % (datetime.now(), step, loss_value,
                              examples_per_sec, sec_per_batch))
 
-      if step % FLAGS.summary_freq == 0:
+      if step % application.summary_freq == 0:
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)
 
       # Save the model checkpoint periodically.
-      if step % FLAGS.save_freq == 0 or (step + 1) == FLAGS.max_steps:
-        checkpoint_path = os.path.join(FLAGS.ckpt_dir, 'model.ckpt')
+      if step % application.save_freq == 0 or (step + 1) == application.max_steps:
+        checkpoint_path = os.path.join(application.ckpt_dir, 'model.ckpt')
         saver.save(sess, checkpoint_path, global_step=step)
 
 

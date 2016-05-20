@@ -2,8 +2,6 @@ import tensorflow as tf
 import os
 from helper import conv_maxpool_norm, local_layer, softmax_layer
 
-FLAGS = tf.app.flags.FLAGS
-
 application = 'driver'
 log_dir = 'log'
 eval_dir = 'eval'
@@ -12,43 +10,43 @@ data_dir = 'data'
 raw_dir = 'raw'
 
 #%% Directories
-tf.app.flags.DEFINE_string('log_dir', os.path.join(log_dir, application), """Directory where to write event logs and checkpoint.""")
-tf.app.flags.DEFINE_string('eval_dir', os.path.join(eval_dir, application), """Directory where to write event logs.""")
-tf.app.flags.DEFINE_string('ckpt_dir', os.path.join(ckpt_dir, application), """Directory where to read model checkpoints.""")
-tf.app.flags.DEFINE_string('data_dir', os.path.join(data_dir, application), """Path to the CIFAR-10 data directory.""")
-tf.app.flags.DEFINE_string('raw_dir', os.path.join(raw_dir, application), """Path to the CIFAR-10 data directory.""")
+log_dir = os.path.join(log_dir, application)
+eval_dir = os.path.join(eval_dir, application)
+ckpt_dir = os.path.join(ckpt_dir, application)
+data_dir = os.path.join(data_dir, application)
+raw_dir = os.path.join(raw_dir, application)
 
 #%% Dataset information
-tf.app.flags.DEFINE_integer('train_size', 20000, """Training images""")
-tf.app.flags.DEFINE_integer('valid_size', 2000, """a""")
-tf.app.flags.DEFINE_integer('label_bytes', 1, """a""")
-tf.app.flags.DEFINE_integer('original_shape', [256, 256, 3], """a""")
+train_size=20000
+valid_size=2000
+label_bytes=1
+original_shape=[256, 256, 3]
 
 #%% Training information
-tf.app.flags.DEFINE_integer('batch_size', 128, """Number of images to process in a batch.""")
-tf.app.flags.DEFINE_integer('max_steps', 20000, """Number of batches to run.""")
-tf.app.flags.DEFINE_integer('num_examples', 30000, """Number of examples to run.""")
-tf.app.flags.DEFINE_boolean('display_freq', 10, """q""")
-tf.app.flags.DEFINE_boolean('summary_freq', 100, """q""")
-tf.app.flags.DEFINE_boolean('save_freq', 100, """q""")
-tf.app.flags.DEFINE_integer('classes', 10, """a""")
-tf.app.flags.DEFINE_integer('imsize', 192, """a""")
-tf.app.flags.DEFINE_integer('imshape', [192, 192, 3], """a""")
-tf.app.flags.DEFINE_integer('moving_average_decay', 0.9999, """a""")
-tf.app.flags.DEFINE_integer('num_epochs_per_decay', 65.0, """a""")
-tf.app.flags.DEFINE_integer('learning_rate_decay_factor', 0.7, """a""")
-tf.app.flags.DEFINE_integer('initial_learning_rate', 0.1, """a""")
+batch_size=128
+max_steps=100000
+num_examples=20000
+display_freq=10
+summary_freq=100
+save_freq=1000
+classes=10
+imsize=192
+imshape=[192, 192, 3]
+moving_average_decay=0.9999
+num_epochs_per_decay=65.0
+learning_rate_decay_factor=0.7
+initial_learning_rate=0.1
 
 #%% Evaluation information
-tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5, """How often to run the eval.""")
-tf.app.flags.DEFINE_boolean('run_once', False, """Whether to run eval only once.""")
+eval_interval_secs = 60 * 5
+run_once=False
 
 #%% Read information
-tf.app.flags.DEFINE_string('eval_data', 'test', """Either 'test' or 'train_eval'.""")
-tf.app.flags.DEFINE_boolean('log_device_placement', False, """Whether to log device placement.""")
+eval_data='test' #Either test or train_eval
+log_device_placement=False
 
 #%%
-n_input = reduce(int.__mul__, FLAGS.imshape)
+n_input = reduce(int.__mul__, imshape)
 keep_prob = 0.80
   
 #%%
@@ -60,10 +58,10 @@ def inference(images):
     
   
   dropout_layer = tf.nn.dropout(conv4, keep_prob)
-  reshape = tf.reshape(dropout_layer, [FLAGS.batch_size, -1])
+  reshape = tf.reshape(dropout_layer, [batch_size, -1])
   local5 = local_layer(384, reshape, 'local5')
   local6 = local_layer(192, local5, 'local6')
-  softmax_linear = softmax_layer(FLAGS.classes, local6, 'softmax_layer')
+  softmax_linear = softmax_layer(classes, local6, 'softmax_layer')
   return softmax_linear
 
 def loss(logits, labels):
@@ -86,7 +84,7 @@ def loss(logits, labels):
   return tf.add_n(tf.get_collection('losses'), name='total_loss')
   
 def distorted_inputs(reshaped_image):
-  distorted_image = tf.random_crop(reshaped_image, [FLAGS.imsize, FLAGS.imsize, 3])
+  distorted_image = tf.random_crop(reshaped_image, [imsize, imsize, 3])
   distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
   distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
   float_image = tf.image.per_image_whitening(distorted_image)
