@@ -14,19 +14,19 @@ def load_thumbnail(f):
     return result
     
 def write_chunk(chunks, i, data_type):
-    print('\t', 'chunk:', i)    
-    binary_data = np.array(map(lambda (l, i): [l] + i.ravel().tolist(), chunks[i])).ravel()
+    print data_type, '\t', 'chunk:', i
+
+    labels = np.array(map(lambda f: int(f.split('/')[3][1]), chunks[i]), dtype=np.uint8)
+    images = np.array(map(load_thumbnail, chunks[i]))
+    data = zip(labels, images)
+
+    binary_data = np.array(map(lambda (l, i): [l] + i.ravel().tolist(), data)).ravel()
     newFileByteArray = bytearray(binary_data)
     newFile = open ('data/driver/' + data_type + '_batch_' + str(i), "wb")
     newFile.write(newFileByteArray)
     
-def write(filenames, data_type):
-    labels = np.array(map(lambda f: int(f.split('/')[3][1]), filenames), dtype=np.uint8)
-    images = np.array(map(load_thumbnail, filenames))
-    
-    data = zip(labels, images)
-    chunks = [data[i:i+images_per_file] for i in xrange(0, len(data), images_per_file)]
-    
+def write_in_chunks(filenames, data_type):
+    chunks = [filenames[i:i+images_per_file] for i in xrange(0, len(filenames), images_per_file)]
     map(lambda i: write_chunk(chunks, i, data_type), range(len(chunks)))
     
 def preprocess_data(): 
@@ -41,14 +41,10 @@ def preprocess_data():
                 )
                 
     shuffle(filenames)
-    
     test_filenames = filenames[:testing_size]
     train_filenames = filenames[testing_size:]
-    
-    print('Testing data')    
-    write(test_filenames, 'test')
-    print('Training data')    
-    write(train_filenames, 'data')
+    write_in_chunks(test_filenames, 'test')
+    write_in_chunks(train_filenames, 'data')
 
 #%%
 preprocess_data()
