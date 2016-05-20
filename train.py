@@ -21,16 +21,13 @@ def train():
 
     # Get images and labels for dataset.
     images, labels = model.distorted_inputs()
-    images_v, labels_v = model.inputs('test') 
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
     logits = model.inference(images)
-    logits_v = model.inference(images_v)
 
     # Calculate loss.
     loss = model.loss(logits, labels)
-    loss_v = model.loss(logits_v, labels_v)
 
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
@@ -73,11 +70,6 @@ def train():
       if step % application.summary_freq == 0:
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)
-        
-      if step % application.valid_freq == 0:
-        loss_v_value = sess.run([loss_v])
-        format_str = ('%s: step %d, validation loss = %.2f')
-        print (format_str % (datetime.now(), step, loss_v_value))
 
       # Save the model checkpoint periodically.
       if step % application.save_freq == 0 or (step + 1) == application.max_steps:
