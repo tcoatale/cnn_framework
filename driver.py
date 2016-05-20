@@ -28,7 +28,10 @@ max_steps=100000
 num_examples=20000
 display_freq=10
 summary_freq=100
+valid_freq=10
 save_freq=1000
+
+#%%
 classes=10
 imsize=192
 imshape=[192, 192, 3]

@@ -37,7 +37,7 @@ import time
 import numpy as np
 import tensorflow as tf
 
-import _input
+import model
 import application_interface
 application = application_interface.get_application()
 
@@ -99,10 +99,10 @@ def evaluate():
   with tf.Graph().as_default() as g:
     # Get images and labels for CIFAR-10.
     eval_data = application.eval_data == 'test'
-    images, labels = _input.inputs(eval_data, application.data_dir, application.batch_size) 
+    images, labels = model.inputs(eval_data) 
 
     # Build a Graph that computes the logits predictions from the inference model.
-    logits = application.inference(images)
+    logits = model.inference(images)
 
     # Calculate predictions.
     top_k_op = tf.nn.in_top_k(logits, labels, 1)
