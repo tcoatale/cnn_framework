@@ -70,7 +70,7 @@ def train():
       if step % application.summary_freq == 0:
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)
-
+        
       # Save the model checkpoint periodically.
       if step % application.save_freq == 0 or (step + 1) == application.max_steps:
         checkpoint_path = os.path.join(application.ckpt_dir, 'model.ckpt')

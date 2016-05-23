@@ -51,30 +51,10 @@ INITIAL_LEARNING_RATE = application.initial_learning_rate
 # names of the summaries when visualizing a model.
 
 def distorted_inputs():
-  """Construct distorted input for CIFAR training using the Reader ops.
-  Returns:
-    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
-    labels: Labels. 1D tensor of [batch_size] size.
-  Raises:
-    ValueError: If no data_dir
-  """
-  if not application.data_dir:
-    raise ValueError('Please supply a data_dir')
   return _input.distorted_inputs(data_dir=application.data_dir, batch_size=application.batch_size)
 
-def inputs(eval_data):
-  """Construct input for CIFAR evaluation using the Reader ops.
-  Args:
-    eval_data: bool, indicating if one should use the train or eval data set.
-  Returns:
-    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
-    labels: Labels. 1D tensor of [batch_size] size.
-  Raises:
-    ValueError: If no data_dir
-  """
-  if not application.data_dir:
-    raise ValueError('Please supply a data_dir')
-  return _input.inputs(eval_data=eval_data, data_dir=application.data_dir, batch_size=application.batch_size)
+def inputs(data_type):
+  return _input.inputs(data_type=data_type, data_dir=application.data_dir, batch_size=application.batch_size)
   
 def inference(images):
   return application.inference(images)

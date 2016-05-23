@@ -50,7 +50,10 @@ def read_binary(filename_queue):
   record_bytes = tf.decode_raw(value, tf.uint8)
 
   # The first bytes represent the label, which we convert from uint8->int32.
-  result.label = tf.cast(tf.slice(record_bytes, [0], [label_bytes]), tf.int32)
+  label_array = tf.cast(tf.slice(record_bytes, [0], [label_bytes]), tf.int32)
+  multiplier = map(lambda l: l * 2 ** 8, range(label_bytes))
+  
+  result.label = tf.reduce_sum(tf.mul(label_array, multiplier))
 
   # The remaining bytes after the label represent the image, which we reshape
   # from [depth * height * width] to [depth, height, width].
@@ -129,23 +132,26 @@ def distorted_inputs(data_dir, batch_size):
   return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, batch_size, shuffle=True)
 
 
-def inputs(eval_data, data_dir, batch_size):
+def inputs(data_type, data_dir, batch_size):
   """Construct input for evaluation using the Reader ops.
   Args:
-    eval_data: bool, indicating if one should use the train or eval data set.
+    data_type: bool, indicating if one should use the train or eval data set.
     data_dir: Path to the data directory.
     batch_size: Number of images per batch.
   Returns:
     images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
     labels: Labels. 1D tensor of [batch_size] size.
   """
-  if not eval_data:
+  if data_type == 'train':
     filenames = glob.glob(os.path.join(data_dir, 'data_batch_*'))
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
-  else:
+  elif data_type == 'eval':
     filenames = glob.glob(os.path.join(data_dir, 'test_batch*'))
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
-
+  else:
+    filenames = glob.glob(os.path.join(data_dir, 'submission_batch*'))
+    num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
+    
   for f in filenames:
     if not tf.gfile.Exists(f):
       raise ValueError('Failed to find file: ' + f)
@@ -168,12 +174,7 @@ def inputs(eval_data, data_dir, batch_size):
   float_image = tf.image.per_image_whitening(resized_image)
 
   # Ensure that the random shuffling has good mixing properties.
-  min_fraction_of_examples_in_queue = 0.4
-  min_queue_examples = int(num_examples_per_epoch *
-                           min_fraction_of_examples_in_queue)
+  min_queue_examples = int(num_examples_per_epoch)
 
   # Generate a batch of images and labels by building up a queue of examples.
-  return _generate_image_and_label_batch(float_image, 
-                                         read_input.label,
-                                         min_queue_examples, batch_size,
-                                         shuffle=False)
+  return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, batch_size, shuffle=False)
