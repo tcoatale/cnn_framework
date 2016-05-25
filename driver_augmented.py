@@ -1,6 +1,6 @@
 import tensorflow as tf
 import os
-from helper import conv_maxpool_norm, local_layer, softmax_layer
+from helper import conv_maxpool_norm, local_layer, softmax_layer, inception
 from functools import reduce
 
 application = 'driver_augmented'
@@ -62,17 +62,17 @@ def combined_to_single_labels(original_label):
   
   return label1, label2
 
-  
 #%%
 
-  
 def inference(images):
-  conv1 = conv_maxpool_norm([3, 3, 3, 16], 2, images, 'conv1')
-  conv2 = conv_maxpool_norm([5, 5, 16, 32], 2, conv1, 'conv2')
-  conv3 = conv_maxpool_norm([5, 5, 32, 64], 2, conv2, 'conv3')
-  conv4 = conv_maxpool_norm([5, 5, 64, 96], 4, conv3, 'conv4')
+  conv1 = conv_maxpool_norm([3, 3], 16, 2, images, 'conv1')
+  conv2 = conv_maxpool_norm([5, 5], 32, 2, conv1, 'conv2')
+  inception2 = inception([[3, 3], [1, 1]], 16, 2, conv2, 'inception_module1')  
+  conv3 = conv_maxpool_norm([5, 5], 64, 2, inception2, 'conv3')
+  inception4 = inception([[3, 3], [5, 5]], 48, 2, conv3, 'inception_module2')  
+#  conv4 = conv_maxpool_norm([5, 5], 96, 4, conv3, 'conv4')
   
-  dropout_layer = tf.nn.dropout(conv4, keep_prob)
+  dropout_layer = tf.nn.dropout(inception4, keep_prob)
   reshape = tf.reshape(dropout_layer, [batch_size, -1])
   local51 = local_layer(384, reshape, 'local51')
   local61 = local_layer(192, local51, 'local61')

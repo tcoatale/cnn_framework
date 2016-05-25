@@ -52,7 +52,7 @@ def read_binary(filename_queue):
 
   # The first bytes represent the label, which we convert from uint8->int32.
   label_array = tf.cast(tf.slice(record_bytes, [0], [label_bytes]), tf.int32)
-  multiplier = map(lambda l: l * 2 ** 8, range(label_bytes))
+  multiplier = list(map(lambda l: l * 2 ** 8, range(label_bytes)))
   
   result.label = tf.reduce_sum(tf.mul(label_array, multiplier))
 
