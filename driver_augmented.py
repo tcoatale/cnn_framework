@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 from helper import conv_maxpool_norm, local_layer, softmax_layer
+from functools import reduce
 
 application = 'driver_augmented'
 log_dir = 'log'
@@ -56,13 +57,15 @@ n_input = reduce(int.__mul__, imshape)
 keep_prob = 0.80
 
 def combined_to_single_labels(original_label):
-  label2 = tf.cast(tf.div(original_label, [256]), tf.int32)
-  label1 = tf.sub(original_label, tf.mul(label2, [256]))
+  label2 = tf.cast(tf.div(original_label, 256), tf.int32)
+  label1 = tf.sub(original_label, tf.mul(label2, 256))
   
   return label1, label2
 
   
 #%%
+
+  
 def inference(images):
   conv1 = conv_maxpool_norm([3, 3, 3, 16], 2, images, 'conv1')
   conv2 = conv_maxpool_norm([5, 5, 16, 32], 2, conv1, 'conv2')
@@ -100,10 +103,22 @@ def loss(logits, labels):
   dual_loss = tf.add(loss1, loss2)
   
   # Calculate the average cross entropy loss across the batch.
+  tf.add_to_collection('original_loss', loss1)
+  tf.add_to_collection('additional_loss', loss2)
   tf.add_to_collection('losses', dual_loss)
 
   # The total loss is defined as the cross entropy loss plus all of the weight decay terms (L2 loss).
   return tf.add_n(tf.get_collection('losses'), name='total_loss')
+
+
+def classification_rate(model, images, labels):
+  # Build a Graph that computes the logits predictions from the inference model.
+  logits, _ = model.inference(images)
+  labels, _ = combined_to_single_labels(labels)
+
+  # Calculate predictions.
+  top_k_op = tf.nn.in_top_k(logits, labels, 1)
+  return top_k_op
   
 def distorted_inputs(reshaped_image):
   distorted_image = tf.random_crop(reshaped_image, [imsize, imsize, 3])

@@ -67,12 +67,7 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
 def evaluate():
   with tf.Graph().as_default() as g:
     images, labels = model.inputs('eval') 
-
-    # Build a Graph that computes the logits predictions from the inference model.
-    logits = model.inference(images)
-
-    # Calculate predictions.
-    top_k_op = tf.nn.in_top_k(logits, labels, 1)
+    top_k_op = application.classification_rate(model, images, labels)
 
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(application.moving_average_decay)

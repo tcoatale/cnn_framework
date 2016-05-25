@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 from helper import _activation_summary, _variable_with_weight_decay, _variable_on_cpu
+from functools import reduce
 
 application = 'cifar10'
 log_dir = 'log'
@@ -146,3 +147,10 @@ def distorted_inputs(reshaped_image):
   float_image = tf.image.per_image_whitening(distorted_image)
   
   return float_image
+  
+def classification_rate(model, images, labels):
+  # Build a Graph that computes the logits predictions from the inference model.
+  logits = model.inference(images)
+  # Calculate predictions.
+  top_k_op = tf.nn.in_top_k(logits, labels, 1)
+  return top_k_op

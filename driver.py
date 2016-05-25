@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 from helper import conv_maxpool_norm, local_layer, softmax_layer
+from functools import reduce
 
 application = 'driver'
 log_dir = 'log'
@@ -93,3 +94,10 @@ def distorted_inputs(reshaped_image):
   distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
   float_image = tf.image.per_image_whitening(distorted_image)
   return float_image
+  
+def classification_rate(model, images, labels):
+  # Build a Graph that computes the logits predictions from the inference model.
+  logits = model.inference(images)
+  # Calculate predictions.
+  top_k_op = tf.nn.in_top_k(logits, labels, 1)
+  return top_k_op
