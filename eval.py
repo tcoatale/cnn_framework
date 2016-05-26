@@ -14,14 +14,14 @@ import application_interface
 application = application_interface.get_application()
 
 #%%
-def eval_once(saver, summary_writer, top_k_op, summary_op):
+def eval_once(saver, summary_writer, summary_op, images, logits, loss_function):
   """Run Eval once.
   Args:
     saver: Saver.
     summary_writer: Summary writer.
     top_k_op: Top K op.
     summary_op: Summary op.
-  """
+  """    
   with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(application.ckpt_dir)
     if ckpt and ckpt.model_checkpoint_path:
@@ -44,14 +44,14 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
       total_sample_count = num_iter * application.batch_size
       step = 0
       while step < num_iter and not coord.should_stop():
-        predictions = sess.run([top_k_op])
-        true_count += np.sum(predictions)
+        images, loss = sess.run([images, loss_function])
+        true_count += np.sum(loss)
         step += 1
 
       # Compute precision @ 1.  with tf.Session() as sess:
 
       precision = true_count / total_sample_count
-      print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
+      print('%s: evaluation loss: %.8f' % (datetime.now(), precision))
 
       summary = tf.Summary()
       summary.ParseFromString(sess.run(summary_op))
@@ -67,8 +67,8 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
 def evaluate():
   with tf.Graph().as_default() as g:
     images, labels = model.inputs('eval') 
-    top_k_op = application.classification_rate(model, images, labels)
-
+    logits = model.inference(images)
+    loss_function = application.evaluation_loss(logits, labels)
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(application.moving_average_decay)
     variables_to_restore = variable_averages.variables_to_restore()
@@ -76,11 +76,10 @@ def evaluate():
 
     # Build the summary operation based on the TF collection of Summaries.
     summary_op = tf.merge_all_summaries()
-
     summary_writer = tf.train.SummaryWriter(application.eval_dir, g)
 
     while True:
-      eval_once(saver, summary_writer, top_k_op, summary_op)
+      eval_once(saver, summary_writer, summary_op, images, logits, loss_function)
       if application.run_once:
         break
       time.sleep(application.eval_interval_secs)

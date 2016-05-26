@@ -9,7 +9,7 @@ import time
 import numpy as np
 from six.moves import xrange
 import tensorflow as tf
-
+import pickle
 import model
 import application_interface
 application = application_interface.get_application()

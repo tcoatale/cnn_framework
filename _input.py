@@ -16,7 +16,7 @@ NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = application.train_size
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = application.valid_size
 
 
-def read_binary(filename_queue):
+def read_binary(filename_queue, label_size_exception=False):
   """Reads and parses examples from binary data files.
   Recommendation: if you want N-way read parallelism, call this function
   N times.  This will give you N independent Readers reading different
@@ -39,7 +39,7 @@ def read_binary(filename_queue):
     pass
   result = Record()
 
-  label_bytes = application.label_bytes
+  label_bytes = application.label_bytes if not label_size_exception else label_size_exception     
   result.height, result.width, result.depth = application.original_shape
   image_bytes = reduce(int.__mul__, application.original_shape)
   record_bytes = label_bytes + image_bytes
@@ -143,6 +143,7 @@ def inputs(data_type, data_dir, batch_size):
     images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
     labels: Labels. 1D tensor of [batch_size] size.
   """
+  label_size_exception = False
   if data_type == 'train':
     filenames = glob.glob(os.path.join(data_dir, 'data_batch_*'))
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
@@ -152,6 +153,7 @@ def inputs(data_type, data_dir, batch_size):
   else:
     filenames = glob.glob(os.path.join(data_dir, 'submission_batch*'))
     num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
+    label_size_exception = application.id_bytes
     
   for f in filenames:
     if not tf.gfile.Exists(f):
@@ -161,7 +163,7 @@ def inputs(data_type, data_dir, batch_size):
   filename_queue = tf.train.string_input_producer(filenames)
 
   # Read examples from files in the filename queue.
-  read_input = read_binary(filename_queue)
+  read_input = read_binary(filename_queue, label_size_exception)
   reshaped_image = tf.cast(read_input.uint8image, tf.float32)
 
   height = application.imsize
@@ -172,10 +174,10 @@ def inputs(data_type, data_dir, batch_size):
   resized_image = tf.image.resize_image_with_crop_or_pad(reshaped_image, width, height)
 
   # Subtract off the mean and divide by the variance of the pixels.
-  float_image = tf.image.per_image_whitening(resized_image)
+  #float_image = tf.image.per_image_whitening(resized_image)
 
   # Ensure that the random shuffling has good mixing properties.
   min_queue_examples = int(num_examples_per_epoch)
 
   # Generate a batch of images and labels by building up a queue of examples.
-  return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, batch_size, shuffle=False)
+  return _generate_image_and_label_batch(resized_image, read_input.label, min_queue_examples, batch_size, shuffle=False)

@@ -21,6 +21,7 @@ raw_dir = os.path.join(raw_dir, application)
 train_size=20000
 valid_size=2000
 label_bytes=2
+id_bytes = 4
 original_shape=[256, 256, 3]
 
 #%% Training information
@@ -31,7 +32,7 @@ num_submission = 2000
 display_freq=10
 summary_freq=100
 valid_freq=10
-save_freq=1000
+save_freq=10000
 
 #%%
 classes_1=2
@@ -109,6 +110,12 @@ def loss(logits, labels):
 
   # The total loss is defined as the cross entropy loss plus all of the weight decay terms (L2 loss).
   return tf.add_n(tf.get_collection('losses'), name='total_loss')
+  
+def evaluation_loss(logits, labels):
+  logits1, logits2 = logits
+  labels1, labels2 = combined_to_single_labels(labels)
+  loss1 = individual_loss(logits1, labels1)
+  return loss1
 
 
 def classification_rate(model, images, labels):
