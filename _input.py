@@ -174,10 +174,10 @@ def inputs(data_type, data_dir, batch_size):
   resized_image = tf.image.resize_image_with_crop_or_pad(reshaped_image, width, height)
 
   # Subtract off the mean and divide by the variance of the pixels.
-  #float_image = tf.image.per_image_whitening(resized_image)
+  float_image = tf.image.per_image_whitening(resized_image)
 
   # Ensure that the random shuffling has good mixing properties.
   min_queue_examples = int(num_examples_per_epoch)
 
   # Generate a batch of images and labels by building up a queue of examples.
-  return _generate_image_and_label_batch(resized_image, read_input.label, min_queue_examples, batch_size, shuffle=False)
+  return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, batch_size, shuffle=False)

@@ -104,8 +104,6 @@ def loss(logits, labels):
   dual_loss = tf.add(loss1, loss2)
   
   # Calculate the average cross entropy loss across the batch.
-  tf.add_to_collection('original_loss', loss1)
-  tf.add_to_collection('additional_loss', loss2)
   tf.add_to_collection('losses', dual_loss)
 
   # The total loss is defined as the cross entropy loss plus all of the weight decay terms (L2 loss).

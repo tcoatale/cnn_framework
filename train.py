@@ -43,8 +43,7 @@ def train():
     init = tf.initialize_all_variables()
 
     # Start running operations on the Graph.
-    sess = tf.Session(config=tf.ConfigProto(
-        log_device_placement=application.log_device_placement))
+    sess = tf.Session(config=tf.ConfigProto(log_device_placement=application.log_device_placement))
     sess.run(init)
 
     # Start the queue runners.
@@ -64,7 +63,7 @@ def train():
         examples_per_sec = num_examples_per_step / duration
         sec_per_batch = float(duration)
 
-        format_str = ('%s: step %d, loss = %.4f (%.1f examples/sec; %.3f sec/batch)')
+        format_str = ('%s: step %d, loss = %.8f (%.1f examples/sec; %.3f sec/batch)')
         print (format_str % (datetime.now(), step, loss_value, examples_per_sec, sec_per_batch))
 
       if step % application.summary_freq == 0:

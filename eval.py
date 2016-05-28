@@ -5,6 +5,7 @@ from __future__ import print_function
 from datetime import datetime
 import math
 import time
+import PIL
 
 import numpy as np
 import tensorflow as tf
@@ -27,7 +28,6 @@ def eval_once(saver, summary_writer, summary_op, images, logits, loss_function):
     if ckpt and ckpt.model_checkpoint_path:
       # Restores from checkpoint
       saver.restore(sess, ckpt.model_checkpoint_path)
-      global_step = ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1]
     else:
       print('No checkpoint file found')
       return
@@ -40,23 +40,21 @@ def eval_once(saver, summary_writer, summary_op, images, logits, loss_function):
         threads.extend(qr.create_threads(sess, coord=coord, daemon=True, start=True))
 
       num_iter = int(math.ceil(application.num_examples / application.batch_size))
-      true_count = 0  # Counts the number of correct predictions.
-      total_sample_count = num_iter * application.batch_size
       step = 0
+      losses = []
       while step < num_iter and not coord.should_stop():
-        images, loss = sess.run([images, loss_function])
-        true_count += np.sum(loss)
+        loss = sess.run([loss_function])
+        #image = images[0]
+        #image = image + np.min(image)
+        #image = image * 255 / np.max(image)
+        #im = PIL.Image.fromarray(np.uint8(image))
+        #im.show()
+        losses += [loss]
         step += 1
 
       # Compute precision @ 1.  with tf.Session() as sess:
-
-      precision = true_count / total_sample_count
-      print('%s: evaluation loss: %.8f' % (datetime.now(), precision))
-
-      summary = tf.Summary()
-      summary.ParseFromString(sess.run(summary_op))
-      summary.value.add(tag='Precision @ 1', simple_value=precision)
-      summary_writer.add_summary(summary, global_step)
+      average_loss = np.mean(losses)
+      print('%s: evaluation loss: %.8f' % (datetime.now(), average_loss))
     except Exception as e:  # pylint: disable=broad-except
       coord.request_stop(e)
 
