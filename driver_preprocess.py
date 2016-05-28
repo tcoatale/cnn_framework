@@ -75,7 +75,7 @@ def preprocess_data():
   write_in_chunks(train_filenames, 'data', True)
   
 def preprocess_submission_data():
-  filenames = glob.glob(os.path.join('raw/driver/test', '*'))[0:256]
+  filenames = glob.glob(os.path.join('raw/driver/test', '*'))
   chunks = [filenames[i:i+images_per_file] for i in range(0, len(filenames), images_per_file)]
   list(map(lambda i: write_submission_chunk(chunks, i), range(len(chunks))))
 
