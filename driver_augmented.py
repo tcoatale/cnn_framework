@@ -62,7 +62,6 @@ def combined_to_single_labels(original_label):
   label1 = tf.sub(original_label, tf.mul(label2, 256))
   
   return label1, label2
-
 #%%
 
 def inference(images):
@@ -92,7 +91,6 @@ def individual_loss(logits, labels):
 
   return cross_entropy_mean
 
-
 def loss(logits, labels):
   logits1, logits2 = logits
   labels1, labels2 = combined_to_single_labels(labels)
@@ -113,7 +111,6 @@ def evaluation_loss(logits, labels):
   labels1, labels2 = combined_to_single_labels(labels)
   loss1 = individual_loss(logits1, labels1)
   return loss1
-
 
 def classification_rate(model, images, labels):
   # Build a Graph that computes the logits predictions from the inference model.

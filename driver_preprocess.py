@@ -100,5 +100,5 @@ def write_submission_chunk(chunks, i):
 
 
 #%%
-preprocess_data()
-#preprocess_submission_data()
+#preprocess_data()
+preprocess_submission_data()
