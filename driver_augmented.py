@@ -32,7 +32,7 @@ num_submission = 2000
 display_freq=10
 summary_freq=100
 valid_freq=10
-save_freq=10000
+save_freq=5000
 
 #%%
 classes_1=2
@@ -55,7 +55,7 @@ log_device_placement=False
 
 #%%
 n_input = reduce(int.__mul__, imshape)
-keep_prob = 0.70
+keep_prob = 0.90
 
 def combined_to_single_labels(original_label):
   label2 = tf.cast(tf.div(original_label, 256), tf.int32)
@@ -69,10 +69,11 @@ def inference(images):
   conv2 = conv_maxpool_norm([5, 5], 32, 2, conv1, 'conv2')
   inception2 = inception([[5, 5], [7, 7], [3, 3], [1, 1]], 16, 2, conv2, 'inception_module1')  
   conv3 = conv_maxpool_norm([5, 5], 64, 2, inception2, 'conv3')
-  inception4 = inception([[3, 3], [5, 5]], 48, 2, conv3, 'inception_module2')  
+  dropout_layer1 = tf.nn.dropout(conv3, keep_prob)
+  inception4 = inception([[3, 3], [5, 5]], 48, 2, dropout_layer1, 'inception_module2')  
   conv4 = conv_maxpool_norm([5, 5], 96, 4, inception4, 'conv4')  
-  dropout_layer = tf.nn.dropout(conv4, keep_prob)
-  reshape = tf.reshape(dropout_layer, [batch_size, -1])
+  dropout_layer2 = tf.nn.dropout(conv4, keep_prob)
+  reshape = tf.reshape(dropout_layer2, [batch_size, -1])
   local51 = local_layer(384, reshape, 'local51')
   local61 = local_layer(192, local51, 'local61')
   softmax_linear1 = softmax_layer(classes_1, local61, 'softmax_layer1')
@@ -98,7 +99,7 @@ def loss(logits, labels):
   loss1 = individual_loss(logits1, labels1)
   loss2 = individual_loss(logits2, labels2)
   
-  dual_loss = tf.add(loss1, loss2)
+  dual_loss = tf.add(loss1, tf.mul(loss2, 0.5))
   
   # Calculate the average cross entropy loss across the batch.
   tf.add_to_collection('losses', dual_loss)
