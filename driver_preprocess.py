@@ -2,6 +2,7 @@ import os
 import glob
 import numpy as np
 import PIL
+import PIL.Image
 from random import shuffle
 from functools import reduce
 import struct
@@ -82,6 +83,7 @@ def four_bytes_label(label):
     return list(struct.unpack('4B', struct.pack('>I', label)))
   
 def write_submission_chunk(chunks, i):
+    print(i)
   labels = list(map(lambda filename: int(filename.split('/')[-1][4:-4]), chunks[i]))
   labels = list(map(four_bytes_label, labels))
   images = list(map(load_thumbnail, chunks[i]))
