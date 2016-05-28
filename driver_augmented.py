@@ -68,7 +68,7 @@ def combined_to_single_labels(original_label):
 def inference(images):
   conv1 = conv_maxpool_norm([3, 3], 16, 2, images, 'conv1')
   conv2 = conv_maxpool_norm([5, 5], 32, 2, conv1, 'conv2')
-  inception2 = inception([[5, 5], [3, 3], [1, 1]], 16, 2, conv2, 'inception_module1')  
+  inception2 = inception([[5, 5], [7, 7], [3, 3], [1, 1]], 16, 2, conv2, 'inception_module1')  
   conv3 = conv_maxpool_norm([5, 5], 64, 2, inception2, 'conv3')
   inception4 = inception([[3, 3], [5, 5]], 48, 2, conv3, 'inception_module2')  
   conv4 = conv_maxpool_norm([5, 5], 96, 4, inception4, 'conv4')  
