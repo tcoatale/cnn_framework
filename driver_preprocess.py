@@ -30,7 +30,7 @@ def get_labels(filenames):
     
 def get_augmented_labels(filenames):
     labels = get_labels(filenames)
-    augmentation = np.array(list(map(lambda l: [int(l in range(1, 5))], labels)), dtype=np.uint8)
+    augmentation = np.array(list(map(lambda l: [int(l in range(1, 4))], labels)), dtype=np.uint8)
     augmented_labels = np.hstack([labels, augmentation])
     return augmented_labels
     

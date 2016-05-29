@@ -25,7 +25,7 @@ id_bytes = 4
 original_shape=[256, 256, 3]
 
 #%% Training information
-batch_size=128
+batch_size=256
 max_steps=100000
 num_examples=2000
 num_submission = 2000 
