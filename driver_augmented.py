@@ -25,8 +25,8 @@ id_bytes = 4
 original_shape=[256, 256, 3]
 
 #%% Training information
-batch_size=256
-max_steps=100000
+batch_size=128
+max_steps=25000
 num_examples=2000
 num_submission = 2000 
 display_freq=10
@@ -55,7 +55,7 @@ log_device_placement=False
 
 #%%
 n_input = reduce(int.__mul__, imshape)
-keep_prob = 0.90
+keep_prob = 0.70
 
 def combined_to_single_labels(original_label):
   label2 = tf.cast(tf.div(original_label, 256), tf.int32)
@@ -65,14 +65,14 @@ def combined_to_single_labels(original_label):
 #%%
 
 def inference(images):
-  conv1 = conv_maxpool_norm([3, 3], 16, 2, images, 'conv1')
-  conv2 = conv_maxpool_norm([5, 5], 32, 2, conv1, 'conv2')
-  inception2 = inception([[5, 5], [7, 7], [3, 3], [1, 1]], 16, 2, conv2, 'inception_module1')  
+  conv1 = conv_maxpool_norm([2, 2], 16, 1, images, 'conv1')
+  inception2 = inception([[3, 3], [5, 5]], 16, 2, conv1, 'inception_module2')  
   conv3 = conv_maxpool_norm([5, 5], 64, 2, inception2, 'conv3')
-  dropout_layer1 = tf.nn.dropout(conv3, keep_prob)
-  inception4 = inception([[3, 3], [5, 5]], 48, 2, dropout_layer1, 'inception_module2')  
-  conv4 = conv_maxpool_norm([5, 5], 96, 4, inception4, 'conv4')  
-  dropout_layer2 = tf.nn.dropout(conv4, keep_prob)
+  inception4 = inception([[3, 3], [5, 5]], 48, 2, conv3, 'inception_module4')
+  conv5 = conv_maxpool_norm([5, 5], 96, 2, inception4, 'conv4')  
+  inception6 = inception([[3, 3], [5, 5]], 16, 2, conv5, 'inception_module6')
+  dropout_layer2 = tf.nn.dropout(inception6, keep_prob)
+  
   reshape = tf.reshape(dropout_layer2, [batch_size, -1])
   local51 = local_layer(384, reshape, 'local51')
   local61 = local_layer(192, local51, 'local61')

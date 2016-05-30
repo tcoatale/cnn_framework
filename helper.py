@@ -59,7 +59,12 @@ def conv2d(filter_shape, channels, input, name):
     biased_nonlinear_convolution = tf.nn.relu(biased_convolution, name=scope.name)
     
   return biased_nonlinear_convolution
-
+  
+def conv2d_11(filter_shape, channels, input, name):
+  conv11 = conv2d([1, 1], channels, input, name + '_11')
+  conv = conv2d(filter_shape, channels, conv11, name)
+  return conv
+  
 def conv_maxpool_norm(filter_shape, channels, stride, input, name):
   biased_nonlinear_convolution = conv2d(filter_shape, channels, input, name)
   _activation_summary(biased_nonlinear_convolution)
@@ -70,7 +75,7 @@ def conv_maxpool_norm(filter_shape, channels, stride, input, name):
 
 def inception(shapes, channels, stride, input, name):
   with tf.variable_scope(name) as scope:
-    convolutions = list(map(lambda shape: conv2d(shape, channels, input, scope.name + str(shape[0])), shapes))
+    convolutions = list(map(lambda shape: conv2d_11(shape, channels, input, scope.name + str(shape[0])), shapes))
     inception_module = tf.concat(3, convolutions, name=scope.name)
     _activation_summary(inception_module)
   pool = tf.nn.max_pool(inception_module, ksize=[1, stride + 1, stride + 1, 1], strides=[1, stride, stride, 1], padding='SAME', name=name + '_pool')

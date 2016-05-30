@@ -26,13 +26,13 @@ def load_thumbnail(f):
   return result
   
 def get_labels(filenames):
-    return np.array(list(map(lambda f: [int(f.split('/')[3][1])], filenames)), dtype=np.uint8)
+  return np.array(list(map(lambda f: [int(f.split('/')[3][1])], filenames)), dtype=np.uint8)
     
 def get_augmented_labels(filenames):
-    labels = get_labels(filenames)
-    augmentation = np.array(list(map(lambda l: [int(l in range(1, 4))], labels)), dtype=np.uint8)
-    augmented_labels = np.hstack([labels, augmentation])
-    return augmented_labels
+  labels = get_labels(filenames)
+  augmentation = np.array(list(map(lambda l: [int(l in range(1, 4))], labels)), dtype=np.uint8)
+  augmented_labels = np.hstack([labels, augmentation])
+  return augmented_labels
     
 def write_chunk(chunks, i, data_type, aug=False):
   print(data_type, '\t', 'chunk:', i)
@@ -102,5 +102,5 @@ def write_submission_chunk(chunks, i):
 
 
 #%%
-#preprocess_data()
+preprocess_data()
 preprocess_submission_data()

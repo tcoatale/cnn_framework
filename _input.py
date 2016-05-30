@@ -125,7 +125,7 @@ def distorted_inputs(data_dir, batch_size):
   float_image = application.distorted_inputs(reshaped_image)
 
   # Ensure that the random shuffling has good mixing properties.
-  min_fraction_of_examples_in_queue = 0.6
+  min_fraction_of_examples_in_queue = 0.8
   min_queue_examples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN * min_fraction_of_examples_in_queue)
   print ('Filling queue with %d images before starting to train. This will take a few minutes.' % min_queue_examples)
 
