@@ -1,6 +1,6 @@
 import tensorflow as tf
 import os
-from helper import conv_maxpool_norm, local_layer, softmax_layer, inception
+from helper import conv_maxpool_norm, local_layer, softmax_layer, inception, normalize
 from functools import reduce
 
 application = 'driver_augmented'
@@ -71,9 +71,13 @@ def inference(images):
   inception4 = inception([[3, 3], [5, 5]], 48, 2, conv3, 'inception_module4')
   conv5 = conv_maxpool_norm([5, 5], 96, 2, inception4, 'conv4')  
   inception6 = inception([[3, 3], [5, 5]], 16, 2, conv5, 'inception_module6')
-  dropout_layer2 = tf.nn.dropout(inception6, keep_prob)
+  conv6 = conv_maxpool_norm([5, 5], 96, 1, inception6, 'conv6')  
+  conv7 = conv_maxpool_norm([5, 5], 96, 1, conv6, 'conv7')  
+  conv8 = conv_maxpool_norm([5, 5], 96, 1, conv7, 'conv8')
+  residual9 = normalize(tf.add(conv6, conv8, name='residual9'), name='residual9_norm')
+  dropout_layer = tf.nn.dropout(residual9, keep_prob)
   
-  reshape = tf.reshape(dropout_layer2, [batch_size, -1])
+  reshape = tf.reshape(dropout_layer, [batch_size, -1])
   local51 = local_layer(384, reshape, 'local51')
   local61 = local_layer(192, local51, 'local61')
   softmax_linear1 = softmax_layer(classes_1, local61, 'softmax_layer1')

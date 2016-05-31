@@ -49,6 +49,9 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
   return var
 
 #%%
+def normalize(input, name):
+  return tf.nn.lrn(input, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name=name)
+
 def conv2d(filter_shape, channels, input, name):
   shape = filter_shape + [input.get_shape()[3]] + [channels]
   with tf.variable_scope(name) as scope:
@@ -69,9 +72,8 @@ def conv_maxpool_norm(filter_shape, channels, stride, input, name):
   biased_nonlinear_convolution = conv2d(filter_shape, channels, input, name)
   _activation_summary(biased_nonlinear_convolution)
   pool = tf.nn.max_pool(biased_nonlinear_convolution, ksize=[1, stride + 1, stride + 1, 1], strides=[1, stride, stride, 1], padding='SAME', name=name + '_pool')
-  norm = tf.nn.lrn(pool, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name=name + '_norm')
-  
-  return norm
+  normalized = normalize(input=pool, name=name + '_norm')
+  return normalized
 
 def inception(shapes, channels, stride, input, name):
   with tf.variable_scope(name) as scope:
@@ -79,7 +81,7 @@ def inception(shapes, channels, stride, input, name):
     inception_module = tf.concat(3, convolutions, name=scope.name)
     _activation_summary(inception_module)
   pool = tf.nn.max_pool(inception_module, ksize=[1, stride + 1, stride + 1, 1], strides=[1, stride, stride, 1], padding='SAME', name=name + '_pool')
-  normalized = tf.nn.lrn(pool, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name=name + '_norm')
+  normalized = normalize(input=pool, name=name + '_norm')
   return normalized
     
 #%%
