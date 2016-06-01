@@ -46,7 +46,7 @@ learning_rate_decay_factor=0.7
 initial_learning_rate=0.1
 
 #%% Evaluation information
-eval_interval_secs = 60 * 5
+eval_interval_secs = 60 * 60 * 3
 run_once=False
 
 #%% Read information
