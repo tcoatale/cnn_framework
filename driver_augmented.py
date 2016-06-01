@@ -47,7 +47,7 @@ initial_learning_rate=0.1
 
 #%% Evaluation information
 eval_interval_secs = 60 * 5
-run_once=True
+run_once=False
 
 #%% Read information
 eval_data='test' #Either test or train_eval
