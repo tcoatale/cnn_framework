@@ -9,7 +9,6 @@ import time
 import numpy as np
 from six.moves import xrange
 import tensorflow as tf
-import pickle
 import model
 import application_interface
 application = application_interface.get_application()
@@ -21,6 +20,7 @@ def train():
 
     # Get images and labels for dataset.
     images, labels = model.distorted_inputs()
+    tf.image_summary('images', images, max_images=128)
 
     # Build a Graph that computes the logits predictions from the
     # inference model.

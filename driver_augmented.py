@@ -26,13 +26,13 @@ original_shape=[256, 256, 3]
 
 #%% Training information
 batch_size=128
-max_steps=25000
+max_steps=100000
 num_examples=2000
 num_submission = 2000 
 display_freq=10
 summary_freq=100
 valid_freq=10
-save_freq=5000
+save_freq=1000
 
 #%%
 classes_1=2
@@ -41,7 +41,7 @@ classes=10
 imsize=192
 imshape=[192, 192, 3]
 moving_average_decay=0.9999
-num_epochs_per_decay=65.0
+num_epochs_per_decay=30.0
 learning_rate_decay_factor=0.7
 initial_learning_rate=0.1
 
