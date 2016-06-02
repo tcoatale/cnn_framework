@@ -20,7 +20,7 @@ def train():
 
     # Get images and labels for dataset.
     images, labels = model.distorted_inputs()
-    tf.image_summary('images', images, max_images=128)
+    #tf.image_summary('images', images, max_images=128)
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
