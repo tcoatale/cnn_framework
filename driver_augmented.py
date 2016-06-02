@@ -71,11 +71,25 @@ def inference(images):
   inception4 = inception([[3, 3], [5, 5]], 48, 2, conv3, 'inception_module4')
   conv5 = conv_maxpool_norm([5, 5], 96, 2, inception4, 'conv4')  
   inception6 = inception([[3, 3], [5, 5]], 16, 2, conv5, 'inception_module6')
-  conv6 = conv_maxpool_norm([5, 5], 96, 1, inception6, 'conv6')  
-  conv7 = conv_maxpool_norm([5, 5], 96, 1, conv6, 'conv7')  
-  conv8 = conv_maxpool_norm([5, 5], 96, 1, conv7, 'conv8')
+  conv6 = conv_maxpool_norm([3, 3], 96, 1, inception6, 'conv6')  
+  
+  conv7 = conv_maxpool_norm([3, 3], 96, 1, conv6, 'conv7')  
+  conv8 = conv_maxpool_norm([3, 3], 96, 1, conv7, 'conv8')
   residual9 = normalize(tf.add(conv6, conv8, name='residual9'), name='residual9_norm')
-  dropout_layer = tf.nn.dropout(residual9, keep_prob)
+  
+  conv10 = conv_maxpool_norm([5, 5], 96, 1, residual9, 'conv10')  
+  conv11 = conv_maxpool_norm([5, 5], 96, 1, conv10, 'conv11')  
+  residual12 = normalize(tf.add(conv11, conv8, name='residual12'), name='residual12' + '_norm')
+  
+  conv13 = conv_maxpool_norm([5, 5], 96, 1, residual12, 'conv13')  
+  conv14 = conv_maxpool_norm([5, 5], 96, 1, conv13, 'conv14')  
+  residual15 = normalize(tf.add(conv11, conv14, name='residual15'), name='residual15' + '_norm')
+  
+  conv16 = conv_maxpool_norm([5, 5], 96, 1, residual15, 'conv16')  
+  conv17 = conv_maxpool_norm([5, 5], 96, 1, conv16, 'conv17')  
+  residual18 = normalize(tf.add(conv17, conv14, name='residual18'), name='residual18' + '_norm')
+  
+  dropout_layer = tf.nn.dropout(residual18, keep_prob)
   
   reshape = tf.reshape(dropout_layer, [batch_size, -1])
   local51 = local_layer(384, reshape, 'local51')
