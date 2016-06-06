@@ -44,6 +44,8 @@ def submission():
     logits_loc += sess.run([logits])
     step += 1
     
+  print(step, num_iter)
+    
   df = pd.DataFrame(np.vstack([labels_loc, logits_loc]))
   df.to_csv('file.csv')
 
