@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import pylab
 import time
 import pandas as pd
-import cPickle as pickle
+import pickle
 import numpy as np
 import tensorflow as tf
 
