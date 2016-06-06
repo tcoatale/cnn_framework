@@ -3,11 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 import math
-import matplotlib.pyplot as plt
-import pylab
-import time
 import pandas as pd
-import pickle
 import numpy as np
 import tensorflow as tf
 
@@ -33,6 +29,7 @@ def submission():
   else:
     print('No checkpoint file found')
   return
+  print('Checkpoint restored.')
 
   num_iter = int(math.ceil(application.num_examples / application.batch_size))
   step = 0
@@ -43,9 +40,7 @@ def submission():
     labels_loc += sess.run([labels])
     logits_loc += sess.run([logits])
     step += 1
-    
-  print(step, num_iter)
-    
+        
   df = pd.DataFrame(np.vstack([labels_loc, logits_loc]))
   df.to_csv('file.csv')
 
