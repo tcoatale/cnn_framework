@@ -34,30 +34,17 @@ def submission():
       print('No checkpoint file found')
       return
 
-    # Start the queue runners.
-    coord = tf.train.Coordinator()
-    try:
-      threads = []
-      for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
-        threads.extend(qr.create_threads(sess, coord=coord, daemon=True, start=True))
+    num_iter = int(math.ceil(application.num_examples / application.batch_size))
+    step = 0
+    
+    while step < num_iter:
+      labels = sess.run([labels])
+      logits = sess.run([logits])
+    
+      print(labels[0])
+      print(logits[0])
+      break
 
-      num_iter = int(math.ceil(application.num_examples / application.batch_size))
-      step = 0
-      
-      while step < num_iter and not coord.should_stop():     
-        labels = sess.run([labels])
-        logits = sess.run([logits])
-        
-        print(labels[0])
-        print(logits[0])
-        break
-
-        
-    except Exception as e:  # pylint: disable=broad-except
-      coord.request_stop(e)
-
-    coord.request_stop()
-    coord.join(threads, stop_grace_period_secs=10)
 
 def main(argv=None):
   submission()
