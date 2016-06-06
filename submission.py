@@ -6,7 +6,8 @@ import math
 import matplotlib.pyplot as plt
 import pylab
 import time
-import pickle
+import pandas as pd
+import cPickle as pickle
 import numpy as np
 import tensorflow as tf
 
@@ -35,16 +36,16 @@ def submission():
 
   num_iter = int(math.ceil(application.num_examples / application.batch_size))
   step = 0
-
+  labels_loc = []
+  logits_loc = []
+  
   while step < num_iter:
-    labels_loc = sess.run([labels])
-    logits_loc = sess.run([logits])
-
-    print(labels_loc[0])
-    print(logits_loc[0])
+    labels_loc += sess.run([labels])
+    logits_loc += sess.run([logits])
     step += 1
-    break
-
+    
+  df = pd.DataFrame(np.vstack([labels_loc, logits_loc]))
+  df.to_csv('file.csv')
 
 def main(argv=None):
   submission()
