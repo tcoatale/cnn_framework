@@ -43,6 +43,7 @@ def submission():
     
       print(labels[0])
       print(logits[0])
+      step += 1
       break
 
 
