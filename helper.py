@@ -52,16 +52,55 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
 def normalize(input, name):
   return tf.nn.lrn(input, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name=name)
 
-def conv2d(filter_shape, channels, input, name):
+def conv2d(filter_shape, channels, input, name, stride=1):
   shape = filter_shape + [input.get_shape()[3]] + [channels]
   with tf.variable_scope(name) as scope:
     kernel = _variable_with_weight_decay('weights', shape=shape, stddev=1e-4, wd=0.0)
-    convolution = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
+    convolution = tf.nn.conv2d(input, kernel, [1, stride, stride, 1], padding='SAME')
     biases = _variable_on_cpu('biases', shape[3], tf.constant_initializer(0.0))
     biased_convolution = tf.nn.bias_add(convolution, biases)
     biased_nonlinear_convolution = tf.nn.relu(biased_convolution, name=scope.name)
     
   return biased_nonlinear_convolution
+
+def residual_inception(input, name):
+  channels = input.get_shape()[3].value
+  reduction1 = conv2d([1, 1], channels / 2, input, name + '_reduction1')
+  conv11 = conv2d([3, 3], channels, reduction1, name + '_conv11')
+  conv12 = conv2d([1, 1], channels / 2, conv11, name + '_conv12')
+  conv13 = conv2d([3, 3], 2 * channels, conv12, name + '_conv13')
+  
+  reduction2 = conv2d([1, 1], channels / 2, input, name + '_reduction2')
+  conv21 = conv2d([5, 5], channels, reduction2, name + '_conv21')
+  conv22 = conv2d([1, 1], channels / 2, conv21, name + 'conv22')
+  conv23 = conv2d([3, 3], 2 * channels, conv22, name + '_conv22')
+  
+  inception_module = tf.concat(3, [conv13, conv23], name + '_inception')
+  inception_reduction = conv2d([1, 1], channels, inception_module, name + '_inception_reduction')
+  
+  residual_normalized = normalize(tf.add(input, inception_reduction, name=name + '_residual'), name=name + '_residual_norm')
+  output= tf.nn.relu(residual_normalized, name=name)
+  
+  return output
+  
+def reduction(input, name):
+  channels = input.get_shape()[3].value
+  
+  conv0 = conv2d([1, 1], 2 * channels, input, name + '_conv0')
+  
+  conv_shield_1 = conv2d([1, 1], channels / 2, conv0, name + '_conv_shield_1')
+  conv1 = conv2d([3, 3], channels, conv_shield_1, name + '_conv1', stride=2)
+  
+  conv_shield_2 = conv2d([1, 1], channels / 2, conv0, name + '_conv_shield_2')  
+  conv2 = conv2d([5, 5], channels, conv_shield_2, name + '_conv2')
+  pool2 = tf.nn.max_pool(conv2, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name=name + '_pool2')
+  
+  concat3 = tf.concat(3, [conv1, pool2], name + '_concat3')
+  pool_conv0 = tf.nn.avg_pool(conv0, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name=name + '_pool0')  
+
+  residual_reduction = normalize(tf.add(pool_conv0, concat3, name=name + '_residual'), name=name + '_residual_norm')
+  output= tf.nn.relu(residual_reduction, name=name)
+  return output
   
 def conv2d_11(filter_shape, channels, input, name):
   conv11 = conv2d([1, 1], channels, input, name + '_11')
@@ -83,6 +122,18 @@ def inception(shapes, channels, stride, input, name):
   pool = tf.nn.max_pool(inception_module, ksize=[1, stride + 1, stride + 1, 1], strides=[1, stride, stride, 1], padding='SAME', name=name + '_pool')
   normalized = normalize(input=pool, name=name + '_norm')
   return normalized
+  
+#%%
+def average_pool_output(conv_shape, classes, input, name):
+  class_layer = conv2d(conv_shape, classes, input, name + '_conv')
+
+  width = input.get_shape()[1].value
+  height = input.get_shape()[2].value
+    
+  pool_layer = tf.nn.avg_pool(class_layer, ksize=[1, width, height, 1], strides=[1, width, height, 1], padding='VALID', name=name + '_pool')  
+  reshape = tf.reshape(pool_layer, [-1, classes])
+  output = softmax_layer(classes, reshape, name + '_softmax')
+  return output
     
 #%%
 def local_layer(units, input, name):

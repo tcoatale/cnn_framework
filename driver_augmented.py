@@ -1,7 +1,7 @@
 import tensorflow as tf
 import os
-from helper import conv_maxpool_norm, local_layer, softmax_layer, inception, normalize
 from functools import reduce
+from helper import residual_inception, reduction, local_layer, conv2d, softmax_layer, average_pool_output
 
 application = 'driver_augmented'
 log_dir = 'log'
@@ -25,7 +25,7 @@ id_bytes = 4
 original_shape=[256, 256, 3]
 
 #%% Training information
-batch_size=128
+batch_size=64
 max_steps=100000
 num_examples=2000
 num_submission = 2000 
@@ -65,41 +65,39 @@ def combined_to_single_labels(original_label):
 #%%
 
 def inference(images):
-  conv1 = conv_maxpool_norm([2, 2], 16, 1, images, 'conv1')
-  inception2 = inception([[3, 3], [5, 5]], 16, 2, conv1, 'inception_module2')  
-  conv3 = conv_maxpool_norm([5, 5], 64, 2, inception2, 'conv3')
-  inception4 = inception([[3, 3], [5, 5]], 48, 2, conv3, 'inception_module4')
-  conv5 = conv_maxpool_norm([5, 5], 96, 2, inception4, 'conv4')  
-  inception6 = inception([[3, 3], [5, 5]], 16, 2, conv5, 'inception_module6')
-  conv6 = conv_maxpool_norm([3, 3], 96, 1, inception6, 'conv6')  
+  conv1 = conv2d([7, 7], 24, images, 'conv1')
+  print(conv1.get_shape())
   
-  conv7 = conv_maxpool_norm([3, 3], 96, 1, conv6, 'conv7')  
-  conv8 = conv_maxpool_norm([3, 3], 96, 1, conv7, 'conv8')
-  residual9 = normalize(tf.add(conv6, conv8, name='residual9'), name='residual9_norm')
+  l2 = reduction(conv1, name='l2')
+  l3 = residual_inception(l2, name='l3')
+  l4 = residual_inception(l3, name='l4')
+  l5 = reduction(l4, name='l5')
+  l6 = residual_inception(l5, name='l6')
+  l7 = reduction(l6, name='l7')
+  l8 = residual_inception(l7, name='l8')
+  l9 = reduction(l8, name='l9')
+  l10 = residual_inception(l9, name='l10')
   
-  conv10 = conv_maxpool_norm([5, 5], 96, 1, residual9, 'conv10')  
-  conv11 = conv_maxpool_norm([5, 5], 96, 1, conv10, 'conv11')  
-  residual12 = normalize(tf.add(conv11, conv8, name='residual12'), name='residual12' + '_norm')
   
-  conv13 = conv_maxpool_norm([5, 5], 96, 1, residual12, 'conv13')  
-  conv14 = conv_maxpool_norm([5, 5], 96, 1, conv13, 'conv14')  
-  residual15 = normalize(tf.add(conv11, conv14, name='residual15'), name='residual15' + '_norm')
-  
-  conv16 = conv_maxpool_norm([5, 5], 96, 1, residual15, 'conv16')  
-  conv17 = conv_maxpool_norm([5, 5], 96, 1, conv16, 'conv17')  
-  residual18 = normalize(tf.add(conv17, conv14, name='residual18'), name='residual18' + '_norm')
-  
-  dropout_layer = tf.nn.dropout(residual18, keep_prob)
-  
-  reshape = tf.reshape(dropout_layer, [batch_size, -1])
-  local51 = local_layer(384, reshape, 'local51')
-  local61 = local_layer(192, local51, 'local61')
-  softmax_linear1 = softmax_layer(classes_1, local61, 'softmax_layer1')
-  
+  print(conv1.get_shape())
+  print(l2.get_shape())
+  print(l3.get_shape())
+  print(l4.get_shape())
+  print(l5.get_shape())
+  print(l6.get_shape())
+  print(l7.get_shape())
+  print(l8.get_shape())
+  print(l9.get_shape())
+  print(l10.get_shape())
+      
+  dropout_layer = tf.nn.dropout(l10, keep_prob)
+  softmax_linear1 = average_pool_output([1, 1], classes_1, dropout_layer, 'softmax_layer1')
+
+  reshape = tf.reshape(dropout_layer, [batch_size, -1])  
   concat = tf.concat(1, [reshape, softmax_linear1], name='concat')
-  local52 = local_layer(384, concat, 'local52')
-  local62 = local_layer(192, local52, 'local62')
-  softmax_linear2 = softmax_layer(classes, local62, 'softmax_layer2')
+
+  local10_2 = local_layer(192, concat, 'local10_2')
+  softmax_linear2 = softmax_layer(classes, local10_2, 'softmax_layer2')
   
   return softmax_linear1, softmax_linear2
 
@@ -117,18 +115,21 @@ def loss(logits, labels):
   loss1 = individual_loss(logits1, labels1)
   loss2 = individual_loss(logits2, labels2)
   
-  dual_loss = tf.add(loss1, tf.mul(loss2, 0.5))
+  dual_loss = tf.add(loss2, tf.mul(loss1, 0.5))
   
   # Calculate the average cross entropy loss across the batch.
-  tf.add_to_collection('losses', dual_loss)
+  #tf.add_to_collection('losses', dual_loss)
 
   # The total loss is defined as the cross entropy loss plus all of the weight decay terms (L2 loss).
-  return tf.add_n(tf.get_collection('losses'), name='total_loss')
+  #return tf.add_n(tf.get_collection('losses'), name='total_loss')
+
+  tf.add_to_collection('total_loss', dual_loss)
+  return dual_loss
   
 def evaluation_loss(logits, labels):
   logits1, logits2 = logits
   labels1, labels2 = combined_to_single_labels(labels)
-  loss1 = individual_loss(logits1, labels1)
+  loss1 = individual_loss(logits2, labels2)
   return loss1
 
 def classification_rate(model, images, labels):

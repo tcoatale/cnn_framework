@@ -5,7 +5,7 @@ from __future__ import print_function
 from datetime import datetime
 import math
 import time
-import PIL
+import PIL.Image
 
 import numpy as np
 import tensorflow as tf
@@ -43,7 +43,7 @@ def eval_once(saver, summary_writer, summary_op, images, logits, loss_function):
       step = 0
       losses = []
       while step < num_iter and not coord.should_stop():
-        loss = sess.run([loss_function])
+        preds, loss = sess.run([logits, loss_function])
         #image = images[0]
         #image = image + np.min(image)
         #image = image * 255 / np.max(image)
@@ -65,8 +65,8 @@ def eval_once(saver, summary_writer, summary_op, images, logits, loss_function):
 def evaluate():
   with tf.Graph().as_default() as g:
     images, labels = model.inputs('eval') 
-    logits = model.inference(images)
-    loss_function = application.evaluation_loss(logits, labels)
+    logits1, logits = model.inference(images)
+    loss_function = application.evaluation_loss((logits1, logits), labels)
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(application.moving_average_decay)
     variables_to_restore = variable_averages.variables_to_restore()
