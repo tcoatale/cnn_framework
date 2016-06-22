@@ -1,7 +1,7 @@
 import tensorflow as tf
 import os
 from functools import reduce
-from helper import residual_inception, reduction, local_layer, conv2d, softmax_layer, average_pool_output
+from helper import residual_inception, reduction, local_layer, conv2d, softmax_layer, average_pool_output, alexnet
 
 application = 'driver_augmented'
 log_dir = 'log'
@@ -65,41 +65,9 @@ def combined_to_single_labels(original_label):
 #%%
 
 def inference(images):
-  conv1 = conv2d([7, 7], 24, images, 'conv1')
-  print(conv1.get_shape())
-  
-  l2 = reduction(conv1, name='l2')
-  l3 = residual_inception(l2, name='l3')
-  l4 = residual_inception(l3, name='l4')
-  l5 = reduction(l4, name='l5')
-  l6 = residual_inception(l5, name='l6')
-  l7 = reduction(l6, name='l7')
-  l8 = residual_inception(l7, name='l8')
-  l9 = reduction(l8, name='l9')
-  l10 = residual_inception(l9, name='l10')
-  
-  
-  print(conv1.get_shape())
-  print(l2.get_shape())
-  print(l3.get_shape())
-  print(l4.get_shape())
-  print(l5.get_shape())
-  print(l6.get_shape())
-  print(l7.get_shape())
-  print(l8.get_shape())
-  print(l9.get_shape())
-  print(l10.get_shape())
-      
-  dropout_layer = tf.nn.dropout(l10, keep_prob)
-  softmax_linear1 = average_pool_output([1, 1], classes_1, dropout_layer, 'softmax_layer1')
-
-  reshape = tf.reshape(dropout_layer, [batch_size, -1])  
-  concat = tf.concat(1, [reshape, softmax_linear1], name='concat')
-
-  local10_2 = local_layer(192, concat, 'local10_2')
-  softmax_linear2 = softmax_layer(classes, local10_2, 'softmax_layer2')
-  
-  return softmax_linear1, softmax_linear2
+  softmax_linear2 = alexnet(images, keep_prob, batch_size, classes)
+  #return softmax_linear1, softmax_linear2
+  return softmax_linear2
 
 def individual_loss(logits, labels):
   labels = tf.cast(labels, tf.int64)
@@ -109,14 +77,17 @@ def individual_loss(logits, labels):
   return cross_entropy_mean
 
 def loss(logits, labels):
+  '''
   logits1, logits2 = logits
-  labels1, labels2 = combined_to_single_labels(labels)
   
   loss1 = individual_loss(logits1, labels1)
   loss2 = individual_loss(logits2, labels2)
   
   dual_loss = tf.add(loss2, tf.mul(loss1, 0.5))
-  
+  '''
+  labels1, labels2 = combined_to_single_labels(labels)
+  dual_loss = individual_loss(logits, labels2)
+
   # Calculate the average cross entropy loss across the batch.
   #tf.add_to_collection('losses', dual_loss)
 

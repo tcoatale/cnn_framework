@@ -1,6 +1,6 @@
 import tensorflow as tf
 import os
-from helper import conv_maxpool_norm, local_layer, softmax_layer
+from helper import alexnet
 from functools import reduce
 
 application = 'driver'
@@ -56,18 +56,7 @@ keep_prob = 0.80
   
 #%%
 def inference(images):
-  conv1 = conv_maxpool_norm([3, 3, 3, 16], 2, images, 'conv1')
-  conv2 = conv_maxpool_norm([5, 5, 16, 32], 2, conv1, 'conv2')
-  conv3 = conv_maxpool_norm([5, 5, 32, 64], 2, conv2, 'conv3')
-  conv4 = conv_maxpool_norm([5, 5, 64, 96], 4, conv3, 'conv4')
-    
-  
-  dropout_layer = tf.nn.dropout(conv4, keep_prob)
-  reshape = tf.reshape(dropout_layer, [batch_size, -1])
-  local5 = local_layer(384, reshape, 'local5')
-  local6 = local_layer(192, local5, 'local6')
-  softmax_linear = softmax_layer(classes, local6, 'softmax_layer')
-  return softmax_linear
+  return alexnet(images, keep_prob, batch_size, classes)
 
 def loss(logits, labels):
   """Add L2Loss to all the trainable variables.

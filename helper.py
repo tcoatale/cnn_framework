@@ -148,6 +148,25 @@ def local_layer(units, input, name):
   return local4
 
 #%%
+def alexnet(input, keep_prob, batch_size, classes):
+    conv1 = conv2d([11, 11], 96, input, 'conv1', stride=4)
+    pool2 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
+    conv3 = conv2d([5, 5], 256, pool2, 'conv3')
+    pool4 = tf.nn.max_pool(conv3, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool4')
+    conv5 = conv2d([3, 3], 384, pool4, 'conv5')
+    conv6 = conv2d([3, 3], 384, conv5, 'conv6')
+    conv7 = conv2d([3, 3], 256, conv6, 'conv7')
+    pool8 = tf.nn.max_pool(conv7, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool8')
+  
+    dropout_layer = tf.nn.dropout(pool8, keep_prob)
+    reshape = tf.reshape(dropout_layer, [batch_size, -1])  
+    local9 = local_layer(2048, reshape, 'local9')
+    local10 = local_layer(2048, local9, 'local10')
+    softmax_linear = softmax_layer(classes, local10, 'softmax_layer')
+    
+    return softmax_linear
+
+#%%
 def softmax_layer(units, input, name) :
   with tf.variable_scope(name) as scope:
     dim = input.get_shape()[1].value
