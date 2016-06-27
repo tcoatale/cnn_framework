@@ -67,8 +67,8 @@ def alexnet(input, keep_prob, batch_size, classes):
     dropout_layer = tf.nn.dropout(pool8, keep_prob)
     reshape = tf.reshape(dropout_layer, [batch_size, -1])
     
-    local9 = local_layer(256, reshape, 'local9')
-    local10 = local_layer(256, local9, 'local10')
+    local9 = local_layer(2048, reshape, 'local9')
+    local10 = local_layer(2048, local9, 'local10')
     softmax_linear = softmax_layer(classes, local10, 'softmax_layer')
     
     return softmax_linear
@@ -99,8 +99,8 @@ def vggnet(input, keep_prob, batch_size, classes):
     dropout_layer = tf.nn.dropout(pool15, keep_prob)
     reshape = tf.reshape(dropout_layer, [batch_size, -1])
     
-    local9 = local_layer(2048, reshape, 'local9')
-    local10 = local_layer(2048, local9, 'local10')
+    local9 = local_layer(256, reshape, 'local9')
+    local10 = local_layer(256, local9, 'local10')
     softmax_linear = softmax_layer(classes, local10, 'softmax_layer')
     
     return softmax_linear
