@@ -65,6 +65,8 @@ def combined_to_single_labels(original_label):
 #%%
 
 def inference(images):
+  tf.image_summary('images', images)
+
   softmax_linear2 = vggnet(images, keep_prob, batch_size, classes)
   #return softmax_linear1, softmax_linear2
   return softmax_linear2
@@ -121,5 +123,4 @@ def distorted_inputs(reshaped_image):
   resized_image = tf.image.resize_image_with_crop_or_pad(reshaped_image, width, height)
   float_image = tf.image.per_image_whitening(resized_image)
   
-  tf.image_summary('images', float_image)
   return float_image
