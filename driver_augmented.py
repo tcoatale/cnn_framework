@@ -113,8 +113,8 @@ def classification_rate(model, images, labels):
   return top_k_op
   
 def distorted_inputs(reshaped_image):
-  distorted_image = tf.random_crop(reshaped_image, [imsize, imsize, 3])
-  distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
-  distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
-  float_image = tf.image.per_image_whitening(distorted_image)
+  #distorted_image = tf.random_crop(reshaped_image, [imsize, imsize, 3])
+  #distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
+  #distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
+  float_image = tf.image.per_image_whitening(reshaped_image)
   return float_image
