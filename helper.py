@@ -92,8 +92,7 @@ def vggnet(input, keep_prob, batch_size, classes):
     conv12 = conv2d([3, 3], 128, conv11, 'conv12')
     pool12 = tf.nn.max_pool(conv12, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool12')
 
-    conv14 = conv2d([3, 3], 128, pool12, 'conv14')
-    conv15 = conv2d([3, 3], 256, conv14, 'conv15')
+    conv15 = conv2d([3, 3], 256, pool12, 'conv15')
     pool15 = tf.nn.max_pool(conv15, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool15')
     
     dropout_layer = tf.nn.dropout(pool15, keep_prob)
