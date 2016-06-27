@@ -65,8 +65,8 @@ def eval_once(saver, summary_writer, summary_op, images, logits, loss_function):
 def evaluate():
   with tf.Graph().as_default() as g:
     images, labels = model.inputs('eval') 
-    logits1, logits = model.inference(images)
-    loss_function = application.evaluation_loss((logits1, logits), labels)
+    logits = model.inference(images)
+    loss_function = application.loss(logits, labels)
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(application.moving_average_decay)
     variables_to_restore = variable_averages.variables_to_restore()
