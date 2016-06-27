@@ -88,13 +88,11 @@ def vggnet(input, keep_prob, batch_size, classes):
     conv9 = conv2d([1, 1], 128, conv8, 'conv9')
     pool9 = tf.nn.max_pool(conv9, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool9')
 
-    conv10 = conv2d([3, 3], 128, pool9, 'conv10')
-    conv11 = conv2d([3, 3], 128, conv10, 'conv11')
+    conv11 = conv2d([3, 3], 128, pool9, 'conv11')
     conv12 = conv2d([3, 3], 128, conv11, 'conv12')
     pool12 = tf.nn.max_pool(conv12, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool12')
 
-    conv13 = conv2d([3, 3], 256, pool12, 'conv13')
-    conv14 = conv2d([3, 3], 256, conv13, 'conv14')
+    conv14 = conv2d([3, 3], 256, pool12, 'conv14')
     conv15 = conv2d([3, 3], 256, conv14, 'conv15')
     pool15 = tf.nn.max_pool(conv15, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool15')
     
