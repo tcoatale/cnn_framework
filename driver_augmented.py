@@ -1,7 +1,7 @@
 import tensorflow as tf
 import os
 from functools import reduce
-from helper import residual_inception, reduction, local_layer, conv2d, softmax_layer, average_pool_output, alexnet
+from helper import alexnet, vggnet
 
 application = 'driver_augmented'
 log_dir = 'log'
@@ -25,7 +25,7 @@ id_bytes = 4
 original_shape=[256, 256, 3]
 
 #%% Training information
-batch_size=64
+batch_size=128
 max_steps=100000
 num_examples=2000
 num_submission = 2000 
@@ -55,7 +55,7 @@ log_device_placement=False
 
 #%%
 n_input = reduce(int.__mul__, imshape)
-keep_prob = 0.70
+keep_prob = 0.7
 
 def combined_to_single_labels(original_label):
   label2 = tf.cast(tf.div(original_label, 256), tf.int32)
@@ -65,7 +65,7 @@ def combined_to_single_labels(original_label):
 #%%
 
 def inference(images):
-  softmax_linear2 = alexnet(images, keep_prob, batch_size, classes)
+  softmax_linear2 = vggnet(images, keep_prob, batch_size, classes)
   #return softmax_linear1, softmax_linear2
   return softmax_linear2
 
