@@ -65,7 +65,7 @@ def combined_to_single_labels(original_label):
 #%%
 
 def inference(images):
-  tf.image_summary('images', images)
+  #tf.image_summary('images', images)
 
   softmax_linear2 = vggnet(images, keep_prob, batch_size, classes)
   #return softmax_linear1, softmax_linear2
