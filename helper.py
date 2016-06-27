@@ -80,9 +80,7 @@ def vggnet(input, keep_prob, batch_size, classes):
     conv3 = conv2d([1, 1], 64, conv2, 'conv3')
     pool3 = tf.nn.max_pool(conv3, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
 
-    conv4 = conv2d([3, 3], 64, pool3, 'conv4')
-    conv5 = conv2d([3, 3], 64, conv4, 'conv5')
-    conv6 = conv2d([1, 1], 64, conv5, 'conv6')
+    conv6 = conv2d([1, 1], 64, pool3, 'conv6')
     pool6 = tf.nn.max_pool(conv6, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool6')
 
     conv7 = conv2d([3, 3], 128, pool6, 'conv7')
