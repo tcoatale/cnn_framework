@@ -1,7 +1,8 @@
 import tensorflow as tf
 import os
 from functools import reduce
-from helper import alexnet, vggnet
+import datetime
+from helper import alexnet, vggnet, resnet, inception_resnet
 
 application = 'driver_augmented'
 log_dir = 'log'
@@ -11,9 +12,17 @@ data_dir = 'data'
 raw_dir = 'raw'
 
 #%% Directories
-log_dir = os.path.join(log_dir, application)
-eval_dir = os.path.join(eval_dir, application)
-ckpt_dir = os.path.join(ckpt_dir, application)
+def date_to_suffix(date):
+    return '-'.join(list(map(str, [date.year, date.month, date.day, date.hour, date.minute, date.second])))
+
+suffix = date_to_suffix(datetime.datetime.now())
+
+log_dir = os.path.join(log_dir, application, suffix)
+eval_dir = os.path.join(eval_dir, application, suffix)
+ckpt_dir = os.path.join(ckpt_dir, application, suffix)
+
+list(map(os.mkdir, [log_dir, eval_dir, ckpt_dir]))
+
 data_dir = os.path.join(data_dir, application)
 raw_dir = os.path.join(raw_dir, application)
 
@@ -25,12 +34,12 @@ id_bytes = 4
 original_shape=[256, 256, 3]
 
 #%% Training information
-batch_size=128
+batch_size=64
 max_steps=100000
 num_examples=2000
 num_submission = 2000 
 display_freq=10
-summary_freq=100
+summary_freq=50
 valid_freq=10
 save_freq=1000
 
@@ -41,9 +50,9 @@ classes=10
 imsize=192
 imshape=[192, 192, 3]
 moving_average_decay=0.9999
-num_epochs_per_decay=30.0
+num_epochs_per_decay=1.0
 learning_rate_decay_factor=0.7
-initial_learning_rate=0.1
+initial_learning_rate=0.05
 
 #%% Evaluation information
 eval_interval_secs = 60 * 30
@@ -67,7 +76,8 @@ def combined_to_single_labels(original_label):
 def inference(images):
   #tf.image_summary('images', images)
 
-  softmax_linear2 = vggnet(images, keep_prob, batch_size, classes)
+  softmax_linear2 = inception_resnet(images, classes)
+  #softmax_linear2 = vggnet(images, keep_prob, batch_size, classes)
   #return softmax_linear1, softmax_linear2
   return softmax_linear2
 
@@ -89,15 +99,8 @@ def loss(logits, labels):
   '''
   labels1, labels2 = combined_to_single_labels(labels)
   dual_loss = individual_loss(logits, labels2)
-
-  # Calculate the average cross entropy loss across the batch.
-  #tf.add_to_collection('losses', dual_loss)
-
-  # The total loss is defined as the cross entropy loss plus all of the weight decay terms (L2 loss).
-  #return tf.add_n(tf.get_collection('losses'), name='total_loss')
-
-  tf.add_to_collection('total_loss', dual_loss)
-  return dual_loss
+  tf.add_to_collection('losses', dual_loss)
+  return tf.add_n(tf.get_collection('losses'), name='total_loss')
   
 def evaluation_loss(logits, labels):
   logits1, logits2 = logits
@@ -115,12 +118,8 @@ def classification_rate(model, images, labels):
   return top_k_op
   
 def distorted_inputs(reshaped_image):
-  #distorted_image = tf.random_crop(reshaped_image, [imsize, imsize, 3])
-  #distorted_image = tf.image.random_brightness(distorted_image, max_delta=63)
-  #distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
-  height = imsize
-  width = imsize
-  resized_image = tf.image.resize_image_with_crop_or_pad(reshaped_image, width, height)
-  float_image = tf.image.per_image_whitening(resized_image)
-  
+  distorted_image = tf.random_crop(reshaped_image, [imsize, imsize, 3])
+  distorted_image = tf.image.random_brightness(distorted_image, max_delta=100)
+  distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
+  float_image = tf.image.per_image_whitening(distorted_image)
   return float_image

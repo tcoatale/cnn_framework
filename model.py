@@ -79,9 +79,8 @@ def _add_loss_summaries(total_loss):
   # Attach a scalar summary to all individual losses and the total loss; do the
   # same for the averaged version of the losses.
   for l in losses + [total_loss]:
-    # Name each loss as '(raw)' and name the moving average version of the loss
-    # as the original loss name.
-    tf.scalar_summary(l.op.name +' (raw)', l)
+    # Name each loss as '(raw)' and name the moving average version of the loss as the original loss name.
+    # tf.scalar_summary(l.op.name +' (raw)', l)
     tf.scalar_summary(l.op.name, loss_averages.average(l))
 
   return loss_averages_op
