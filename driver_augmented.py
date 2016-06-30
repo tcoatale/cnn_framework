@@ -50,7 +50,7 @@ classes=10
 imsize=192
 imshape=[192, 192, 3]
 moving_average_decay=0.9999
-num_epochs_per_decay=1.0
+num_epochs_per_decay=5.0
 learning_rate_decay_factor=0.7
 initial_learning_rate=0.05
 
@@ -76,7 +76,7 @@ def combined_to_single_labels(original_label):
 def inference(images):
   #tf.image_summary('images', images)
 
-  softmax_linear2 = inception_resnet(images, classes)
+  softmax_linear2 = inception_resnet(images, keep_prob, classes)
   #softmax_linear2 = vggnet(images, keep_prob, batch_size, classes)
   #return softmax_linear1, softmax_linear2
   return softmax_linear2
@@ -119,7 +119,7 @@ def classification_rate(model, images, labels):
   
 def distorted_inputs(reshaped_image):
   distorted_image = tf.random_crop(reshaped_image, [imsize, imsize, 3])
-  distorted_image = tf.image.random_brightness(distorted_image, max_delta=100)
-  distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=1.8)
+  distorted_image = tf.image.random_brightness(distorted_image, max_delta=200)
+  distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=3.8)
   float_image = tf.image.per_image_whitening(distorted_image)
   return float_image

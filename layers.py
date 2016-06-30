@@ -129,7 +129,8 @@ def average_pool_output(conv_shape, classes, input, name):
   width = input.get_shape()[1].value
   height = input.get_shape()[2].value
   
-  pool_layer = tf.nn.avg_pool(class_layer, ksize=[1, width, height, 1], strides=[1, width, height, 1], padding='VALID', name=name + '_pool')  
+  pool_layer = tf.nn.avg_pool(class_layer, ksize=[1, width, height, 1], strides=[1, width, height, 1], padding='VALID', name=name + '_pool')
+  
   reshape = tf.reshape(pool_layer, [-1, classes])
   output = softmax_layer(classes, reshape, name + '_softmax')
   return output
