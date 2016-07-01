@@ -4,7 +4,7 @@ from layers import conv2d, local_layer, softmax_layer, res_block, red_block, inc
   
 #%%
 def inception_resnet(input, keep_prob, classes):
-  conv0 = conv2d([7, 7], 64, input, 'conv0', stride=2)
+  conv0 = conv2d([7, 7], 16, input, 'conv0', stride=2)
   pool0 = tf.nn.avg_pool(conv0, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool0')
 
   inception_res_block1 = inception_res_block(pool0, 'inception_res_block1')
