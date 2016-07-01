@@ -64,7 +64,7 @@ log_device_placement=False
 
 #%%
 n_input = reduce(int.__mul__, imshape)
-keep_prob = 0.7
+keep_prob = 1.0
 
 def combined_to_single_labels(original_label):
   label2 = tf.cast(tf.div(original_label, 256), tf.int32)
