@@ -123,14 +123,20 @@ def red_block(input, name):
   conv = conv2d([1, 1], 2 * channels, pool, name=name+'_conv')
   return conv
 
-def average_pool_output(conv_shape, classes, input, name):
-  class_layer = conv2d(conv_shape, classes, input, name + '_conv')
-
+def average_pool_vector(conv_shape, outputs, input, name):
+  outputs_layer = conv2d(conv_shape, outputs, input, name + '_conv')
   width = input.get_shape()[1].value
   height = input.get_shape()[2].value
   
-  pool_layer = tf.nn.avg_pool(class_layer, ksize=[1, width, height, 1], strides=[1, width, height, 1], padding='VALID', name=name + '_pool')
+  pool_layer = tf.nn.avg_pool(outputs_layer, ksize=[1, width, height, 1], strides=[1, width, height, 1], padding='VALID', name=name + '_pool')
+  reshape = tf.reshape(pool_layer, [-1, outputs])
   
-  reshape = tf.reshape(pool_layer, [-1, classes])
-  output = softmax_layer(classes, reshape, name + '_softmax')
+  return reshape
+
+def average_pool_output(conv_shape, classes, input, name):
+  activations = average_pool_vector(conv_shape, classes, input, name)
+  output = softmax_layer(classes, activations, name + '_softmax')
   return output
+  
+
+

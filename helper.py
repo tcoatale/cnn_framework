@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from layers import conv2d, local_layer, softmax_layer, res_block, red_block, inception_res_block, average_pool_output
+from layers import conv2d, local_layer, softmax_layer, res_block, red_block, inception_res_block, average_pool_output, average_pool_vector
   
 #%%
 def inception_resnet(input, keep_prob, classes):
@@ -31,7 +31,8 @@ def inception_resnet(input, keep_prob, classes):
   inception_res_block16 = inception_res_block(inception_res_block15, 'inception_res_block16')
   
   dropout_layer = tf.nn.dropout(inception_res_block16, keep_prob)
-  output = average_pool_output([3, 3], classes, dropout_layer, 'output_layer')
+  average_pool1 = average_pool_vector([1, 1], classes ** 2, dropout_layer, 'average_pool1')
+  output = softmax_layer(classes, average_pool1, 'softmax_layer')
   
   return output
 
