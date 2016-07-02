@@ -76,13 +76,12 @@ def combined_to_single_labels(original_label):
   return label1, label2
 #%%
 
-def inference(images):
-  #tf.image_summary('images', images)
-
-  softmax_linear2 = inception_resnet(images, keep_prob, classes)
-  #softmax_linear2 = vggnet(images, keep_prob, batch_size, classes)
-  #return softmax_linear1, softmax_linear2
-  return softmax_linear2
+def inference(input):
+  output = inception_resnet(input, keep_prob, classes)
+  #output = resnet(input, keep_prob, classes)
+  #output = alexnet(input, keep_prob, batch_size, classes)
+  #output = vggnet(input, keep_prob, batch_size, classes)
+  return output
 
 def individual_loss(logits, labels):
   labels = tf.cast(labels, tf.int64)
