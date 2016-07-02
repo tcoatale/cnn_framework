@@ -36,16 +36,6 @@ import _input
 import application_interface
 application = application_interface.get_application()
 
-# Global constants describing the CIFAR-10 data set.
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = application.train_size
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = application.valid_size
-
-# Constants describing the training process.
-MOVING_AVERAGE_DECAY = application.moving_average_decay
-NUM_EPOCHS_PER_DECAY = application.num_epochs_per_decay
-LEARNING_RATE_DECAY_FACTOR = application.learning_rate_decay_factor
-INITIAL_LEARNING_RATE = application.initial_learning_rate
-
 # If a model is trained with multiple GPUs, prefix all Op names with tower_name
 # to differentiate the operations. Note that this prefix is removed from the
 # names of the summaries when visualizing a model.
@@ -103,14 +93,14 @@ def train(total_loss, global_step):
     train_op: op for training.
   """
   # Variables that affect learning rate.
-  num_batches_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN / application.batch_size
-  decay_steps = int(num_batches_per_epoch * NUM_EPOCHS_PER_DECAY)
+  num_batches_per_epoch = application.train_size / application.batch_size
+  decay_steps = int(num_batches_per_epoch * application.num_epochs_per_decay)
 
   # Decay the learning rate exponentially based on the number of steps.
-  lr = tf.train.exponential_decay(INITIAL_LEARNING_RATE,
+  lr = tf.train.exponential_decay(application.initial_learning_rate,
                                   global_step,
                                   decay_steps,
-                                  LEARNING_RATE_DECAY_FACTOR,
+                                  application.learning_rate_decay_factor,
                                   staircase=True)
   tf.scalar_summary('learning_rate', lr)
 
@@ -135,7 +125,7 @@ def train(total_loss, global_step):
       tf.histogram_summary(var.op.name + '/gradients', grad)
 
   # Track the moving averages of all trainable variables.
-  variable_averages = tf.train.ExponentialMovingAverage(MOVING_AVERAGE_DECAY, global_step)
+  variable_averages = tf.train.ExponentialMovingAverage(application.moving_average_decay, global_step)
   variables_averages_op = variable_averages.apply(tf.trainable_variables())
 
   with tf.control_dependencies([apply_gradient_op, variables_averages_op]):
