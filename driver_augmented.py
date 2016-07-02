@@ -55,7 +55,7 @@ imshape=[192, 192, 3]
 moving_average_decay=0.9999
 num_epochs_per_decay=5.0
 learning_rate_decay_factor=0.7
-initial_learning_rate=0.05
+initial_learning_rate=0.01
 
 #%% Evaluation information
 eval_interval_secs = 60 * 30

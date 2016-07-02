@@ -68,7 +68,7 @@ def train():
         print (format_str % (datetime.now(), step, loss_value, examples_per_sec, sec_per_batch))
 
       if step % application.eval_freq == 0:
-        eval_loss_value = sess.run([eval_loss])
+        eval_loss_value = sess.run([eval_loss])[0]
         format_str = ('%s \tEvaluation: step %d, loss = %.8f')
         print (format_str % (datetime.now(), step, eval_loss_value))
 

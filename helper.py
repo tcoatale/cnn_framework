@@ -32,9 +32,8 @@ def inception_resnet(input, keep_prob, classes):
   
   dropout_layer = tf.nn.dropout(inception_res_block16, keep_prob)
   average_pool1 = average_pool_vector([1, 1], classes ** 2, dropout_layer, 'average_pool1')
-  output = softmax_layer(classes, average_pool1, 'softmax_layer')
   
-  return output
+  return average_pool1
 
 #%%
 def resnet(input, keep_prob, classes):
@@ -65,9 +64,9 @@ def resnet(input, keep_prob, classes):
   res_block16 = res_block(res_block15, 'res_block16')
   
   dropout_layer = tf.nn.dropout(res_block16, keep_prob)  
-  output = average_pool_output([3, 3], classes, dropout_layer, 'output_layer')
+  average_pool1 = average_pool_vector([1, 1], classes ** 2, dropout_layer, 'average_pool1')
   
-  return output
+  return average_pool1
 
 #%%
 def alexnet(input, keep_prob, batch_size, classes):
@@ -85,9 +84,8 @@ def alexnet(input, keep_prob, batch_size, classes):
   
   local9 = local_layer(2048, reshape, 'local9')
   local10 = local_layer(2048, local9, 'local10')
-  softmax_linear = softmax_layer(classes, local10, 'softmax_layer')
   
-  return softmax_linear
+  return local10
 
 #%%
 def vggnet(input, keep_prob, batch_size, classes):
@@ -121,8 +119,7 @@ def vggnet(input, keep_prob, batch_size, classes):
   
   local9 = local_layer(1024, reshape, 'local9')
   local10 = local_layer(1024, local9, 'local10')
-  softmax_linear = softmax_layer(classes, local10, 'softmax_layer')
   
-  return softmax_linear
+  return local10
 
 #%%
