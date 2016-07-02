@@ -61,6 +61,7 @@ def inference(images):
   
 def loss(logits, labels):
   training_loss = application.loss(logits, labels)
+  tf.scalar_summary('training_loss', training_loss)
   tf.add_to_collection('losses', training_loss)
   return tf.add_n(tf.get_collection('losses'), name='total_loss')  
     

@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from layers import conv2d, local_layer, softmax_layer, res_block, red_block, inception_res_block, average_pool_output, average_pool_vector
+from layers import conv2d, local_layer, res_block, red_block, inception_res_block, average_pool_vector
   
 #%%
 def inception_resnet(input, keep_prob, classes):
@@ -31,16 +31,16 @@ def inception_resnet(input, keep_prob, classes):
   inception_res_block16 = inception_res_block(inception_res_block15, 'inception_res_block16')
   
   dropout_layer = tf.nn.dropout(inception_res_block16, keep_prob)
-  average_pool1 = average_pool_vector([1, 1], classes ** 2, dropout_layer, 'average_pool1')
+  average_pool1 = average_pool_vector([1, 1], classes, dropout_layer, 'average_pool1')
   
   return average_pool1
 
 #%%
-def resnet(input, keep_prob, classes):
-  conv0 = conv2d([7, 7], 64, input, 'conv0')
-  red_block0 = red_block(conv0, 'red_block0')
+def resnet(input, keep_prob, classes):  
+  conv0 = conv2d([7, 7], 16, input, 'conv0', stride=2)
+  pool0 = tf.nn.avg_pool(conv0, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool0')
 
-  res_block1 = res_block(red_block0, 'res_block1')
+  res_block1 = res_block(pool0, 'res_block1')
   res_block2 = res_block(res_block1, 'res_block2')
   res_block3 = res_block(res_block2, 'res_block3')
   red_block1 = red_block(res_block3, 'red_block1')
@@ -53,18 +53,18 @@ def resnet(input, keep_prob, classes):
 
   res_block8 = res_block(red_block2, 'res_block8')
   res_block9 = res_block(res_block8, 'res_block9')
-  res_block10 = res_block(res_block9, 'res_block10')
-  res_block11 = res_block(res_block10, 'res_block11')
-  res_block12 = res_block(res_block11, 'res_block12')
-  res_block13 = res_block(res_block12, 'res_block13')
-  red_block3 = red_block(res_block13, 'red_block3')
+  #res_block10 = res_block(res_block9, 'res_block10')
+  #res_block11 = res_block(res_block10, 'res_block11')
+  #res_block12 = res_block(res_block11, 'res_block12')
+  #res_block13 = res_block(res_block12, 'res_block13')
+  red_block3 = red_block(res_block9, 'red_block3')
 
   res_block14 = res_block(red_block3, 'res_block14')
   res_block15 = res_block(res_block14, 'res_block15')
   res_block16 = res_block(res_block15, 'res_block16')
   
   dropout_layer = tf.nn.dropout(res_block16, keep_prob)  
-  average_pool1 = average_pool_vector([1, 1], classes ** 2, dropout_layer, 'average_pool1')
+  average_pool1 = average_pool_vector([1, 1], classes, dropout_layer, 'average_pool1')
   
   return average_pool1
 

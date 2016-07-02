@@ -34,7 +34,7 @@ id_bytes = 4
 original_shape=[256, 256, 3]
 
 #%% Training information
-batch_size=64
+batch_size=32
 max_steps=100000
 num_examples=2000
 num_submission = 2000 
@@ -77,8 +77,8 @@ def combined_to_single_labels(original_label):
 #%%
 
 def inference(input):
-  output = inception_resnet(input, keep_prob, classes)
-  #output = resnet(input, keep_prob, classes)
+  #output = inception_resnet(input, keep_prob, classes)
+  output = resnet(input, keep_prob, classes)
   #output = alexnet(input, keep_prob, batch_size, classes)
   #output = vggnet(input, keep_prob, batch_size, classes)
   return output

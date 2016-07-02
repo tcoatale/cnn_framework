@@ -8,15 +8,20 @@ import time
 import PIL
 import numpy as np
 import tensorflow as tf
+import os
 
 import model
 import application_interface
+
 application = application_interface.get_application()
+
+base_dir = 'ckpt/driver_augmented'
+ckpt_dir = os.path.join(base_dir, '2016-7-2-18-38-26')
 
 #%%
 def eval_once(saver, summary_writer, summary_op, images, logits, labels):
   with tf.Session() as sess:
-    ckpt = tf.train.get_checkpoint_state(application.ckpt_dir)
+    ckpt = tf.train.get_checkpoint_state(ckpt_dir)
     if ckpt and ckpt.model_checkpoint_path:
       # Restores from checkpoint
       saver.restore(sess, ckpt.model_checkpoint_path)
@@ -36,11 +41,11 @@ def eval_once(saver, summary_writer, summary_op, images, logits, labels):
       step = 0
       while step < num_iter and not coord.should_stop():
         logits_loc, labels_loc, images = sess.run([logits, labels, images])
-        #image = images[0]
-        #image = image + np.min(image)
-        #image = image * 255 / np.max(image)
-        #im = PIL.Image.fromarray(np.uint8(image))
-        #im.show()
+        image = images[0]
+        image = image + np.min(image)
+        image = image * 255 / np.max(image)
+        im = PIL.Image.fromarray(np.uint8(image))
+        im.show()
         step += 1
 
     except Exception as e:  # pylint: disable=broad-except
@@ -53,7 +58,7 @@ def eval_once(saver, summary_writer, summary_op, images, logits, labels):
 def evaluate():
   with tf.Graph().as_default() as g:
     images, labels = model.inputs('submission') 
-    _, logits = model.inference(images)
+    logits = model.inference(images)
 
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(application.moving_average_decay)
