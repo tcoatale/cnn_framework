@@ -60,7 +60,9 @@ def inference(images):
   return application.inference(images)
   
 def loss(logits, labels):
-  return application.loss(logits, labels)
+  training_loss = application.loss(logits, labels)
+  tf.scalar_summary('training_loss', training_loss)
+  return training_loss
   
 def evaluation_loss(logits, labels):
   return application.evaluation_loss(logits, labels)

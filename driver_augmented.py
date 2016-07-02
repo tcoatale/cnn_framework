@@ -92,7 +92,6 @@ def individual_loss(logits, labels):
 
 def loss(logits, labels):
   training_loss = evaluation_loss(logits, labels)
-  tf.add_to_collection('losses', training_loss)
   return training_loss
   
 def evaluation_loss(logits, labels):
