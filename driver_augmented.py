@@ -67,7 +67,7 @@ log_device_placement=False
 
 #%%
 n_input = reduce(int.__mul__, imshape)
-keep_prob = 1.0
+keep_prob = 0.8
 
 def combined_to_single_labels(original_label):
   label2 = tf.cast(tf.div(original_label, 256), tf.int32)
@@ -88,17 +88,16 @@ def individual_loss(logits, labels):
   labels = tf.cast(labels, tf.int64)
   cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels)  
   cross_entropy_mean = tf.reduce_mean(cross_entropy)
-
   return cross_entropy_mean
 
 def loss(logits, labels):
-  labels1, labels2 = combined_to_single_labels(labels)
-  dual_loss = individual_loss(logits, labels2)
-  tf.add_to_collection('losses', dual_loss)
-  return tf.add_n(tf.get_collection('losses'), name='total_loss')
+  training_loss = evaluation_loss(logits, labels)
+  tf.add_to_collection('losses', training_loss)
+  return training_loss
   
 def evaluation_loss(logits, labels):
-  return tf.reduce_mean(individual_loss(logits, labels))
+  labels1, labels = combined_to_single_labels(labels)
+  return individual_loss(logits, labels)
 
 def classification_rate(model, images, labels):
   # Build a Graph that computes the logits predictions from the inference model.

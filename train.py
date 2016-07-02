@@ -70,7 +70,7 @@ def train():
       if step % application.eval_freq == 0:
         eval_loss_value = sess.run([eval_loss])
         format_str = ('%s \tEvaluation: step %d, loss = %.8f')
-        print (format_str % (datetime.now(), step, eval_loss_value[0]))
+        print (format_str % (datetime.now(), step, eval_loss_value))
 
       if step % application.summary_freq == 0:
         summary_str = sess.run(summary_op)
