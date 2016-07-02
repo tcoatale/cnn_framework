@@ -38,6 +38,9 @@ batch_size=64
 max_steps=100000
 num_examples=2000
 num_submission = 2000 
+
+#%%
+eval_freq = 300
 display_freq=10
 summary_freq=50
 valid_freq=10
@@ -89,14 +92,6 @@ def individual_loss(logits, labels):
   return cross_entropy_mean
 
 def loss(logits, labels):
-  '''
-  logits1, logits2 = logits
-  
-  loss1 = individual_loss(logits1, labels1)
-  loss2 = individual_loss(logits2, labels2)
-  
-  dual_loss = tf.add(loss2, tf.mul(loss1, 0.5))
-  '''
   labels1, labels2 = combined_to_single_labels(labels)
   dual_loss = individual_loss(logits, labels2)
   tf.add_to_collection('losses', dual_loss)

@@ -61,6 +61,9 @@ def inference(images):
   
 def loss(logits, labels):
   return application.loss(logits, labels)
+  
+def evaluation_loss(logits, labels):
+  return application.evaluation_loss(logits, labels)
 
 def _add_loss_summaries(total_loss):
   """Add summaries for losses in CIFAR-10 model.

@@ -28,6 +28,7 @@ def train():
 
     # Calculate loss.
     loss = model.loss(logits, labels)
+    eval_loss = model.evaluation_loss(logits, labels)
 
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
@@ -66,10 +67,15 @@ def train():
         format_str = ('%s: step %d, loss = %.8f (%.1f examples/sec; %.3f sec/batch)')
         print (format_str % (datetime.now(), step, loss_value, examples_per_sec, sec_per_batch))
 
+      if step % application.eval_freq == 0:
+        eval_loss_value = sess.run([eval_loss])
+        format_str = ('%s \tEvaluation: step %d, loss = %.8f')
+        print (format_str % (datetime.now(), step, eval_loss_value))
+
       if step % application.summary_freq == 0:
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)
-        
+                
       # Save the model checkpoint periodically.
       if step % application.save_freq == 0 or (step + 1) == application.max_steps:
         checkpoint_path = os.path.join(application.ckpt_dir, 'model.ckpt')
