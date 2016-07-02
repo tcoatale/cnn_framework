@@ -98,7 +98,7 @@ def loss(logits, labels):
   return tf.add_n(tf.get_collection('losses'), name='total_loss')
   
 def evaluation_loss(logits, labels):
-  return individual_loss(logits, labels)
+  return tf.reduce_mean(individual_loss(logits, labels))
 
 def classification_rate(model, images, labels):
   # Build a Graph that computes the logits predictions from the inference model.
