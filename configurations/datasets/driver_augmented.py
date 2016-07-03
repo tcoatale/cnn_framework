@@ -6,8 +6,8 @@ name = 'driver_augmented'
 data_dir = os.path.join('data', name)
 
 #%% Dataset information
-train_size=20000
-valid_size=2000
+train_size=14000
+valid_size=8000
 label_bytes=2
 id_bytes = 4
 original_shape=[256, 256, 3]

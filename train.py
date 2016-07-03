@@ -5,7 +5,7 @@ from __future__ import print_function
 from datetime import datetime
 import os.path
 import time
-
+import math
 import numpy as np
 from six.moves import xrange
 import tensorflow as tf
@@ -14,6 +14,24 @@ import update_manager
 import _input
 import config_interface
 config = config_interface.get_config()
+
+def evaluate(sess, loss_function):
+  n_batches = int(math.ceil(config.dataset.valid_size / config.training_params.batch_size))
+  step = 0
+  losses = []
+  while step < n_batches:
+    loss = sess.run([loss_function])
+    #image = images[0]
+    #image = image + np.min(image)
+    #image = image * 255 / np.max(image)
+    #im = PIL.Image.fromarray(np.uint8(image))
+    #im.show()
+    losses += [loss]
+    step += 1
+
+  # Compute precision @ 1.  with tf.Session() as sess:
+  average_loss = np.mean(losses)
+  return average_loss
 
 def train():
   """Train model for a number of steps."""
@@ -74,7 +92,7 @@ def train():
         print (format_str % (datetime.now(), step, loss_value, examples_per_sec, sec_per_batch))
 
       if step % config.eval_freq == 0:
-        eval_loss_value = sess.run([eval_loss])[0]
+        eval_loss_value = evaluate(sess, eval_loss)
         format_str = ('%s \tEvaluation: step %d, loss = %.8f')
         print (format_str % (datetime.now(), step, eval_loss_value))
 
