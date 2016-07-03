@@ -1,4 +1,4 @@
-from helper import initialize_directories
+from configurations.helper import initialize_directories
 
 import datasets.driver_augmented as dataset
 import training.config1 as training_params
