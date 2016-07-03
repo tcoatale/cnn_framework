@@ -21,17 +21,19 @@ def train():
     global_step = tf.Variable(0, trainable=False)
 
     # Get images and labels for dataset.
-    images, labels = _input.distorted_inputs()
-    tf.image_summary('distorted_images', images, max_images=64)
+    training_images, training_labels = _input.distorted_inputs()
+    eval_images, eval_labels = _input.evaluation_inputs()
+
+    tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the
     # inference model.
-    training_logits = config.inference(images)
-    #evaluation_logits = config.inference(images, testing=True)
+    training_logits = config.inference(training_images)
+    evaluation_logits = config.inference(eval_images, testing=True)
 
     # Calculate loss.
-    loss = update_manager.loss_wrapper(training_logits, labels)
-    eval_loss = update_manager.evaluation_loss(training_logits, labels)
+    loss = update_manager.loss_wrapper(training_logits, training_labels)
+    eval_loss = update_manager.evaluation_loss(evaluation_logits, eval_labels)
 
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.
