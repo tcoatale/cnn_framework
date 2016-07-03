@@ -12,3 +12,5 @@ initial_learning_rate=0.01
 
 #%%
 keep_prob = 0.8
+
+#%%

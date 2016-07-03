@@ -27,7 +27,7 @@ imsize=192
 imshape=[192, 192, 3]
 n_input = reduce(int.__mul__, imshape)
 
-def distorted_inputs(reshaped_image):
+def distort_inputs(reshaped_image):
   distorted_image = tf.random_crop(reshaped_image, [imsize, imsize, 3])
   distorted_image = tf.image.random_brightness(distorted_image, max_delta=200)
   distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=3.8)

@@ -4,17 +4,11 @@ from __future__ import print_function
 from functools import reduce
 
 import os
-
 import tensorflow as tf
 import glob
-import application_interface
-application = application_interface.get_application()
 
-# Global constants describing the data set.
-NUM_CLASSES = application.classes
-NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = application.train_size
-NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = application.valid_size
-
+import config_interface
+config = config_interface.get_config()
 
 def read_binary(filename_queue, label_size_exception=False):
   """Reads and parses examples from binary data files.
@@ -39,9 +33,9 @@ def read_binary(filename_queue, label_size_exception=False):
     pass
   result = Record()
 
-  label_bytes = application.label_bytes if not label_size_exception else label_size_exception     
-  result.height, result.width, result.depth = application.original_shape
-  image_bytes = reduce(int.__mul__, application.original_shape)
+  label_bytes = config.dataset.label_bytes if not label_size_exception else label_size_exception     
+  result.height, result.width, result.depth = config.dataset.original_shape
+  image_bytes = reduce(int.__mul__, config.dataset.original_shape)
   record_bytes = label_bytes + image_bytes
 
   reader = tf.FixedLengthRecordReader(record_bytes=record_bytes)
@@ -99,16 +93,15 @@ def _generate_image_and_label_batch(image, label, min_queue_examples, batch_size
   return images, tf.reshape(label_batch, [batch_size])
 
 
-def distorted_inputs(data_dir, batch_size):
+def distorted_inputs():
   """Construct distorted input for training using the Reader ops.
   Args:
-    data_dir: Path to the data directory.
-    batch_size: Number of images per batch.
+
   Returns:
     images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
     labels: Labels. 1D tensor of [batch_size] size.
   """
-  filenames = glob.glob(os.path.join(data_dir, 'data_batch_*'))
+  filenames = glob.glob(os.path.join(config.dataset.data_dir, 'data_batch_*'))
   for f in filenames:
     if not tf.gfile.Exists(f):
       raise ValueError('Failed to find file: ' + f)
@@ -119,38 +112,48 @@ def distorted_inputs(data_dir, batch_size):
   # Read examples from files in the filename queue.
   read_input = read_binary(filename_queue)
   reshaped_image = tf.cast(read_input.uint8image, tf.float32)
-  float_image = application.distorted_inputs(reshaped_image)
+  float_image = config.dataset.distort_inputs(reshaped_image)
 
   # Ensure that the random shuffling has good mixing properties.
   min_fraction_of_examples_in_queue = 0.8
-  min_queue_examples = int(NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN * min_fraction_of_examples_in_queue)
+  min_queue_examples = int(config.dataset.train_size * min_fraction_of_examples_in_queue)
   print ('Filling queue with %d images before starting to train. This will take a few minutes.' % min_queue_examples)
 
   # Generate a batch of images and labels by building up a queue of examples.
-  return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, batch_size, shuffle=True)
+  return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, config.training_params.batch_size, shuffle=True)
 
+def training_inputs():
+  label_size_exception = False
+  filenames = glob.glob(os.path.join(config.dataset.data_dir, 'data_batch_*'))
+  num_examples_per_epoch = config.dataset.train_size  
 
-def inputs(data_type, data_dir, batch_size):
+  return inputs(filenames, num_examples_per_epoch, label_size_exception)
+  
+def evaluation_inputs():
+  label_size_exception = False
+  filenames = glob.glob(os.path.join(config.dataset.data_dir, 'test_batch*'))
+  num_examples_per_epoch = config.dataset.valid_size
+  
+  return inputs(filenames, num_examples_per_epoch, label_size_exception)
+  
+def submission_inputs():
+  filenames = glob.glob(os.path.join(config.dataset.data_dir, 'submission_batch*'))
+  num_examples_per_epoch = config.dataset.valid_size
+  label_size_exception = config.dataset.id_bytes    
+
+  return inputs(filenames, num_examples_per_epoch, label_size_exception)
+
+def inputs(filenames, num_examples_per_epoch, label_size_exception):
   """Construct input for evaluation using the Reader ops.
   Args:
-    data_type: bool, indicating if one should use the train or eval data set.
-    data_dir: Path to the data directory.
+    num_examples_per_epoch: number of images per epoch
+    filenames: the corresponding files
     batch_size: Number of images per batch.
+    label_size_exception: Number to check in the case of submission files
   Returns:
     images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
     labels: Labels. 1D tensor of [batch_size] size.
   """
-  label_size_exception = False
-  if data_type == 'train':
-    filenames = glob.glob(os.path.join(data_dir, 'data_batch_*'))
-    num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
-  elif data_type == 'eval':
-    filenames = glob.glob(os.path.join(data_dir, 'test_batch*'))
-    num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
-  else:
-    filenames = glob.glob(os.path.join(data_dir, 'submission_batch*'))
-    num_examples_per_epoch = NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
-    label_size_exception = application.id_bytes
     
   for f in filenames:
     if not tf.gfile.Exists(f):
@@ -163,8 +166,8 @@ def inputs(data_type, data_dir, batch_size):
   read_input = read_binary(filename_queue, label_size_exception)
   reshaped_image = tf.cast(read_input.uint8image, tf.float32)
 
-  height = application.imsize
-  width = application.imsize
+  height = config.dataset.imsize
+  width = config.dataset.imsize
 
   # Image processing for evaluation.
   # Crop the central [height, width] of the image.
@@ -177,4 +180,4 @@ def inputs(data_type, data_dir, batch_size):
   min_queue_examples = int(num_examples_per_epoch)
 
   # Generate a batch of images and labels by building up a queue of examples.
-  return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, batch_size, shuffle=False)
+  return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, config.training_params.batch_size, shuffle=False)

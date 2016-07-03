@@ -9,5 +9,7 @@ def initialize_directory(function, dataset_name, config_name):
   specific_dir = os.path.join(function_dataset_dir, config_name)
   list(map(try_mkdir, [function_dataset_dir, specific_dir]))
   
-def initialize_directories(log_dir, ckpt_dir, dataset_name, config_name):
-  list(map(lambda d: initialize_directory(d, dataset_name, config_name), [log_dir, ckpt_dir]))
+  return specific_dir
+  
+def initialize_directories(dirs, dataset_name, config_name):
+  return list(map(lambda d: initialize_directory(d, dataset_name, config_name), dirs))
