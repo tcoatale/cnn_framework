@@ -1,5 +1,5 @@
 import tensorflow as tf
-from layers import conv2d, local_layer
+from configurations.models.layers import conv2d, local_layer
   
 #%%
 def architecture(input, keep_prob, batch_size, classes):

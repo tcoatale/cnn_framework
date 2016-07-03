@@ -1,5 +1,5 @@
 import tensorflow as tf
-from layers import conv2d, red_block, inception_res_block, average_pool_vector
+from configurations.models.layers import conv2d, red_block, inception_res_block, average_pool_vector
 
 def architecture(input, keep_prob, classes):
   conv0 = conv2d([7, 7], 16, input, 'conv0', stride=2)

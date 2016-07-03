@@ -1,4 +1,4 @@
-import loss_functions
+from configurations.losses.loss_functions import cross_entropy
 
 def training_loss(dataset, logits, labels):
   logits1, true_logits = logits
@@ -8,4 +8,4 @@ def training_loss(dataset, logits, labels):
   return training_loss
   
 def evaluation_loss(dataset, logits, labels):
-  return loss_functions.cross_entropy(logits, labels)
+  return cross_entropy(logits, labels)
