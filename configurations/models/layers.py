@@ -56,8 +56,6 @@ def conv2d_3x3_raw(input, channels, name):
     convolution = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
     biased_convolution = tf.nn.bias_add(convolution, biases, name=scope.name)
     normalized = normalize(input=biased_convolution, name=name + '_norm')
-    scope.reuse_variables()
-
   return normalized
 
 def conv2d(filter_shape, channels, input, name, stride=1):
@@ -68,7 +66,6 @@ def conv2d(filter_shape, channels, input, name, stride=1):
     biases = _variable_on_cpu('biases', shape[3], tf.constant_initializer(0.0))
     biased_convolution = tf.nn.bias_add(convolution, biases)
     biased_nonlinear_convolution = normalize(tf.nn.relu(biased_convolution, name=scope.name), name=scope.name + '_norm')
-    scope.reuse_variables()
     
   return biased_nonlinear_convolution
   
@@ -80,7 +77,6 @@ def local_layer(units, input, name):
     biases = _variable_on_cpu('biases', [units], tf.constant_initializer(0.1))
     local4 = tf.nn.relu(tf.matmul(input, weights) + biases, name=scope.name)
     _activation_summary(local4)
-    scope.reuse_variables()
     
   return local4
   
@@ -91,8 +87,6 @@ def softmax_layer(units, input, name) :
     biases = _variable_on_cpu('biases', [units], tf.constant_initializer(0.0))
     softmax_linear = tf.nn.softmax(tf.add(tf.matmul(input, weights), biases, name=scope.name))
     _activation_summary(softmax_linear)
-    scope.reuse_variables()
-
     
   return softmax_linear
   

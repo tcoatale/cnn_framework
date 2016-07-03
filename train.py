@@ -26,10 +26,11 @@ def train():
 
     tf.image_summary('images', training_images, max_images=64)
 
-    # Build a Graph that computes the logits predictions from the
-    # inference model.
-    training_logits = config.inference(training_images)
-    evaluation_logits = config.inference(eval_images, testing=True)
+    # Build a Graph that computes the logits predictions from the inference model.
+    with tf.variable_scope("inference") as scope:
+        training_logits = config.inference(training_images)
+        scope.reuse_variables()
+        evaluation_logits = config.inference(eval_images, testing=True)
 
     # Calculate loss.
     loss = update_manager.loss_wrapper(training_logits, training_labels)
