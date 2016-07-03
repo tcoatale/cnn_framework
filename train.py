@@ -15,19 +15,13 @@ import _input
 import config_interface
 config = config_interface.get_config()
 
-def distorted_inputs():
-  return _input.distorted_inputs(data_dir=config.dataset.data_dir, batch_size=config.dataset.batch_size)
-
-def inputs(data_type):
-  return _input.training_inputs(data_type=data_type, data_dir=config.dataset.data_dir, batch_size=config.dataset.batch_size)
-
 def train():
   """Train model for a number of steps."""
   with tf.Graph().as_default():
     global_step = tf.Variable(0, trainable=False)
 
     # Get images and labels for dataset.
-    images, labels = distorted_inputs()
+    images, labels = _input.distorted_inputs()
     tf.image_summary('distorted_images', images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the
