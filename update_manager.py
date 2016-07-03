@@ -55,7 +55,7 @@ def update(total_loss, global_step):
     train_op: op for training.
   """
   # Variables that affect learning rate.
-  num_batches_per_epoch = config.training_params.train_size / config.training_params.batch_size
+  num_batches_per_epoch = config.dataset.train_size / config.training_params.batch_size
   decay_steps = int(num_batches_per_epoch * config.training_params.num_epochs_per_decay)
 
   # Decay the learning rate exponentially based on the number of steps.
