@@ -33,11 +33,11 @@ def train():
     # Build a Graph that computes the logits predictions from the
     # inference model.
     training_logits = config.inference(images)
-    evaluation_logits = config.inference(images, testing=True)
+    #evaluation_logits = config.inference(images, testing=True)
 
     # Calculate loss.
     loss = update_manager.loss_wrapper(training_logits, labels)
-    eval_loss = update_manager.evaluation_loss(evaluation_logits, labels)
+    eval_loss = update_manager.evaluation_loss(training_logits, labels)
 
     # Build a Graph that trains the model with one batch of examples and
     # updates the model parameters.

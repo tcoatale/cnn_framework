@@ -1,5 +1,5 @@
 #%% Training information
-batch_size = 32
+batch_size = 64
 max_steps = 100000
 num_examples = 2000
 num_submission = 2000 
