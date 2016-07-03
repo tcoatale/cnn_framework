@@ -12,6 +12,7 @@ label_bytes=2
 id_bytes = 4
 original_shape=[256, 256, 3]
 classes=10
+sub_classes=2
 
 #%%
 eval_freq = 300
