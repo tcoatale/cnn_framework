@@ -2,7 +2,7 @@ from configurations.helper import initialize_directories
 import configurations.datasets.driver_augmented as dataset
 import configurations.training.config1 as training_params
 import configurations.losses.driver_augmented as loss
-import configurations.models.inception_reset as model
+import configurations.models.inception_resnet as model
 
 name = 'config1'
 log_dir = 'log'
