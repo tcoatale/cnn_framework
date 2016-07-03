@@ -22,7 +22,7 @@ def _variable_on_cpu(name, shape, initializer):
     Variable Tensor
   """
   with tf.device('/cpu:0'):
-    var = tf.get_variable(name, shape, initializer=initializer)
+    var = tf.get_variable(name, shape, initializer=initializer, reuse=True)
   return var
 
 def _variable_with_weight_decay(name, shape, stddev, wd):
@@ -38,8 +38,7 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
   Returns:
     Variable Tensor
   """
-  var = _variable_on_cpu(name, shape,
-                         tf.truncated_normal_initializer(stddev=stddev))
+  var = _variable_on_cpu(name, shape, tf.truncated_normal_initializer(stddev=stddev))
   if wd is not None:
     weight_decay = tf.mul(tf.nn.l2_loss(var), wd, name='weight_loss')
     tf.add_to_collection('losses', weight_decay)
