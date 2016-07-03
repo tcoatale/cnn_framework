@@ -17,7 +17,7 @@ def training_loss(logits, labels):
     return loss.training_loss(dataset, logits, labels)
     
 def evaluation_loss(logits, labels):
-    return loss.training_loss(dataset, logits, labels)
+    return loss.evaluation_loss(dataset, logits, labels)
     
 #%%
 display_freq = 10
