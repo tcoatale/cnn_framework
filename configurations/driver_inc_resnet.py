@@ -1,9 +1,8 @@
 from configurations.helper import initialize_directories
-
-import datasets.driver_augmented as dataset
-import training.config1 as training_params
-import losses.driver_augmented as loss
-import models.inception_reset as model
+import configurations.datasets.driver_augmented as dataset
+import configurations.training.config1 as training_params
+import configurations.losses.driver_augmented as loss
+import configurations.models.inception_reset as model
 
 name = 'config1'
 log_dir = 'log'
