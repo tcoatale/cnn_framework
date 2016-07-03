@@ -115,12 +115,10 @@ def distorted_inputs():
   float_image = config.dataset.distort_inputs(reshaped_image)
 
   # Ensure that the random shuffling has good mixing properties.
-  min_fraction_of_examples_in_queue = 0.8
-  min_queue_examples = int(config.dataset.train_size * min_fraction_of_examples_in_queue)
-  print ('Filling queue with %d images before starting to train. This will take a few minutes.' % min_queue_examples)
+  print ('Filling queue with %d images before starting to train. This will take a few minutes.' % config.dataset.train_size)
 
   # Generate a batch of images and labels by building up a queue of examples.
-  return _generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, config.training_params.batch_size, shuffle=True)
+  return _generate_image_and_label_batch(float_image, read_input.label, config.dataset.train_size, config.training_params.batch_size, shuffle=True)
 
 def training_inputs():
   label_size_exception = False
