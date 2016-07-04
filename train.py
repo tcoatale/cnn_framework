@@ -10,12 +10,11 @@ import numpy as np
 from six.moves import xrange
 import tensorflow as tf
 
-import update_manager
-import _input
+from update_manager import UpdateManager
+from input_manager import InputManager
 import config_interface
-config = config_interface.get_config()
 
-def evaluate(sess, loss_function):
+def evaluate(config, sess, loss_function):
   n_batches = int(math.ceil(config.dataset.valid_size / config.training_params.batch_size))
   step = 0
   losses = []
@@ -29,27 +28,29 @@ def evaluate(sess, loss_function):
     losses += [loss]
     step += 1
 
-  # Compute precision @ 1.  with tf.Session() as sess:
   average_loss = np.mean(losses)
   return average_loss
 
-def train():
+def train(config):
   """Train model for a number of steps."""
   with tf.Graph().as_default():
     global_step = tf.Variable(0, trainable=False)
+    
+    input_manager = InputManager(config)
+    update_manager = UpdateManager(config)
 
     # Get images and labels for dataset.
-    training_images, training_labels = _input.distorted_inputs()
-    eval_images, eval_labels = _input.evaluation_inputs()
+    training_images, training_labels = input_manager.distorted_inputs()
+    eval_images, eval_labels = input_manager.evaluation_inputs()
 
     tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the inference model.
     with tf.variable_scope("inference") as scope:
-        training_logits = config.inference(training_images)
-        scope.reuse_variables()
-        evaluation_logits = config.inference(eval_images, testing=True)
-
+      training_logits = config.inference(training_images)
+      scope.reuse_variables()
+      evaluation_logits = config.inference(eval_images, testing=True)
+        
     # Calculate loss.
     loss = update_manager.loss_wrapper(training_logits, training_labels)
     eval_loss = update_manager.evaluation_loss(evaluation_logits, eval_labels)
@@ -92,7 +93,7 @@ def train():
         print (format_str % (datetime.now(), step, loss_value, examples_per_sec, sec_per_batch))
 
       if step % config.eval_freq == 0:
-        eval_loss_value = evaluate(sess, eval_loss)
+        eval_loss_value = evaluate(config, sess, eval_loss)
         format_str = ('%s \tEvaluation: step %d, loss = %.8f')
         print (format_str % (datetime.now(), step, eval_loss_value))
 
@@ -107,7 +108,8 @@ def train():
 
 
 def main(argv=None):
-  train()
+  config = config_interface.get_config()
+  train(config)
 
 
 if __name__ == '__main__':
