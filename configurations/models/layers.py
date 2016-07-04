@@ -107,10 +107,11 @@ def inception_res_block(input, name):
   conv11 = conv2d([1, 1], channels / 2, input, name=name+'_conv11')
   conv12 = conv2d([3, 3], channels / 2, conv11, name=name+'_conv12')
 
-  conv21 = conv2d([1, 1], channels / 2, input, name=name+'conv21')
+  conv21 = conv2d([1, 1], channels / 2, input, name=name+'_conv21')
   conv22 = conv2d([5, 5], channels / 2, conv21, name=name+'_conv22')
   
   concat = tf.concat(3, [conv12, conv22])
+  
   res = tf.add(input, concat, name=name+'_res')
   res_relu = tf.nn.relu(res, name=name+'_res_relu')
   
