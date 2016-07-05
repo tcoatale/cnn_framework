@@ -32,8 +32,8 @@ def architecture(input, keep_prob, batch_size, classes):
 
 def output(input, batch_size, classes):
   reshape = tf.reshape(input, [batch_size, -1])
-  fc1 = local_layer(2048, reshape, 'fc1')
-  fc2 = local_layer(2048, fc1, 'fc2')  
+  fc1 = local_layer(32, reshape, 'fc1')
+  fc2 = local_layer(32, fc1, 'fc2')  
   return local_layer(classes, fc2, 'output')
        
 def training_inference(input, keep_prob, batch_size, classes):

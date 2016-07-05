@@ -1,4 +1,4 @@
-import configurations.driver_inception_resnet as configuration
+import configurations.driver_vgg as configuration
 
 def get_config():
     return configuration.get_config()
