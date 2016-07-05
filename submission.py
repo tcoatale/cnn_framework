@@ -18,9 +18,9 @@ def evaluate(config):
     logits = config.inference(images, testing=True)
 
   # Restore the moving average version of the learned variables for eval.
-  #variable_averages = tf.train.ExponentialMovingAverage(config.training_params.moving_average_decay)
-  #variables_to_restore = variable_averages.variables_to_restore()
-  saver = tf.train.Saver()
+  variable_averages = tf.train.ExponentialMovingAverage(config.training_params.moving_average_decay)
+  variables_to_restore = variable_averages.variables_to_restore()
+  saver = tf.train.Saver(variables_to_restore)
 
   # Build the summary operation based on the TF collection of Summaries.
   with tf.Session() as sess:
