@@ -6,15 +6,23 @@ import math
 import pandas as pd
 import numpy as np
 import tensorflow as tf
+import PIL.Image
 
 import config_interface
 from input_manager import InputManager
+from functools import reduce
+
+def display(image):
+  image = image - np.min(image)
+  image = image * 255 / np.max(image)
+  im = PIL.Image.fromarray(np.uint8(image))
+  im.show()  
 
 #%%
 def evaluate(config):
   input_manager = InputManager(config)
   images, files = input_manager.submission_inputs() 
-  with tf.variable_scope("inference") as scope:    
+  with tf.variable_scope("inference"):    
     logits = config.inference(images, testing=True)
 
   # Restore the moving average version of the learned variables for eval.
@@ -34,16 +42,18 @@ def evaluate(config):
     # Start the queue runners.
     coord = tf.train.Coordinator()
     try:
-      threads = []
-      for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
-        threads.extend(qr.create_threads(sess, coord=coord, daemon=True, start=True))
+      queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
+      threads_per_qr = map(lambda qr: qr.create_threads(sess, coord=coord, daemon=True, start=True), queue_runners)
+      threads = reduce(list.__add__, threads_per_qr)
 
-      num_iter = int(math.ceil(config.dataset.submission_size/ config.training_params.batch_size))
+      num_iter = math.ceil(config.dataset.submission_size / config.training_params.batch_size)
       
       step = 0
+      preds = []
       while step < num_iter and not coord.should_stop():
-        logits_loc, labels_loc = sess.run([logits, files])
-        print(logits_loc[0])
+        images_loc, logits_loc, labels_loc = sess.run([images, logits, files])
+        display(images_loc[0])
+        preds += zip(logits_loc, labels_loc)
         step += 1
 
     except Exception as e:  # pylint: disable=broad-except

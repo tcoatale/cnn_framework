@@ -17,12 +17,6 @@ def load_thumbnail(f):
   result = np.asarray(im, dtype=np.uint8)
   result = np.transpose(result, [2, 0, 1])
   result = result.reshape(-1).tolist()
-  '''
-  result = result.reshape([3, 256, 256])
-  result = np.transpose(result, [1, 2, 0])
-  im = PIL.Image.fromarray(np.uint8(result))
-  im.show()
-  '''
   return result
   
 def get_labels(filenames):
@@ -57,7 +51,7 @@ def write_in_chunks(filenames, data_type, aug=False):
   list(map(lambda i: write_chunk(chunks, i, data_type, aug), range(len(chunks))))
     
 def preprocess_data(): 
-  unique_labels = os.listdir('raw/driver/train')
+  unique_labels = os.listdir('../raw/driver/train')
   dirs = list(map(lambda l: os.path.join('raw/driver/train', l), unique_labels))
   filenames = reduce(
                 list.__add__, 
@@ -75,7 +69,7 @@ def preprocess_data():
   write_in_chunks(train_filenames, 'data', True)
   
 def preprocess_submission_data():
-  filenames = glob.glob(os.path.join('raw/driver/test', '*'))
+  filenames = glob.glob(os.path.join('../raw/driver/test', '*'))
   chunks = [filenames[i:i+images_per_file] for i in range(0, len(filenames), images_per_file)]
   list(map(lambda i: write_submission_chunk(chunks, i), range(len(chunks))))
 
@@ -104,3 +98,6 @@ def write_submission_chunk(chunks, i):
 #%%
 preprocess_data()
 preprocess_submission_data()
+
+#%%
+four_bytes_label(1)

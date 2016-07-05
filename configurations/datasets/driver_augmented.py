@@ -34,6 +34,7 @@ def distort_inputs(reshaped_image):
   distorted_image = tf.image.random_brightness(distorted_image, max_delta=200)
   distorted_image = tf.image.random_contrast(distorted_image, lower=0.2, upper=3.8)
   float_image = tf.image.per_image_whitening(distorted_image)
+  
   return float_image
 
 

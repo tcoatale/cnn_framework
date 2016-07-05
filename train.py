@@ -9,10 +9,17 @@ import math
 import numpy as np
 from six.moves import xrange
 import tensorflow as tf
+import PIL.Image
 
 from update_manager import UpdateManager
 from input_manager import InputManager
 import config_interface
+
+def display(image):
+  image = image - np.min(image)
+  image = image * 255 / np.max(image)
+  im = PIL.Image.fromarray(np.uint8(image))
+  im.show()  
 
 def evaluate(config, sess, loss_function):
   n_batches = int(math.ceil(config.dataset.valid_size / config.training_params.batch_size))
@@ -20,11 +27,6 @@ def evaluate(config, sess, loss_function):
   losses = []
   while step < n_batches:
     loss = sess.run([loss_function])
-    #image = images[0]
-    #image = image + np.min(image)
-    #image = image * 255 / np.max(image)
-    #im = PIL.Image.fromarray(np.uint8(image))
-    #im.show()
     losses += [loss]
     step += 1
 
