@@ -26,7 +26,6 @@ def evaluate(config):
   with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(config.ckpt_dir)
     if ckpt and ckpt.model_checkpoint_path:
-      print(ckpt, ckpt.model_checkpoint_path)
       saver.restore(sess, ckpt.model_checkpoint_path)
     else:
       print('No checkpoint file found')
@@ -44,6 +43,7 @@ def evaluate(config):
       step = 0
       while step < num_iter and not coord.should_stop():
         logits_loc, labels_loc = sess.run([logits, files])
+        print(logits_loc[0])
         step += 1
 
     except Exception as e:  # pylint: disable=broad-except
