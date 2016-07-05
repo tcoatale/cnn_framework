@@ -14,7 +14,8 @@ from input_manager import InputManager
 def evaluate(config):
   input_manager = InputManager(config)
   images, files = input_manager.submission_inputs() 
-  logits = config.inference(images, testing=True)
+  with tf.variable_scope("inference") as scope:    
+    logits = config.inference(images, testing=True)
 
   # Restore the moving average version of the learned variables for eval.
   #variable_averages = tf.train.ExponentialMovingAverage(config.training_params.moving_average_decay)
