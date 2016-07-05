@@ -7,7 +7,7 @@ from random import shuffle
 from functools import reduce
 import struct
 
-resize = 256
+resize = 128
 testing_size = 8000
 images_per_file = 4000
 
@@ -32,7 +32,7 @@ def write_chunk(chunks, i, data_type, aug=False):
   print(data_type, '\t', 'chunk:', i)
   labels = get_labels(chunks[i]) if aug == False else get_augmented_labels(chunks[i])
   images = list(map(load_thumbnail, chunks[i]))
-  name = 'data/driver_augmented/' + data_type + '_batch_' + str(i)
+  name = 'data/driver/' + data_type + '_batch_' + str(i)
   write_data(labels, images, name)
   
 def write_data(labels, images, name):
@@ -52,7 +52,7 @@ def write_in_chunks(filenames, data_type, aug=False):
     
 def preprocess_data(): 
   unique_labels = os.listdir('../raw/driver/train')
-  dirs = list(map(lambda l: os.path.join('raw/driver/train', l), unique_labels))
+  dirs = list(map(lambda l: os.path.join('../raw/driver/train', l), unique_labels))
   filenames = reduce(
                 list.__add__, 
                 list(map(
@@ -89,7 +89,7 @@ def write_submission_chunk(chunks, i):
   binary_lines = None
   images_and_labels = None
   images = None
-  newFile = open ('data/driver_augmented/submission_batch_' + str(i), "wb")
+  newFile = open ('data/driver/submission_batch_' + str(i), "wb")
   newFile.write(full_binary)
     
   return None
@@ -98,6 +98,3 @@ def write_submission_chunk(chunks, i):
 #%%
 preprocess_data()
 preprocess_submission_data()
-
-#%%
-four_bytes_label(1)
