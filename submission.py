@@ -11,11 +11,21 @@ import config_interface
 from input_manager import InputManager
 
 #%%
-def eval_once(config, saver, logits, files):
+def evaluate(config):
+  input_manager = InputManager(config)
+  images, files = input_manager.submission_inputs() 
+  logits = config.inference(images, testing=True)
+
+  # Restore the moving average version of the learned variables for eval.
+  variable_averages = tf.train.ExponentialMovingAverage(config.training_params.moving_average_decay)
+  variables_to_restore = variable_averages.variables_to_restore()
+  saver = tf.train.Saver(variables_to_restore)
+
+  # Build the summary operation based on the TF collection of Summaries.
   with tf.Session() as sess:
     ckpt = tf.train.get_checkpoint_state(config.ckpt_dir)
     if ckpt and ckpt.model_checkpoint_path:
-      # Restores from checkpoint
+      print(ckpt, ckpt.model_checkpoint_path)
       saver.restore(sess, ckpt.model_checkpoint_path)
     else:
       print('No checkpoint file found')
@@ -40,22 +50,6 @@ def eval_once(config, saver, logits, files):
 
     coord.request_stop()
     coord.join(threads, stop_grace_period_secs=10)
-
-
-def evaluate(config):
-  with tf.Graph().as_default() as g:
-    input_manager = InputManager(config)
-    images, files = input_manager.submission_inputs() 
-    logits = config.inference(images, testing=True)
-
-    # Restore the moving average version of the learned variables for eval.
-    variable_averages = tf.train.ExponentialMovingAverage(config.training_params.moving_average_decay)
-    variables_to_restore = variable_averages.variables_to_restore()
-    saver = tf.train.Saver(variables_to_restore)
-
-    # Build the summary operation based on the TF collection of Summaries.
-    eval_once(config, saver, logits, files)
-
 def main(argv=None):
   config = config_interface.get_config()
   evaluate(config)
