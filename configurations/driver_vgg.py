@@ -6,7 +6,7 @@ import configurations.losses.driver as loss
 import configurations.models.vggnet as model
 
 def get_config():
-  name = 'inception_resnet'
+  name = 'vggnet'
   freqs = {'display': 10, 'eval': 300, 'summary': 50, 'save': 1000}
   config = Configuration(name, dataset, training_params, loss, model, freqs)
   
