@@ -45,6 +45,6 @@ def testing_inference(input, keep_prob, batch_size, classes):
   architecture_output = architecture(input)
   return output(architecture_output, batch_size, classes)
 
-def inference(input, keep_prob, dataset, testing=False):
+def inference(input, training_params, dataset, testing=False):
   function = testing_inference if testing else training_inference
-  return function(input, keep_prob, dataset.batch_size, dataset.classes)
+  return function(input, training_params.keep_prob, training_params.batch_size, dataset.classes)

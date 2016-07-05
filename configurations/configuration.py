@@ -23,7 +23,7 @@ class Configuration:
     
     
   def inference(self, input, testing=False):
-    return self.model.inference(input, self.training_params.keep_prob, self.dataset, testing)
+    return self.model.inference(input, self.training_params, self.dataset, testing)
     
   def training_loss(self, logits, labels):
       return self.loss.training_loss(self.dataset, logits, labels)
