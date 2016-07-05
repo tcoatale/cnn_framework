@@ -2,7 +2,7 @@ import tensorflow as tf
 from configurations.models.layers import conv2d, local_layer
   
 #%%
-def architecture(input, keep_prob, batch_size, classes):
+def architecture(input):
   conv1 = conv2d([3, 3], 64, input, 'conv1')
   pool1 = tf.nn.max_pool(conv1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
   
