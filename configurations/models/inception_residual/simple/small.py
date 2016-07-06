@@ -17,19 +17,6 @@ def architecture(input):
   red_block3 = red_block(res_block8, 'red_block3')
   
   return red_block3
-  
-def output(input, classes):
-  return average_pool_vector([1, 1], classes, input, 'output')
-       
-def training_inference(input, keep_prob, classes):
-  architecture_output = architecture(input)
-  dropout_layer = tf.nn.dropout(architecture_output, keep_prob)
-  return output(dropout_layer, classes)
-    
-def testing_inference(input, keep_prob, classes):
-  architecture_output = architecture(input)
-  return output(architecture_output, classes)
 
-def inference(input, training_params, dataset, testing=False):
-    function = testing_inference if testing else training_inference
-    return function(input, training_params.keep_prob, dataset.classes)
+def output(input, training_params, dataset):
+  return average_pool_vector([1, 1], dataset.classes, input, 'output')

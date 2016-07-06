@@ -2,31 +2,24 @@ import os
 import tensorflow as tf
 from functools import reduce
 
-name = 'driver_augmented'
+name = 'driver'
 data_dir = os.path.join('data', name)
 
 #%% Dataset information
 train_size=14000
 valid_size=8000
-submission_size = 60000
+submission_size = 80000
 label_bytes=2
 id_bytes = 4
-original_shape=[256, 256, 3]
+original_shape=[128, 128, 3]
 classes=10
 sub_classes=2
 
 #%%
-eval_freq = 300
-display_freq=10
-summary_freq=50
-valid_freq=10
-save_freq=1000
-
-#%%
 classes_1=2
 classes=10
-imsize=192
-imshape=[192, 192, 3]
+imsize=96
+imshape=[imsize, imsize, 3]
 n_input = reduce(int.__mul__, imshape)
 
 def distort_inputs(reshaped_image):

@@ -99,7 +99,19 @@ def res_block(input, name):
   res = tf.add(input, conv2, name=name+'_res')
   res_relu = tf.nn.relu(res, name=name+'_res_relu')
   
+  print('name:', name, 'input', input.get_shape(), 'output', res_relu.get_shape())
   return res_relu
+  
+def vgg_block(input, name, channels):
+  with tf.variable_scope(name) as scope:
+    conv1 = conv2d_3x3_raw(input, channels / 2, name=scope.name+'_conv1')
+    conv1_relu = tf.nn.relu(conv1, name=scope.name+'_conv1_relu')
+    conv2 = conv2d_3x3_raw(conv1_relu, channels, name=scope.name+'_conv2')
+    conv2_relu = tf.nn.relu(conv2, name=scope.name+'_conv2_relu')
+    pool = tf.nn.max_pool(conv2_relu, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=scope.name+'_pool')
+  
+  print('name:', name, 'input', input.get_shape(), 'output', pool.get_shape())
+  return pool
   
 def inception_res_block(input, name):
   channels = input.get_shape()[3].value
@@ -115,19 +127,21 @@ def inception_res_block(input, name):
   res = tf.add(input, concat, name=name+'_res')
   res_relu = tf.nn.relu(res, name=name+'_res_relu')
   
+  print('name:', name, 'input', input.get_shape(), 'output', res_relu.get_shape())  
   return res_relu
   
 def red_block(input, name):
   channels = input.get_shape()[3].value
   pool = tf.nn.max_pool(input, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name + '_pool')
   conv = conv2d([1, 1], 2 * channels, pool, name=name+'_conv')
+  
+  print('name:', name, 'input', input.get_shape(), 'output', conv.get_shape())
   return conv
 
 def average_pool_vector(conv_shape, outputs, input, name):
   outputs_layer = conv2d(conv_shape, outputs, input, name + '_conv')
   width = input.get_shape()[1].value
   height = input.get_shape()[2].value
-  
   pool_layer = tf.nn.avg_pool(outputs_layer, ksize=[1, width, height, 1], strides=[1, width, height, 1], padding='VALID', name=name + '_pool')
   reshape = tf.reshape(pool_layer, [-1, outputs])
   

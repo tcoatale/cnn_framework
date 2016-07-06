@@ -30,18 +30,5 @@ def architecture(input):
   
   return res_block16
   
-def output(input, classes):
-  return average_pool_vector([1, 1], classes, input, 'output')
-       
-def training_inference(input, keep_prob, classes):
-  architecture_output = architecture(input)
-  dropout_layer = tf.nn.dropout(architecture_output, keep_prob)
-  return output(dropout_layer, classes)
-    
-def testing_inference(input, keep_prob, classes):
-  architecture_output = architecture(input)
-  return output(architecture_output, classes)
-
-def inference(input, keep_prob, dataset, testing=False):
-    function = testing_inference if testing else training_inference
-    return function(input, keep_prob, dataset.classes)
+def output(input, training_params, dataset):
+  return average_pool_vector([1, 1], dataset.classes, input, 'output')

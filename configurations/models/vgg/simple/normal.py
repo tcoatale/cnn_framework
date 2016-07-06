@@ -30,21 +30,8 @@ def architecture(input):
   
   return pool5
 
-def output(input, batch_size, classes):
-  reshape = tf.reshape(input, [batch_size, -1])
-  fc1 = local_layer(32, reshape, 'fc1')
-  fc2 = local_layer(32, fc1, 'fc2')  
-  return local_layer(classes, fc2, 'output')
-       
-def training_inference(input, keep_prob, batch_size, classes):
-  architecture_output = architecture(input)
-  dropout_layer = tf.nn.dropout(architecture_output, keep_prob)
-  return output(dropout_layer, batch_size, classes)
-    
-def testing_inference(input, keep_prob, batch_size, classes):
-  architecture_output = architecture(input)
-  return output(architecture_output, batch_size, classes)
-
-def inference(input, training_params, dataset, testing=False):
-  function = testing_inference if testing else training_inference
-  return function(input, training_params.keep_prob, training_params.batch_size, dataset.classes)
+def output(input, training_params, dataset):
+  reshape = tf.reshape(input, [training_params.batch_size, -1])
+  fc1 = local_layer(64, reshape, 'fc1')
+  fc2 = local_layer(64, fc1, 'fc2')  
+  return local_layer(dataset.classes, fc2, 'output')

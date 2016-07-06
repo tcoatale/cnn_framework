@@ -1,19 +1,21 @@
 from configurations.helper import initialize_directories
+from configurations.models.model import Model
+import os 
 
 class Configuration:
   def __init__(self, name, dataset, training_params, loss, model, freqs):
     self.dataset = dataset
     self.training_params = training_params
     self.loss = loss
-    self.model = model
+    self.model = Model(model)
     self.name = name
     
     self.initialize_directories()
     self.initialize_frequencies(freqs)
 
   def initialize_directories(self):
-    log_dir, ckpt_dir, eval_dir= 'log', 'ckpt', 'eval'
-    self.log_dir, self.ckpt_dir, self.eval_dir = initialize_directories([log_dir, ckpt_dir, eval_dir], self.dataset.name, self.name)
+    dirs = os.path.join('log', 'board'), os.path.join('log', 'ckpt')
+    self.log_dir, self.ckpt_dir, self.eval_dir = initialize_directories(dirs, self.dataset.name, self.name)
     
   def initialize_frequencies(self, freqs):
     self.display_freq = freqs['display']
