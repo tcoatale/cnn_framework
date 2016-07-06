@@ -3,7 +3,8 @@ import tensorflow as tf
 from functools import reduce
 
 name = 'driver'
-data_dir = os.path.join('data', name)
+size = 128
+data_dir = os.path.join('data', 'processed', name, str(size))
 
 #%% Dataset information
 train_size=14000
@@ -11,7 +12,7 @@ valid_size=8000
 submission_size = 80000
 label_bytes=2
 id_bytes = 4
-original_shape=[128, 128, 3]
+original_shape=[size, size, 3]
 classes=10
 sub_classes=2
 

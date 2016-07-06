@@ -110,7 +110,10 @@ def train(config):
 
 
 def main(argv=None):
-  config = config_interface.get_config()
+  if argv and len(argv) == 2:
+    config = config_interface.get_config_by_name(argv[1])
+  else:
+    config = config_interface.get_config()
   train(config)
 
 

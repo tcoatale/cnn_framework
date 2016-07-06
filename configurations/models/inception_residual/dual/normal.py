@@ -30,22 +30,9 @@ def architecture(input):
   
   return inception_res_block16
   
-def output(input, dataset):
+def output(input, training_params, dataset):
   sub_output = average_pool_vector([1, 1], dataset.sub_classes, input, 'sub_output')
   fc_input = average_pool_vector([1, 1], dataset.classes ** 2, input, 'fc_input')
   concat = tf.concat(1, [sub_output, fc_input], name='concat')
   final_output = local_layer(dataset.classes, concat, 'final_output')
   return sub_output, final_output
-       
-def training_inference(input, keep_prob, classes):
-  architecture_output = architecture(input)
-  dropout_layer = tf.nn.dropout(architecture_output, keep_prob)
-  return output(dropout_layer, classes)
-    
-def testing_inference(input, keep_prob, classes):
-  architecture_output = architecture(input)
-  return output(architecture_output, classes)
-
-def inference(input, keep_prob, dataset, testing=False):
-    function = testing_inference if testing else training_inference
-    return function(input, keep_prob, dataset)

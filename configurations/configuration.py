@@ -14,8 +14,8 @@ class Configuration:
     self.initialize_frequencies(freqs)
 
   def initialize_directories(self):
-    dirs = os.path.join('log', 'board'), os.path.join('log', 'ckpt')
-    self.log_dir, self.ckpt_dir, self.eval_dir = initialize_directories(dirs, self.dataset.name, self.name)
+    dirs = (os.path.join('log', 'board'), os.path.join('log', 'ckpt'))
+    self.log_dir, self.ckpt_dir = initialize_directories(dirs, self.dataset.name, self.name)
     
   def initialize_frequencies(self, freqs):
     self.display_freq = freqs['display']
