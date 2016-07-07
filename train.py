@@ -54,7 +54,7 @@ def train(config):
       evaluation_logits = config.inference(eval_images, testing=True)
         
     # Calculate loss.
-    loss = update_manager.loss_wrapper(training_logits, training_labels)
+    loss = update_manager.training_loss(training_logits, training_labels)
     eval_loss = update_manager.evaluation_loss(evaluation_logits, eval_labels)
 
     # Build a Graph that trains the model with one batch of examples and

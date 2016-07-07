@@ -8,39 +8,21 @@ class UpdateManager:
   def __init__(self, config):
     self.config = config
   
-  def loss_wrapper(self, logits, labels):
+  def training_loss(self, logits, labels):
     training_loss = self.config.training_loss(logits, labels)
-    tf.scalar_summary('loss_training', training_loss)
-    tf.add_to_collection('losses', training_loss)
-    loss_total = tf.add_n(tf.get_collection('losses'), name='loss_total')
-    return training_loss
+    l2_loss = tf.add_n(tf.get_collection('losses'))
+
+    tf.scalar_summary('training_loss', training_loss)
+    tf.scalar_summary('l2_loss', l2_loss)
+
+    return tf.add(training_loss, l2_loss)
     
   def evaluation_loss(self, logits, labels):
     evaluation_loss = self.config.evaluation_loss(logits, labels)
-    tf.scalar_summary('loss_evaluation', evaluation_loss)
+    tf.scalar_summary('evaluation_loss', evaluation_loss)
     return evaluation_loss
-
-  def _add_loss_summaries(self, loss_total):
-    """Add summaries for losses in CIFAR-10 model.
-    Generates moving average for all losses and associated summaries for
-    visualizing the performance of the network.
-    Args:
-      loss_total: Total loss from loss().
-    Returns:
-      loss_averages_op: op for generating moving averages of losses.
-    """
-    # Compute the moving average of all individual losses and the total loss.
-    loss_averages = tf.train.ExponentialMovingAverage(0.9, name='avg')
-    losses = tf.get_collection('losses')
-    loss_averages_op = loss_averages.apply(losses)# + [loss_total])
   
-    for l in losses:# + [loss_total]:
-      tf.scalar_summary(l.op.name, loss_averages.average(l))
-  
-    return loss_averages_op
-  
-  
-  def update(self, loss_total, global_step):
+  def update(self, loss, global_step):
     """Train model.
     Create an optimizer and apply to all trainable variables. Add moving
     average for all trainable variables.
@@ -55,39 +37,16 @@ class UpdateManager:
     decay_steps = int(num_batches_per_epoch * self.config.training_params.num_epochs_per_decay)
   
     # Decay the learning rate exponentially based on the number of steps.
-    lr = tf.train.exponential_decay(self.config.training_params.initial_learning_rate,
-                                    global_step,
-                                    decay_steps,
-                                    self.config.training_params.learning_rate_decay_factor,
-                                    staircase=True)
+    learning_rate = tf.train.exponential_decay(self.config.training_params.initial_learning_rate,
+                                              global_step,
+                                              decay_steps,
+                                              self.config.training_params.learning_rate_decay_factor,
+                                              staircase=True)
                                     
-    tf.scalar_summary('learning_rate', lr)
+    tf.scalar_summary('learning_rate', learning_rate)
   
-    # Generate moving averages of all losses and associated summaries.
-    loss_averages_op = self._add_loss_summaries(loss_total)
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+    #optimizer = tf.train.AdagradOptimizer(learning_rate, 0.01)
+    train_op = optimizer.minimize(loss, global_step=global_step)
   
-    # Compute gradients.
-    with tf.control_dependencies([loss_averages_op]):
-      opt = tf.train.GradientDescentOptimizer(lr)
-      grads = opt.compute_gradients(loss_total)
-  
-    # Apply gradients.
-    apply_gradient_op = opt.apply_gradients(grads, global_step=global_step)
-  
-    # Add histograms for trainable variables.
-    for var in tf.trainable_variables():
-      tf.histogram_summary(var.op.name, var)
-  
-    # Add histograms for gradients.
-    for grad, var in grads:
-      if grad is not None:
-        tf.histogram_summary(var.op.name + '/gradients', grad)
-  
-    # Track the moving averages of all trainable variables.
-    variable_averages = tf.train.ExponentialMovingAverage(self.config.training_params.moving_average_decay, global_step)
-    variables_averages_op = variable_averages.apply(tf.trainable_variables())
-  
-    with tf.control_dependencies([apply_gradient_op, variables_averages_op]):
-      update_op = tf.no_op(name='train')
-  
-    return update_op
+    return train_op

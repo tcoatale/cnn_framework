@@ -6,6 +6,7 @@ from functools import reduce
 import os
 import tensorflow as tf
 import glob
+import numpy as np
 
 class InputManager:
   def __init__(self, config):
@@ -46,11 +47,7 @@ class InputManager:
     record_bytes = tf.decode_raw(value, tf.uint8)
   
     # The first bytes represent the label, which we convert from uint8->int32.
-    label_array = tf.cast(tf.slice(record_bytes, [0], [label_bytes]), tf.int32)
-    multiplier = list(map(lambda l: (2 ** 8) ** l, range(label_bytes)))
-    multiplier.reverse()
-    
-    result.label = tf.reduce_sum(tf.mul(label_array, multiplier))
+    result.label = tf.cast(tf.slice(record_bytes, [0], [label_bytes]), tf.float32)
   
     # The remaining bytes after the label represent the image, which we reshape
     # from [depth * height * width] to [depth, height, width].
@@ -92,7 +89,7 @@ class InputManager:
           num_threads=num_preprocess_threads,
           capacity=min_queue_examples + 3 * batch_size)
   
-    return images, tf.reshape(label_batch, [batch_size])
+    return images, label_batch
   
   
   def distorted_inputs(self):

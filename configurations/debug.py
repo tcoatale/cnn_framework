@@ -7,7 +7,7 @@ import configurations.models.a as model
 
 def get_config():
   name = 'debug'
-  freqs = {'display': 10, 'eval': 3000, 'summary': 50, 'save': 1000}
+  freqs = {'display': 10, 'eval': 300, 'summary': 50, 'save': 1000}
   config = Configuration(name, dataset, training_params, loss, model, freqs)
   
   return config

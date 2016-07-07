@@ -1,142 +1,51 @@
 import tensorflow as tf
-import re
-import numpy as np
-TOWER_NAME = 'tower'
-
 
 #%%
-def _activation_summary(x):
-  # Remove 'tower_[0-9]/' from the name in case this is a multi-GPU training
-  # session. This helps the clarity of presentation on tensorboard.
-  tensor_name = re.sub('%s_[0-9]*/' % TOWER_NAME, '', x.op.name)
-  tf.histogram_summary(tensor_name + '/activations', x)
-  tf.scalar_summary(tensor_name + '/sparsity', tf.nn.zero_fraction(x))
-    
-def _variable_on_cpu(name, shape, initializer):
-  """Helper to create a Variable stored on CPU memory.
-  Args:
-    name: name of the variable
-    shape: list of ints
-    initializer: initializer for Variable
-  Returns:
-    Variable Tensor
-  """
-  with tf.device('/cpu:0'):
-    var = tf.get_variable(name, shape, initializer=initializer)
+def weight_variable(shape):
+  initial = tf.truncated_normal(shape, stddev=0.1)
+  var = tf.Variable(initial)
+  weight_decay = tf.mul(tf.nn.l2_loss(var), 1e-4, name='weight_loss')
+  tf.add_to_collection('losses', weight_decay)
   return var
 
-def _variable_with_weight_decay(name, shape, stddev, wd):
-  """Helper to create an initialized Variable with weight decay.
-  Note that the Variable is initialized with a truncated normal distribution.
-  A weight decay is added only if one is specified.
-  Args:
-    name: name of the variable
-    shape: list of ints
-    stddev: standard deviation of a truncated Gaussian
-    wd: add L2Loss weight decay multiplied by this float. If None, weight
-        decay is not added for this Variable.
-  Returns:
-    Variable Tensor
-  """
-  var = _variable_on_cpu(name, shape, tf.truncated_normal_initializer(stddev=stddev))
-  if wd is not None:
-    weight_decay = tf.mul(tf.nn.l2_loss(var), wd, name='weight_loss')
-    tf.add_to_collection('losses', weight_decay)
-  return var
-
-def normalize(input, name):
-  return tf.nn.lrn(input, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75, name=name)
-
-def conv2d_3x3_raw(input, channels, name):
-  shape = [3, 3] + [input.get_shape()[3]] + [channels]
-  
-  with tf.variable_scope(name) as scope:
-    kernel = _variable_with_weight_decay('weights', shape=shape, stddev=1e-4, wd=0.0)
-    biases = _variable_on_cpu('biases', shape[3], tf.constant_initializer(0.0))
-    convolution = tf.nn.conv2d(input, kernel, [1, 1, 1, 1], padding='SAME')
-    biased_convolution = tf.nn.bias_add(convolution, biases, name=scope.name)
-    normalized = normalize(input=biased_convolution, name=name + '_norm')
-  return normalized
-
-def conv2d(filter_shape, channels, input, name, stride=1):
-  shape = filter_shape + [input.get_shape()[3]] + [channels]
-  with tf.variable_scope(name) as scope:
-    kernel = _variable_with_weight_decay('weights', shape=shape, stddev=1e-4, wd=0.0)
-    convolution = tf.nn.conv2d(input, kernel, [1, stride, stride, 1], padding='SAME')
-    biases = _variable_on_cpu('biases', shape[3], tf.constant_initializer(0.0))
-    biased_convolution = tf.nn.bias_add(convolution, biases)
-    biased_nonlinear_convolution = normalize(tf.nn.relu(biased_convolution, name=scope.name), name=scope.name + '_norm')
+def bias_variable(shape):
+  initial = tf.constant(0.1, shape=shape)
+  return tf.Variable(initial)
     
-  return biased_nonlinear_convolution
+def conv2d(x, W):
+  return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
   
-def local_layer(units, input, name):
-  with tf.variable_scope(name) as scope:
-    # Move everything into depth so we can perform a single matrix multiply.
-    dim = input.get_shape()[1].value
-    weights = _variable_with_weight_decay('weights', shape=[dim, units], stddev=np.sqrt(2.0/dim), wd=0.004)
-    biases = _variable_on_cpu('biases', [units], tf.constant_initializer(0.1))
-    local4 = tf.nn.relu(tf.matmul(input, weights) + biases, name=scope.name)
-    _activation_summary(local4)
-    
-  return local4
-  
-def softmax_layer(units, input, name) :
-  with tf.variable_scope(name) as scope:
-    dim = input.get_shape()[1].value
-    weights = _variable_with_weight_decay('weights', [dim, units], stddev=np.sqrt(2.0/dim), wd=0.0)
-    biases = _variable_on_cpu('biases', [units], tf.constant_initializer(0.0))
-    softmax_linear = tf.nn.softmax(tf.add(tf.matmul(input, weights), biases, name=scope.name))
-    _activation_summary(softmax_linear)
-    
-  return softmax_linear
-  
-def res_block(input, name):
-  channels = input.get_shape()[3].value
-  conv1 = conv2d_3x3_raw(input, channels, name=name+'_conv1')
-  conv1_relu = tf.nn.relu(conv1, name=name+'_conv1_relu')
-  
-  conv2 = conv2d_3x3_raw(conv1_relu, channels, name=name+'_conv2')
-  res = tf.add(input, conv2, name=name+'_res')
-  res_relu = tf.nn.relu(res, name=name+'_res_relu')
-  
-  print('name:', name, 'input', input.get_shape(), 'output', res_relu.get_shape())
-  return res_relu
-  
-def vgg_block(input, name, channels):
-  with tf.variable_scope(name) as scope:
-    conv1 = conv2d_3x3_raw(input, channels / 2, name=scope.name+'_conv1')
-    conv1_relu = tf.nn.relu(conv1, name=scope.name+'_conv1_relu')
-    conv2 = conv2d_3x3_raw(conv1_relu, channels, name=scope.name+'_conv2')
-    conv2_relu = tf.nn.relu(conv2, name=scope.name+'_conv2_relu')
-    pool = tf.nn.max_pool(conv2_relu, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=scope.name+'_pool')
-  
-  print('name:', name, 'input', input.get_shape(), 'output', pool.get_shape())
-  return pool
-  
-def inception_res_block(input, name):
-  channels = input.get_shape()[3].value
+def normalize(input):
+  return tf.nn.lrn(input, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75)
 
-  conv11 = conv2d([1, 1], channels / 2, input, name=name+'_conv11')
-  conv12 = conv2d([3, 3], channels / 2, conv11, name=name+'_conv12')
+def conv2d_layer(input, filter_shape, channels):
+  shape = filter_shape + [input.get_shape()[3].value] + [channels]
+  W = weight_variable(shape)
+  b = bias_variable([shape[3]])
+  
+  return normalize(tf.nn.relu(conv2d(input, W) + b))
+  
+def fc_layer(input, units):
+  shape = [input.get_shape()[1].value, units]
+  W = weight_variable(shape)
+  b = bias_variable([units])
+  
+  return tf.nn.relu(tf.matmul(input, W) + b)
+  
+def readout_layer(input, classes):
+  shape = [input.get_shape()[1].value, classes]
+  W = weight_variable(shape)
+  b = bias_variable([classes])
+  
+  return tf.matmul(input, W) + b
 
-  conv21 = conv2d([1, 1], channels / 2, input, name=name+'_conv21')
-  conv22 = conv2d([5, 5], channels / 2, conv21, name=name+'_conv22')
+def softmax_layer(input):
+  return tf.nn.softmax(input)
+
+#%%
   
-  concat = tf.concat(3, [conv12, conv22])
-  
-  res = tf.add(input, concat, name=name+'_res')
-  res_relu = tf.nn.relu(res, name=name+'_res_relu')
-  
-  print('name:', name, 'input', input.get_shape(), 'output', res_relu.get_shape())  
-  return res_relu
-  
-def red_block(input, name):
-  channels = input.get_shape()[3].value
-  pool = tf.nn.max_pool(input, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name=name + '_pool')
-  conv = conv2d([1, 1], 2 * channels, pool, name=name+'_conv')
-  
-  print('name:', name, 'input', input.get_shape(), 'output', conv.get_shape())
-  return conv
+def flat(input):
+  return tf.reshape(input, [input.get_shape()[0].value, -1])
 
 def average_pool_vector(conv_shape, outputs, input, name):
   outputs_layer = conv2d(conv_shape, outputs, input, name + '_conv')
