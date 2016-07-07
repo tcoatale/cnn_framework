@@ -16,6 +16,6 @@ def architecture(input):
   
 def output(input, training_params, dataset):
   reshape = tf.reshape(input, [training_params.batch_size, -1])
-  fc1 = local_layer(256, reshape, 'fc1')
-  fc2 = local_layer(256, fc1, 'fc2')  
+  fc1 = local_layer(512, reshape, 'fc1')
+  fc2 = local_layer(512, fc1, 'fc2')  
   return local_layer(dataset.classes, fc2, 'output')

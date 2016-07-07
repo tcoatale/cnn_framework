@@ -9,4 +9,3 @@ def cross_entropy(logits, labels):
 def classification_rate(logits, labels):
   top_k_op = tf.nn.in_top_k(logits, labels, 1)
   return top_k_op
-  

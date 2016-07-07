@@ -13,7 +13,7 @@ class UpdateManager:
     tf.scalar_summary('loss_training', training_loss)
     tf.add_to_collection('losses', training_loss)
     loss_total = tf.add_n(tf.get_collection('losses'), name='loss_total')
-    return loss_total
+    return training_loss
     
   def evaluation_loss(self, logits, labels):
     evaluation_loss = self.config.evaluation_loss(logits, labels)
@@ -32,9 +32,9 @@ class UpdateManager:
     # Compute the moving average of all individual losses and the total loss.
     loss_averages = tf.train.ExponentialMovingAverage(0.9, name='avg')
     losses = tf.get_collection('losses')
-    loss_averages_op = loss_averages.apply(losses + [loss_total])
+    loss_averages_op = loss_averages.apply(losses)# + [loss_total])
   
-    for l in losses + [loss_total]:
+    for l in losses:# + [loss_total]:
       tf.scalar_summary(l.op.name, loss_averages.average(l))
   
     return loss_averages_op
