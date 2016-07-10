@@ -17,8 +17,6 @@ classes=10
 sub_classes=2
 
 #%%
-classes_1=2
-classes=10
 imsize=64
 
 imshape=[imsize, imsize, 3]

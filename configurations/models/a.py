@@ -1,13 +1,14 @@
-from configurations.models.layers import conv2d_layer, fc_layer, flat, readout_layer, softmax_layer
+from configurations.models.layers import conv2d_layer, fc_layer, flat, readout_layer, softmax_layer, pool_layer, normalize
 
 def architecture(input):  
-  conv0 = conv2d_layer(input, [3, 3], 16)
-  conv1 = conv2d_layer(conv0, [3, 3], 32)
-  conv2 = conv2d_layer(conv1, [3, 3], 64)
-  conv3 = conv2d_layer(conv2, [3, 3], 96)
-  reshape = flat(conv3)
-  fc1 = fc_layer(reshape, 128)
-  return fc1
+  conv1 = conv2d_layer(input, [5, 5], 64, name='conv1')
+  pool1 = normalize(pool_layer(conv1, 2, name='pool1'))
+  conv2 = conv2d_layer(pool1, [3, 3], 64, name='conv2')
+  pool2 = pool_layer(normalize(conv2), 2, name='pool2')
+  return pool2
   
 def output(input, training_params, dataset):
-  return softmax_layer(readout_layer(input, dataset.classes))
+  reshape = flat(input)
+  fc1 = fc_layer(reshape, 384, name='fc1')
+  fc2 = fc_layer(fc1, 192, name='fc2')
+  return softmax_layer(readout_layer(fc2, dataset.classes, name='out'))

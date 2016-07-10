@@ -10,28 +10,18 @@ class UpdateManager:
   
   def training_loss(self, logits, labels):
     training_loss = self.config.training_loss(logits, labels)
-    l2_loss = tf.add_n(tf.get_collection('losses'))
-
-    tf.scalar_summary('training_loss', training_loss)
-    tf.scalar_summary('l2_loss', l2_loss)
-
-    return tf.add(training_loss, l2_loss)
+    tf.add_to_collection('losses', training_loss)
+    total_loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
+    tf.add_to_collection('losses', total_loss)
+    return total_loss
     
-  def evaluation_loss(self, logits, labels):
-    evaluation_loss = self.config.evaluation_loss(logits, labels)
-    tf.scalar_summary('evaluation_loss', evaluation_loss)
-    return evaluation_loss
+  def _histogram_grad(self, gradient):
+    grad, var = gradient
+    if grad is not None:
+      tf.histogram_summary(var.op.name + '/gradients', grad)
+    
   
   def update(self, loss, global_step):
-    """Train model.
-    Create an optimizer and apply to all trainable variables. Add moving
-    average for all trainable variables.
-    Args:
-      loss_total: Total loss from loss().
-      global_step: Integer Variable counting the number of training steps processed.
-    Returns:
-      train_op: op for training.
-    """
     # Variables that affect learning rate.
     num_batches_per_epoch = self.config.dataset.train_size / self.config.training_params.batch_size
     decay_steps = int(num_batches_per_epoch * self.config.training_params.num_epochs_per_decay)
@@ -44,9 +34,26 @@ class UpdateManager:
                                               staircase=True)
                                     
     tf.scalar_summary('learning_rate', learning_rate)
+    loss_averages = tf.train.ExponentialMovingAverage(0.9, name='avg')
+    losses = tf.get_collection('losses')
+    loss_averages_op = loss_averages.apply(losses)
+    list(map(lambda l: tf.scalar_summary(l.op.name, loss_averages.average(l)), losses))
+    
+    with tf.control_dependencies([loss_averages_op]):
+      optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+      grads = optimizer.compute_gradients(loss)
   
-    optimizer = tf.train.GradientDescentOptimizer(learning_rate)
-    #optimizer = tf.train.AdagradOptimizer(learning_rate, 0.01)
-    train_op = optimizer.minimize(loss, global_step=global_step)
+    # Apply gradients.
+    apply_gradient_op = optimizer.apply_gradients(grads, global_step=global_step)
+    
+    list(map(lambda var: tf.histogram_summary(var.op.name, var), tf.trainable_variables()))
+    list(map(self._histogram_grad, grads))
+        
+    # Track the moving averages of all trainable variables.
+    variable_averages = tf.train.ExponentialMovingAverage(self.config.training_params.moving_average_decay, global_step)
+    variables_averages_op = variable_averages.apply(tf.trainable_variables())
+  
+    with tf.control_dependencies([apply_gradient_op, variables_averages_op]):
+      train_op = tf.no_op(name='train')
   
     return train_op

@@ -14,12 +14,12 @@ class Configuration:
     self.initialize_frequencies(freqs)
 
   def initialize_directories(self):
-    dirs = (os.path.join('log', 'board'), os.path.join('log', 'ckpt'))
-    self.log_dir, self.ckpt_dir = initialize_directories(dirs, self.dataset.name, self.name)
+    dirs = ['training_board', 'ckpt', 'eval_board']
+    dirs = list(map(lambda d: os.path.join('log', d), dirs))
+    self.log_dir, self.ckpt_dir , self.eval_dir = initialize_directories(dirs, self.dataset.name, self.name)
     
   def initialize_frequencies(self, freqs):
     self.display_freq = freqs['display']
-    self.eval_freq = freqs['eval']
     self.summary_freq = freqs['summary']
     self.save_freq = freqs['save']
     
