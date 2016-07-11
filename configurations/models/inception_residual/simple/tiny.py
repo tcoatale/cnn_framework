@@ -1,16 +1,16 @@
-import tensorflow as tf
-from configurations.models.layers import conv2d, red_block, inception_res_block, average_pool_vector
+from configurations.models.blocks import resnet_inception_block
+from configurations.models.layers import conv2d_layer, normalize, pool_layer, flat, fc_layer, softmax_layer, readout_layer
 
 def architecture(input):  
-  conv0 = conv2d([7, 7], 64, input, 'conv0', stride=2)
-  res_block1 = inception_res_block(conv0, 'res_block1')
-  red_block1 = red_block(res_block1, 'red_block1')  
-  res_block2 = inception_res_block(red_block1, 'res_block2')
-  res_block3 = inception_res_block(res_block2, 'res_block3')  
-  res_block4 = inception_res_block(res_block3, 'res_block4')
-  red_block2 = red_block(res_block4, 'red_block2')
-  
-  return red_block2
-  
+  conv0 = conv2d_layer(input, [3, 3], 64, 'conv0')
+  pool0 = normalize(pool_layer(conv0, 2, name='pool0'))
+  block1 = resnet_inception_block(pool0, 'block1')
+  pool1 = normalize(pool_layer(block1, 2, name='pool1'))
+  block2 = resnet_inception_block(pool1, 'block2')
+  return block2
+    
 def output(input, training_params, dataset):
-  return average_pool_vector([1, 1], dataset.classes, input, 'output')
+  reshape = flat(input)
+  fc1 = fc_layer(reshape, 384, name='fc1')
+  fc2 = fc_layer(fc1, 192, name='fc2')
+  return softmax_layer(readout_layer(fc2, dataset.classes, name='out'))

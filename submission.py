@@ -45,7 +45,10 @@ class Evaluator:
 
       while(True):    
         # Run evaluation
-        self.evaluate_once()
+        try:
+          self.evaluate_once()
+        except:
+          print('oHo')            
         time.sleep(self.config.training_params.eval_interval_secs)
 
   def evaluate_once(self):
@@ -124,7 +127,6 @@ class SubmissionManager:
       df = df.drop_duplicates(subset = ['img'], keep='first')
       df.to_csv('submission.csv', index=False)
       
-        
       coord.request_stop()
       coord.join(threads, stop_grace_period_secs=10)
     except Exception as e:
@@ -133,11 +135,15 @@ class SubmissionManager:
 
       
 def main(argv=None):
-  config = config_interface.get_config()
-  evaluator = Evaluator(config)
-  evaluator.run()
-  #submission_manager = SubmissionManager(config)
-  #submission_manager.run()
+  config = config_interface.get_config()  
+  if argv and len(argv) == 2 and argv[1] =='s':
+    print('\nSwitching to submission mode\n')
+    submission_manager = SubmissionManager(config)
+    submission_manager.run()
+  else:
+    evaluator = Evaluator(config)
+    evaluator.run()
+
   
 
 if __name__ == '__main__':

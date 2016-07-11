@@ -9,7 +9,6 @@ import numpy as np
 from six.moves import xrange
 import tensorflow as tf
 import PIL.Image
-import math
 
 from update_manager import UpdateManager
 from input_manager import InputManager
@@ -19,7 +18,7 @@ def display(image):
   image = image - np.min(image)
   image = image * 255 / np.max(image)
   im = PIL.Image.fromarray(np.uint8(image))
-  im.show()  
+  im.show()
 
 def train(config):
   """Train model for a number of steps."""
