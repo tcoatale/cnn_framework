@@ -162,9 +162,8 @@ class InputManager:
     # Read examples from files in the filename queue.
     read_input = self.read_binary(filename_queue, label_size_exception)
     reshaped_image = tf.cast(read_input.uint8image, tf.float32)
-  
-    height = self.config.dataset.imsize
-    width = self.config.dataset.imsize
+    
+    width, height, _ = self.config.dataset.imshape
   
     # Image processing for evaluation.
     # Crop the central [height, width] of the image.

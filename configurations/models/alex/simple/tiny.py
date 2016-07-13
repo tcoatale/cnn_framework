@@ -1,6 +1,7 @@
 import tensorflow as tf
-from configurations.models.layers import conv2d, local_layer
-  
+from configurations.models.layers import conv2d
+from configurations.models.blocks import fc_output
+
 #%%
 def architecture(input):
   conv1 = conv2d([11, 11], 96, input, 'conv1')
@@ -11,11 +12,7 @@ def architecture(input):
   conv6 = conv2d([3, 3], 384, conv5, 'conv6')
   conv7 = conv2d([3, 3], 256, conv6, 'conv7')
   pool8 = tf.nn.max_pool(conv7, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool8')
-
   return pool8
   
 def output(input, training_params, dataset):
-  reshape = tf.reshape(input, [training_params.batch_size, -1])
-  fc1 = local_layer(256, reshape, 'fc1')
-  fc2 = local_layer(256, fc1, 'fc2')  
-  return local_layer(dataset.classes, fc2, 'output')
+  return fc_output(input, dataset, [384, 192])

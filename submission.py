@@ -29,10 +29,10 @@ class Evaluator:
     
   def run(self):
     with tf.Graph().as_default() as g:
-      images, labels = self.input_manager.evaluation_inputs()  
+      images, self.labels = self.input_manager.evaluation_inputs()  
       with tf.variable_scope("inference"):    
-        logits = self.config.inference(images, testing=True) 
-      self.loss = self.config.evaluation_loss(logits, labels)
+        self.logits = self.config.inference(images, testing=True) 
+      self.loss = self.config.evaluation_loss(self.logits, self.labels)
     
       # Restore the moving average version of the learned variables for eval.
       variable_averages = tf.train.ExponentialMovingAverage(self.config.training_params.moving_average_decay)
@@ -64,7 +64,8 @@ class Evaluator:
       step = 0
       losses = []
       while step < num_iter and not coord.should_stop():
-        losses += sess.run([self.loss])
+        loss, logits, labels = sess.run([self.loss, self.logits, self.labels])
+        losses += [loss]
         step += 1
         
       average_loss = np.mean(losses)
