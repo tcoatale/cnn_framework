@@ -30,13 +30,13 @@ def train(config):
 
     # Get images and labels for dataset.
     training_images, training_labels = input_manager.distorted_inputs()
-
+    
     tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the inference model.
     with tf.variable_scope("inference"):
       training_logits = config.inference(training_images)
-        
+            
     # Calculate loss.
     loss = update_manager.training_loss(training_logits, training_labels)
 
@@ -85,10 +85,11 @@ def train(config):
         saver.save(sess, checkpoint_path, global_step=step)
 
 def main(argv=None):
-  if argv and len(argv) == 2:
-    config = config_interface.get_config_by_name(argv[1])
+  if argv and len(argv) == 3:
+    dataset, model = argv[1:]
   else:
-    config = config_interface.get_config()
+    dataset, model = 'pn', 'tiny_alex'
+  config = config_interface.get_config(dataset=dataset, model=model)    
   train(config)
 
 

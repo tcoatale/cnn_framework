@@ -1,5 +1,4 @@
 import tensorflow as tf
-import numpy as np
 
 #%% Dataset information
 name = 'pn'
@@ -9,6 +8,9 @@ label_bytes=5
 classes=36
 
 def split_labels(original_label):
-  label2 = tf.transpose(tf.gather(tf.transpose(original_label), [label_bytes]))
-  label1 = tf.transpose(tf.gather(tf.transpose(original_label), list(range(1,label_bytes))))
-  return label1, label2
+  true_labels = tf.transpose(tf.gather(tf.transpose(original_label), [label_bytes-1]))
+  true_labels_int32 = tf.reshape(tf.to_int32(true_labels),[-1]) 
+  #true_labels_dense = tf.to_int32(tf.equal(tf.range(0, classes), true_labels_int32))
+  #true_labels_dense_float = tf.to_float(true_labels_dense)  
+  index = tf.transpose(tf.gather(tf.transpose(original_label), list(range(label_bytes-1))))
+  return index, true_labels_int32

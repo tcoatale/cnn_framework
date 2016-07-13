@@ -10,5 +10,5 @@ def architecture(input):
   pool6 = pool_layer(normalize(conv5), 2, name='pool6')
   return pool6
   
-def output(input, training_params, dataset):
+def output(input, dataset):
   return fc_output(input, dataset, [384, 192])

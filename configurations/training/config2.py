@@ -1,5 +1,5 @@
 #%% Training information
-batch_size = 128
+batch_size = 64
 max_steps = 1000000
 moving_average_decay=0.9999
 

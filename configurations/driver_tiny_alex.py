@@ -1,8 +1,8 @@
 from configurations.configuration import Configuration
 
-import configurations.datasets.pn.t_64 as dataset
-import configurations.training.config2 as training_params
-import configurations.losses.pn as loss
+import configurations.datasets.driver.t_64 as dataset
+import configurations.training.config3 as training_params
+import configurations.losses.driver as loss
 import configurations.models.alex.tiny as model
 
 def get_config():

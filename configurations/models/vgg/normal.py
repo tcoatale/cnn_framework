@@ -30,7 +30,7 @@ def architecture(input):
   
   return pool5
 
-def output(input, training_params, dataset):
+def output(input, dataset):
   reshape = tf.reshape(input, [training_params.batch_size, -1])
   fc1 = local_layer(64, reshape, 'fc1')
   fc2 = local_layer(64, fc1, 'fc2')  

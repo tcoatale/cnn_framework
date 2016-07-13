@@ -1,5 +1,5 @@
 import tensorflow as tf
-from configurations.models.layers import conv2d_layer, flat, fc_layer, softmax_layer, readout_layer
+from configurations.models.layers import conv2d_layer, flat, fc_layer, softmax_layer, readout_layer, normalize
 
 def resnet_inception_block(input, name):
   channels = input.get_shape()[3].value
@@ -24,6 +24,6 @@ def fc_output(input, dataset, fc_units_list):
     fc = fc_layer(fcs[i-1], fc_units_list[i], name='fc' + str(i+1))
     fcs += [fc]
 
-  return softmax_layer(readout_layer(fcs[-1], dataset.classes, name='out'))
+  return tf.nn.l2_normalize(readout_layer(fcs[-1], dataset.classes, name='out'), dim=1)
     
   
