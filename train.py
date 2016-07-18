@@ -30,13 +30,13 @@ def train(config):
 
     # Get images and labels for dataset.
     training_images, training_labels = input_manager.distorted_inputs()
-    
+
     tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the inference model.
     with tf.variable_scope("inference"):
-      training_logits = config.inference(training_images)
-            
+      training_logits = tf.to_double(config.inference(training_images))
+                        
     # Calculate loss.
     loss = update_manager.training_loss(training_logits, training_labels)
 
@@ -71,7 +71,7 @@ def train(config):
       if step % config.display_freq == 0:
         num_examples_per_step = config.training_params.batch_size
         examples_per_sec = num_examples_per_step / duration
-        sec_per_batch = float(duration)
+        sec_per_batch = float(duration) 
         format_str = ('%s: step %d, loss = %.8f (%.1f examples/sec; %.3f sec/batch)')
         print (format_str % (datetime.now(), step, loss_value, examples_per_sec, sec_per_batch))
 
@@ -86,9 +86,9 @@ def train(config):
 
 def main(argv=None):
   if argv and len(argv) == 3:
-    dataset, model = argv[1:]
+    dataset, model = argv[1:] 
   else:
-    dataset, model = 'pn', 'tiny_alex'
+    dataset, model = 'pn', 'tiny_resnet'
   config = config_interface.get_config(dataset=dataset, model=model)    
   train(config)
 

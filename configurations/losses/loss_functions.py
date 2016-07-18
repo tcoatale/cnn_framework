@@ -1,7 +1,14 @@
 import tensorflow as tf
 
-def cross_entropy(logits, labels):
-  return tf.reduce_mean(-tf.reduce_sum(labels * tf.log(logits + 1e-15), reduction_indices=[1]), name='cross_entropy')
+def cross_entropy(logits, dense_labels):  
+  flat_logits = tf.reshape(logits, [-1])
+  ranges = tf.range(tf.shape(logits)[0]) * tf.shape(logits)[1]
+    
+  sparse_labels = tf.argmax(dense_labels, dimension=1)
+  indices = ranges + tf.to_int32(sparse_labels)
+  loss = tf.cast(-tf.reduce_mean(tf.log(tf.gather(flat_logits, indices))), tf.float32)
+
+  return loss
 
 def classification_rate(logits, labels):
   top_k_op = tf.nn.in_top_k(logits, labels, 1)
