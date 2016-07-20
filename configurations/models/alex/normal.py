@@ -1,5 +1,5 @@
-from configurations.models.layers import conv2d_layer, pool_layer
-from configurations.models.blocks import fc_output
+from configurations.models.blocks.layers import conv2d_layer, pool_layer
+from configurations.models.blocks.output_blocks import fc_output
 
 #%%
 def architecture(input):
@@ -8,7 +8,6 @@ def architecture(input):
   pool2 = pool_layer(conv1, 2, name='pool2')
   conv3 = conv2d_layer(pool2, [5, 5], 256, name='conv3')
   pool4 = pool_layer(conv3, 2, name='pool4')
-  print(pool4.get_shape())
   conv5 = conv2d_layer(pool4, [3, 3], 384, name='conv5')
   conv6 = conv2d_layer(conv5, [3, 3], 384, name='conv6')
   conv7 = conv2d_layer(conv6, [3, 3], 256, name='conv7')
@@ -17,4 +16,4 @@ def architecture(input):
   return pool8
   
 def output(input, dataset):
-  return fc_output(input, dataset, [1024, 1024])
+  return fc_output(input, dataset, [2048, 2048])

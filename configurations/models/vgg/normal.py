@@ -1,5 +1,7 @@
 import tensorflow as tf
-from configurations.models.layers import conv2d, local_layer
+from configurations.models.blocks.layers import conv2d, local_layer
+from configurations.models.blocks.output_blocks import fc_output,
+
   
 #%%
 def architecture(input):
@@ -31,7 +33,4 @@ def architecture(input):
   return pool5
 
 def output(input, dataset):
-  reshape = tf.reshape(input, [training_params.batch_size, -1])
-  fc1 = local_layer(64, reshape, 'fc1')
-  fc2 = local_layer(64, fc1, 'fc2')  
-  return local_layer(dataset.classes, fc2, 'output')
+  return fc_output(input, dataset, [768, 384])

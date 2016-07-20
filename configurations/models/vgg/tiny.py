@@ -1,5 +1,6 @@
-from configurations.models.layers import conv2d_layer, pool_layer, normalize
-from configurations.models.blocks import fc_output
+from configurations.models.blocks.layers import conv2d_layer, pool_layer, normalize
+from configurations.models.blocks.output_blocks import fc_output
+
 
 def architecture(input):  
   conv1 = conv2d_layer(input, [5, 5], 64, name='conv1')
