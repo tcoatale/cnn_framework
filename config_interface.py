@@ -7,7 +7,8 @@ import configurations.pn_small_resnet
 
 import configurations.driver_tiny_vgg
 import configurations.driver_tiny_alex
-import configurations.driver_normal_alex
+import configurations.driver_normal_alex_32
+import configurations.driver_normal_alex_64
 
 configurations_dictionnary = {'pn' : {
                                 'tiny_vgg': configurations.pn_tiny_vgg, 
@@ -19,7 +20,8 @@ configurations_dictionnary = {'pn' : {
                               'driver' : {
                                 'tiny_vgg': configurations.driver_tiny_vgg, 
                                 'tiny_alex': configurations.driver_tiny_alex,
-                                'normal_alex': configurations.driver_normal_alex},
+                                'normal_alex_32': configurations.driver_normal_alex_32,
+                                'normal_alex_64': configurations.driver_normal_alex_64},
                              }
 
 def get_config(dataset=None, model=None):
