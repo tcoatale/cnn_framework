@@ -3,7 +3,7 @@ import configurations.pn_tiny_alex
 import configurations.pn_normal_alex_32
 import configurations.pn_small_alex_64
 import configurations.pn_tiny_resnet_32
-import configurations.pn_small_resnet
+import configurations.pn_small_resnet_64
 
 import configurations.driver_tiny_vgg
 import configurations.driver_tiny_alex
