@@ -3,7 +3,7 @@ from configurations.configuration import Configuration
 import configurations.datasets.driver.t_32 as dataset
 import configurations.training.config2 as training_params
 import configurations.losses.driver as loss
-import configurations.models.alex.normal as model
+import configurations.models.alex.small as model
 
 def get_config():
   name = 'normal_alex_32'

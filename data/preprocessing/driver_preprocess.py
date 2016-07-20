@@ -43,10 +43,6 @@ def get_labels(filenames):
 def get_augmented_labels(filenames):
   labels = get_labels(filenames)
   augmentation = np.array(list(map(get_augmented_label, labels)), dtype=np.uint8)
-  
-  labels = dense_to_one_hot(labels, classes)
-  augmentation = dense_to_one_hot(augmentation, aug_classes)
-  
   augmented_labels = np.hstack([labels, augmentation])
   return augmented_labels
     
