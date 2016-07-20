@@ -13,7 +13,7 @@ class UpdateManager:
     tf.add_to_collection('losses', training_loss)
     total_loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
     tf.add_to_collection('losses', total_loss)
-    return total_loss
+    return training_loss, total_loss
     
   def _histogram_grad(self, gradient):
     grad, var = gradient

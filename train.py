@@ -38,10 +38,10 @@ def train(config):
       training_logits = tf.to_double(config.inference(training_images))
                         
     # Calculate loss.
-    loss = update_manager.training_loss(training_logits, training_labels)
+    training_loss, total_loss = update_manager.training_loss(training_logits, training_labels)
 
     # Build a Graph that trains the model with one batch of examples and updates the model parameters.
-    train_op = update_manager.update(loss, global_step)
+    train_op = update_manager.update(total_loss, global_step)
 
     # Create a saver.
     saver = tf.train.Saver(tf.all_variables())
@@ -62,18 +62,19 @@ def train(config):
     summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
 
     for step in xrange(config.training_params.max_steps):
+      l, p = sess.run([training_logits, training_labels])
       start_time = time.time()
-      _, loss_value = sess.run([train_op, loss])
+      _, training_loss_value, total_loss_value = sess.run([train_op, training_loss, total_loss])
       duration = time.time() - start_time
 
-      assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
+      assert not np.isnan(total_loss_value), 'Model diverged with loss = NaN'
 
       if step % config.display_freq == 0:
         num_examples_per_step = config.training_params.batch_size
         examples_per_sec = num_examples_per_step / duration
         sec_per_batch = float(duration) 
-        format_str = ('%s: step %d, loss = %.8f (%.1f examples/sec; %.3f sec/batch)')
-        print (format_str % (datetime.now(), step, loss_value, examples_per_sec, sec_per_batch))
+        format_str = ('%s: step %d, training loss = %.8f total loss = %.8f (%.1f examples/sec; %.3f sec/batch)')
+        print (format_str % (datetime.now(), step, training_loss_value, total_loss_value, examples_per_sec, sec_per_batch))
 
       if step % config.summary_freq == 0:
         summary_str = sess.run(summary_op)
@@ -88,7 +89,7 @@ def main(argv=None):
   if argv and len(argv) == 3:
     dataset, model = argv[1:] 
   else:
-    dataset, model = 'pn', 'normal_alex'
+    dataset, model = 'driver', 'normal_alex'
   config = config_interface.get_config(dataset=dataset, model=model)    
   train(config)
 
