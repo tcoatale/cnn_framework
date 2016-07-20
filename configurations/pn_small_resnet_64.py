@@ -6,7 +6,7 @@ import configurations.losses.pn as loss
 import configurations.models.resnet.small as model
 
 def get_config():
-  name = 'small_resnet'
+  name = 'small_resnet_64'
   freqs = {'display': 10, 'summary': 50, 'save': 500}
   config = Configuration(name, dataset, training_params, loss, model, freqs)
   return config

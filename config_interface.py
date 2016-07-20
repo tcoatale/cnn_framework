@@ -14,7 +14,7 @@ configurations_dictionnary = {'pn' : {
                                 'tiny_vgg': configurations.pn_tiny_vgg, 
                                 'tiny_alex': configurations.pn_tiny_alex,
                                 'tiny_resnet_32': configurations.pn_tiny_resnet_32,
-                                'small_resnet': configurations.pn_small_resnet,
+                                'small_resnet_64': configurations.pn_small_resnet_64,
                                 'normal_alex_32': configurations.pn_normal_alex_32,
                                 'small_alex_64': configurations.pn_small_alex_64},
                               'driver' : {

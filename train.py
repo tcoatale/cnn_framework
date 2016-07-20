@@ -89,7 +89,7 @@ def main(argv=None):
   if argv and len(argv) == 3:
     dataset, model = argv[1:] 
   else:
-    dataset, model = 'pn', 'tiny_resnet_32'
+    dataset, model = 'pn', 'small_resnet_64'
   config = config_interface.get_config(dataset=dataset, model=model)    
   train(config)
 
