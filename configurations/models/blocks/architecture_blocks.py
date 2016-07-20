@@ -12,7 +12,8 @@ def resnet_macro_block(input, channels, name):
     b1 = resnet_block(b0, name='b1')
     b2 = resnet_block(b1, name='b2')
     b3 = resnet_block(b2, name='b3')
-  return b3
+    b4 = resnet_block(b3, name='b4')
+  return b4
 
 def resnet_block(input, name):
   channels = input.get_shape()[3].value

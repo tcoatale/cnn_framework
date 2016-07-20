@@ -7,12 +7,11 @@ def architecture(input):
   print(input.get_shape())
   start = resnet_starter(input, 64)
   macro_b1 = block(start, channels = 128, name='macro_b1')
-  macro_b2 = block(macro_b1, channels = 256, name='macro_b2')
-  macro_b3 = block(macro_b2, channels = 384, name='macro_b3')
-  macro_b4 = block(macro_b3, channels = 256, name='macro_b4')
-  macro_b5 = block(macro_b4, channels = 128, name='macro_b5')
-  print(macro_b5.get_shape())
-  return macro_b5
+  macro_b2 = block(macro_b1, channels = 384, name='macro_b2')
+  macro_b3 = block(macro_b2, channels = 512, name='macro_b3')
+  macro_b4 = block(macro_b3, channels = 384, name='macro_b4')
+  print(macro_b4.get_shape())
+  return macro_b4
   
 def output(input, dataset):
   classes = dataset.classes
