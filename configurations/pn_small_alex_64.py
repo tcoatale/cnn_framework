@@ -1,7 +1,7 @@
 from configurations.configuration import Configuration
 
 import configurations.datasets.pn.t_64 as dataset
-import configurations.training.config2 as training_params
+import configurations.training.fast as training_params
 import configurations.losses.pn as loss
 import configurations.models.alex.normal as model
 

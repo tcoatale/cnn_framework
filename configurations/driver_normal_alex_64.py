@@ -1,7 +1,7 @@
 from configurations.configuration import Configuration
 
 import configurations.datasets.driver.t_64 as dataset
-import configurations.training.config2 as training_params
+import configurations.training.slow as training_params
 import configurations.losses.driver as loss
 import configurations.models.alex.normal as model
 
