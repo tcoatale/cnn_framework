@@ -12,7 +12,7 @@ import PIL.Image
 
 from update_manager import UpdateManager
 from input_manager import InputManager
-import config_interface
+import configurations.interfaces.configuration_interface as config_interface
 
 def display(image):
   image = image - np.min(image)
@@ -86,11 +86,17 @@ def train(config):
         saver.save(sess, checkpoint_path, global_step=step)
 
 def main(argv=None):
-  if argv and len(argv) == 3:
-    dataset, model = argv[1:] 
+  if argv and len(argv) == 7:
+    dataset_name, dataset_size, training, loss_name, model_name, model_size = argv[1:] 
   else:
-    dataset, model = 'pn', 'small_resnet_64'
-  config = config_interface.get_config(dataset=dataset, model=model)    
+    dataset_name = 'driver'
+    dataset_size = '64'
+    training = 'fast'
+    loss_name = 'driver'
+    model_name = 'resnet'
+    model_size = 'small'
+    
+  config = config_interface.get_config(dataset_name, dataset_size, training, loss_name, model_name, model_size)    
   train(config)
 
 
