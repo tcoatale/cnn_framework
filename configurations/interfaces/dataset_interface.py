@@ -8,8 +8,8 @@ import configurations.datasets.pn.t_32
 import configurations.datasets.pn.t_64
 
 
-datasets_dictionnary = {'pn': {'32': configurations.models.alex.tiny,  
-                             '64': configurations.models.alex.small}, 
+datasets_dictionnary = {'pn': {'32': configurations.datasets.pn.t_32,
+                             '64': configurations.datasets.pn.t_64}, 
                       'driver': {'32': configurations.datasets.driver.t_32, 
                                  '64': configurations.datasets.driver.t_64, 
                                  '96': configurations.datasets.driver.t_96, 
