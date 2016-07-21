@@ -1,6 +1,6 @@
 #%% Training information
 batch_size = 128
-max_steps = 1000000
+max_steps = 60000
 
 #%%
 moving_average_decay=0.9999

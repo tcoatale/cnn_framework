@@ -1,6 +1,6 @@
 import tensorflow as tf
-from configurations.models.blocks.layers import conv2d, local_layer
-from configurations.models.blocks.output_blocks import fc_output,
+from configurations.models.blocks.layers import conv2d
+from configurations.models.blocks.output_blocks import fc_output
 
   
 #%%
