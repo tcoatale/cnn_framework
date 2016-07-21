@@ -2,6 +2,7 @@
 import configurations.training.fast
 import configurations.training.slow
 import configurations.training.slower
+import configurations.training.extra_slow
 
 params_dictionnary = {'fast': configurations.training.fast, 'slow' :configurations.training.slow, 'slower': configurations.training.slower, 'extra_slow': configurations.training.extra_slow}
 
