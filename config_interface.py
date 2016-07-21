@@ -9,6 +9,7 @@ import configurations.driver_tiny_vgg
 import configurations.driver_tiny_alex
 import configurations.driver_small_alex_32
 import configurations.driver_normal_alex_64
+import configurations.driver_small_resnet_64
 
 configurations_dictionnary = {'pn' : {
                                 'tiny_vgg': configurations.pn_tiny_vgg, 
@@ -21,6 +22,7 @@ configurations_dictionnary = {'pn' : {
                                 'tiny_vgg': configurations.driver_tiny_vgg, 
                                 'tiny_alex': configurations.driver_tiny_alex,
                                 'small_alex_32': configurations.driver_small_alex_32,
+                                'small_resnet_64': configurations.driver_small_resnet_64,
                                 'normal_alex_64': configurations.driver_normal_alex_64},
                              }
 
