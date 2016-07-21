@@ -5,7 +5,7 @@ max_steps = 60000
 #%%
 moving_average_decay=0.9999
 num_epochs_per_decay=50.0
-learning_rate_decay_factor=1e-3
+learning_rate_decay_factor=1e-5
 initial_learning_rate=0.1
 
 #%%
