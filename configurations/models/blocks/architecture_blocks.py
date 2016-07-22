@@ -14,6 +14,15 @@ def resnet_macro_block(input, channels, name):
     b3 = resnet_block(b2, name='b3')
     b4 = resnet_block(b3, name='b4')
   return b4
+  
+def resnet_inception_macro_block(input, channels, name):
+  with tf.variable_scope(name + '_macro'):
+    b0 = reduction_block(input, channels, name='b0')
+    b1 = resnet_inception_block(b0, name='b1')
+    b2 = resnet_inception_block(b1, name='b2')
+    b3 = resnet_inception_block(b2, name='b3')
+    b4 = resnet_inception_block(b3, name='b4')
+  return b4
 
 def resnet_block(input, name):
   channels = input.get_shape()[3].value
