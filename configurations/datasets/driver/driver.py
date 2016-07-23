@@ -15,11 +15,8 @@ sub_classes=2
 def split_labels(original_label):
   true_sparse_label = tf.cast(tf.transpose(tf.gather(tf.transpose(original_label), list(range(1)))), tf.int32)
   augmentation_sparse_label = tf.cast(tf.transpose(tf.gather(tf.transpose(original_label), list(range(1, 2)))), tf.int32)
-  
-  true_dense_label = sparse_to_dense(true_sparse_label, classes)
-  augmentation_dense_label = sparse_to_dense(augmentation_sparse_label, sub_classes)
-  
-  return augmentation_dense_label, true_dense_label
+    
+  return augmentation_sparse_label, true_sparse_label
   
 def retrieve_file_id(file_array_id):
   multiplier = list(map(lambda i: (2 ** 8) ** i, range(id_bytes)))
