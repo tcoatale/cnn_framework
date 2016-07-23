@@ -90,11 +90,11 @@ def main(argv=None):
     dataset_name, dataset_size, training, loss_name, model_name, model_size = argv[1:] 
   else:
     dataset_name = 'driver'
-    dataset_size = '64'
+    dataset_size = '32'
     training = 'fast'
     loss_name = 'driver'
-    model_name = 'resnet'
-    model_size = 'small'
+    model_name = 'basic'
+    model_size = 'normal'
     
   config = config_interface.get_config(dataset_name, dataset_size, training, loss_name, model_name, model_size)    
   train(config)
