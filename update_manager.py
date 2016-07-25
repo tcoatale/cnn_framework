@@ -12,8 +12,7 @@ class UpdateManager:
     training_loss = self.config.training_loss(logits, labels)
     tf.add_to_collection('losses', training_loss)
     total_loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
-    tf.add_to_collection('losses', total_loss)
-    return training_loss, total_loss
+    return total_loss
     
   def _histogram_grad(self, gradient):
     grad, var = gradient
@@ -34,9 +33,12 @@ class UpdateManager:
                                               staircase=True)
                                     
     tf.scalar_summary('learning_rate', learning_rate)
+    
     loss_averages = tf.train.ExponentialMovingAverage(0.9, name='avg')
-    losses = tf.get_collection('losses')
+    
+    losses = tf.get_collection('losses') + [loss]
     loss_averages_op = loss_averages.apply(losses)
+    
     list(map(lambda l: tf.scalar_summary(l.op.name, loss_averages.average(l)), losses))
     
     with tf.control_dependencies([loss_averages_op]):

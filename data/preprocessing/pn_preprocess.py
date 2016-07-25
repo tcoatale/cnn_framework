@@ -22,7 +22,7 @@ testing_frames_dir = os.path.join(frames_dir, 'test')
 processed_dir = os.path.join('..', 'processed', 'pn')
 
 #%%
-training_sequences = ['20160107']
+training_sequences = ['20160707']
 testing_sequences = ['20160505']
 meta = pd.read_excel(os.path.join(dataset_dir, 'meta.xlsx'))
 classes = pd.read_excel(os.path.join(dataset_dir, 'classes.xlsx'))
@@ -129,6 +129,6 @@ def write_sequence_in_chunks(sequence_type, sequence, meta, classes):
 #%%
 sequence = training_sequences[0]
 write_sequence_in_chunks('data_batch', sequence, meta, classes)
-sequence = testing_sequences[0]
+#sequence = testing_sequences[0]
 #write_sequence_in_chunks('test_batch', sequence, meta, classes)
 

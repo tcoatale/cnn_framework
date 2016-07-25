@@ -38,8 +38,9 @@ def train(config):
       training_logits = tf.to_double(config.inference(training_images))
                         
     # Calculate loss.
-    training_loss, total_loss = update_manager.training_loss(training_logits, training_labels)
-
+    total_loss = update_manager.training_loss(training_logits, training_labels)
+    classirate = config.loss.classirate(config.dataset, training_logits, training_labels)
+   
     # Build a Graph that trains the model with one batch of examples and updates the model parameters.
     train_op = update_manager.update(total_loss, global_step)
 
@@ -62,9 +63,13 @@ def train(config):
     summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
 
     for step in xrange(config.training_params.max_steps):
-      l, p = sess.run([training_logits, training_labels])
       start_time = time.time()
-      _, training_loss_value, total_loss_value = sess.run([train_op, training_loss, total_loss])
+      _, _, _, total_loss_value, classirate_value = sess.run([training_logits, 
+                                      training_labels, 
+                                      train_op, 
+                                      total_loss, 
+                                      classirate])
+                                      
       duration = time.time() - start_time
 
       assert not np.isnan(total_loss_value), 'Model diverged with loss = NaN'
@@ -72,10 +77,9 @@ def train(config):
       if step % config.display_freq == 0:
         num_examples_per_step = config.training_params.batch_size
         examples_per_sec = num_examples_per_step / duration
-        sec_per_batch = float(duration) 
-        format_str = ('%s: step %d, training loss = %.8f total loss = %.8f (%.1f examples/sec; %.3f sec/batch)')
-        print (format_str % (datetime.now(), step, training_loss_value, total_loss_value, examples_per_sec, sec_per_batch))
-
+        print(datetime.now(), 'Step', step, 'Speed:', int(examples_per_sec), end='\t')
+        print('Training loss:', total_loss_value, 'Classirate:', classirate_value, end='\n')
+        
       if step % config.summary_freq == 0:
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)

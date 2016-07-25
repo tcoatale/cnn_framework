@@ -7,8 +7,11 @@ def fc_output(input, dataset, fc_units_list):
   for i in range(1, len(fc_units_list)):
     fc = fc_layer(fcs[i-1], fc_units_list[i], name='fc' + str(i+1))
     fcs += [fc]
+    
+  normalized_output = tf.nn.l2_normalize(readout_layer(fcs[-1], dataset.classes, name='normalized_output'), dim=1)
+  rectified_output = tf.nn.relu(normalized_output, name='rectified_output')
 
-  return tf.nn.softmax(tf.nn.l2_normalize(readout_layer(fcs[-1], dataset.classes, name='out'), dim=1))
+  return rectified_output
   
   
 def average_pool_vector(conv_shape, outputs, input, name):
