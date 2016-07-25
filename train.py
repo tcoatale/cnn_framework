@@ -8,17 +8,12 @@ import time
 import numpy as np
 from six.moves import xrange
 import tensorflow as tf
-import PIL.Image
 
 from update_manager import UpdateManager
 from input_manager import InputManager
 import configurations.interfaces.configuration_interface as config_interface
 
-def display(image):
-  image = image - np.min(image)
-  image = image * 255 / np.max(image)
-  im = PIL.Image.fromarray(np.uint8(image))
-  im.show()
+
 
 def train(config):
   """Train model for a number of steps."""
@@ -90,19 +85,8 @@ def train(config):
         saver.save(sess, checkpoint_path, global_step=step)
 
 def main(argv=None):
-  if argv and len(argv) == 7:
-    dataset_name, dataset_size, training, loss_name, model_name, model_size = argv[1:] 
-  else:
-    dataset_name = 'driver'
-    dataset_size = '64'
-    training = 'fast'
-    loss_name = 'driver'
-    model_name = 'alex'
-    model_size = 'small'
-    
-  config = config_interface.get_config(dataset_name, dataset_size, training, loss_name, model_name, model_size)    
+  config = config_interface.get_config(argv)    
   train(config)
-
 
 if __name__ == '__main__':
   tf.app.run()
