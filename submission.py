@@ -121,6 +121,10 @@ class SubmissionManager:
         step += 1
         
       predictions = np.vstack(predictions)
+      predictions = np.float32(predictions)
+      predictions += 1e-3
+      row_sums = np.reshape(predictions.sum(axis=1), [-1, 1])
+      predictions /= row_sums
       
       df = pd.DataFrame(data=predictions)
       cols = list(map(lambda c: 'c' + str(c), range(10)))
@@ -139,14 +143,14 @@ class SubmissionManager:
       
 def main(argv=None):
   dataset_name = 'driver'
-  dataset_size = '32'
+  dataset_size = '64'
   training = 'fast'
   loss_name = 'driver'
-  model_name = 'basic'
-  model_size = 'normal'
+  model_name = 'alex'
+  model_size = 'small'
   
   config = config_interface.get_config(dataset_name, dataset_size, training, loss_name, model_name, model_size)    
-  
+  #argv.append('s')
   if argv and len(argv) == 2 and argv[1] =='s':
     print('\nSwitching to submission mode\n')
     submission_manager = SubmissionManager(config)
