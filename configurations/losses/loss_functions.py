@@ -20,6 +20,7 @@ def cross_entropy(logits, dense_labels):
 def classification_rate(logits, labels):
   preds = tf.cast(logits, tf.float32)
   targets = tf.reshape(labels, [-1])
-  classirate = tf.reduce_sum(tf.cast(tf.nn.in_top_k(preds, targets, 1), tf.int32)) / targets.get_shape()[0]
+  boolean_good_classifications = tf.nn.in_top_k(preds, tf.cast(targets, tf.int32), 1)
+  classirate = tf.reduce_sum(tf.cast(boolean_good_classifications, tf.int32)) / targets.get_shape()[0]
   classirate = tf.mul(classirate, tf.Variable(1e2, dtype=tf.float64, trainable=False))
   return classirate
