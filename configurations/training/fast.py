@@ -10,4 +10,4 @@ initial_learning_rate = 1e-1
 
 #%%
 keep_prob = 0.8
-
+eval_interval_secs = int(60 * 1.5)

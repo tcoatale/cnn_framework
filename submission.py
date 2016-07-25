@@ -9,7 +9,8 @@ import PIL.Image
 from datetime import datetime
 import pandas as pd
 
-import config_interface
+import configurations.interfaces.configuration_interface as config_interface
+
 from input_manager import InputManager
 from session_manager import SessionManager
 from functools import reduce
@@ -31,14 +32,15 @@ class Evaluator:
     with tf.Graph().as_default() as g:
       images, self.labels = self.input_manager.evaluation_inputs()  
       with tf.variable_scope("inference"):    
-        self.logits = self.config.inference(images, testing=True) 
-      self.loss = self.config.evaluation_loss(self.logits, self.labels)
+        self.logits = tf.to_double(self.config.inference(images, testing=True))
+      
+      self.classirate = self.config.loss.classirate(self.config.dataset, self.logits, self.labels)
     
       # Restore the moving average version of the learned variables for eval.
       variable_averages = tf.train.ExponentialMovingAverage(self.config.training_params.moving_average_decay)
       variables_to_restore = variable_averages.variables_to_restore()
       self.saver = tf.train.Saver(variables_to_restore)
-    
+   
       # Build the summary operation based on the TF collection of Summaries.
       self.summary_op = tf.merge_all_summaries()
       self.summary_writer = tf.train.SummaryWriter(self.config.eval_dir, g)
@@ -47,8 +49,8 @@ class Evaluator:
         # Run evaluation
         try:
           self.evaluate_once()
-        except:
-          print('oHo')            
+        except Exception as err:
+          print('oHo: {0}'.format(err))            
         time.sleep(self.config.training_params.eval_interval_secs)
 
   def evaluate_once(self):
@@ -62,19 +64,21 @@ class Evaluator:
       num_iter = math.ceil(self.config.dataset.valid_size / self.config.training_params.batch_size)
       
       step = 0
-      losses = []
+      acc = []
+
+
       while step < num_iter and not coord.should_stop():
-        loss, logits, labels = sess.run([self.loss, self.logits, self.labels])
-        losses += [loss]
+        classirate, logits, labels = sess.run([self.classirate, self.logits, self.labels])
+        acc += [classirate]
         step += 1
         
-      average_loss = np.mean(losses)
+      average_classirate = np.mean(acc)
       format_str = ('%s: loss = %.8f')
-      print (format_str % (datetime.now(), average_loss))
+      print (format_str % (datetime.now(), average_classirate))
   
       summary = tf.Summary()
       summary.ParseFromString(sess.run(self.summary_op))
-      summary.value.add(tag='evaluation_loss', simple_value=average_loss)
+      summary.value.add(tag='evaluation_loss', simple_value=average_classirate)
       self.summary_writer.add_summary(summary, global_step)    
       
       coord.request_stop()
@@ -132,11 +136,17 @@ class SubmissionManager:
       coord.join(threads, stop_grace_period_secs=10)
     except Exception as e:
       coord.request_stop(e)
-  
-
       
 def main(argv=None):
-  config = config_interface.get_config()  
+  dataset_name = 'driver'
+  dataset_size = '32'
+  training = 'fast'
+  loss_name = 'driver'
+  model_name = 'basic'
+  model_size = 'normal'
+  
+  config = config_interface.get_config(dataset_name, dataset_size, training, loss_name, model_name, model_size)    
+  
   if argv and len(argv) == 2 and argv[1] =='s':
     print('\nSwitching to submission mode\n')
     submission_manager = SubmissionManager(config)
@@ -144,8 +154,6 @@ def main(argv=None):
   else:
     evaluator = Evaluator(config)
     evaluator.run()
-
-  
 
 if __name__ == '__main__':
   tf.app.run()
