@@ -79,9 +79,15 @@ class Evaluator:
       coord.request_stop(e)
       
 def main(argv=None):
-  config = config_interface.get_config(argv)
-  evaluator = Evaluator(config)
-  evaluator.run()
+  if len(argv) == 8:
+    with tf.device('/gpu:' + str(argv[7])):
+      config = config_interface.get_config(argv)
+      evaluator = Evaluator(config)
+      evaluator.run()
+  else:
+    config = config_interface.get_config(argv)
+    evaluator = Evaluator(config)
+    evaluator.run()
 
 if __name__ == '__main__':
   tf.app.run()

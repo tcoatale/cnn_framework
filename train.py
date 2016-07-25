@@ -35,6 +35,7 @@ def train(config):
     # Calculate loss.
     total_loss = update_manager.training_loss(training_logits, training_labels)
     classirate = config.loss.classirate(config.dataset, training_logits, training_labels)
+    tf.scalar_summary('classirate', classirate)
    
     # Build a Graph that trains the model with one batch of examples and updates the model parameters.
     train_op = update_manager.update(total_loss, global_step)
