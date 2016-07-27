@@ -12,8 +12,6 @@ import configurations.models.resnet.normal
 
 import configurations.models.inception_resnet.dual_tiny
 import configurations.models.inception_resnet.tiny
-import configurations.models.inception_resnet.small
-import configurations.models.inception_resnet.normal
 
 import configurations.models.basic
 
