@@ -29,9 +29,7 @@ models_dictionnary = {
     'normal': configurations.models.resnet.normal
   }, 'inception': {
     'dual_tiny': configurations.models.inception_resnet.dual_tiny, 
-    'tiny': configurations.models.inception_resnet.tiny, 
-    'small': configurations.models.inception_resnet.small, 
-    'normal': configurations.models.inception_resnet.normal
+    'tiny': configurations.models.inception_resnet.tiny
   }, 'basic': {
     'normal': configurations.models.basic
   }
