@@ -8,9 +8,8 @@ class UpdateManager:
   def __init__(self, config):
     self.config = config
   
-  def training_loss(self, logits, labels):
-    training_loss = self.config.training_loss(logits, labels)
-    tf.add_to_collection('losses', training_loss)
+  def training_loss(self, true_loss):
+    tf.add_to_collection('losses', true_loss)
     total_loss = tf.add_n(tf.get_collection('losses'), name='loss_total')
     return total_loss
     

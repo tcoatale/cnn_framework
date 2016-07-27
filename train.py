@@ -35,11 +35,15 @@ def train(config):
       eval_logits = config.inference(eval_images, testing=True)
 
     # Calculate loss.
-    total_loss = update_manager.training_loss(training_logits, training_labels)
+    loss_training = config.training_loss(training_logits, training_labels)
+    loss_eval = config.evaluation_loss(eval_logits, eval_labels)
+    tf.scalar_summary('loss_eval', loss_eval)
+
+    total_loss = update_manager.training_loss(loss_training)
 
     classirate_training = config.loss.classirate(config.dataset, training_logits, training_labels)
-    classirate_eval = config.loss.classirate(config.dataset, eval_logits, eval_labels)
-    
+    classirate_eval = config.loss.classirate(config.dataset, eval_logits, eval_labels)    
+
     tf.scalar_summary('classirate_training', classirate_training)
     tf.scalar_summary('classirate_eval', classirate_eval)
     
