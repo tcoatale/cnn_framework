@@ -11,7 +11,7 @@ class UpdateManager:
   def training_loss(self, logits, labels):
     training_loss = self.config.training_loss(logits, labels)
     tf.add_to_collection('losses', training_loss)
-    total_loss = tf.add_n(tf.get_collection('losses'), name='total_loss')
+    total_loss = tf.add_n(tf.get_collection('losses'), name='loss_total')
     return total_loss
     
   def _histogram_grad(self, gradient):

@@ -14,4 +14,4 @@ def architecture(input):
 def output(input, dataset):
   classes = dataset.classes
   reduction = average_pool_vector([3, 3], classes ** 2, input, name='pool_reduce_out')
-  return fc_output(reduction, dataset, [192])
+  return fc_output(reduction, dataset.classes, [192])
