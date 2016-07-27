@@ -1,5 +1,15 @@
 import tensorflow as tf
 
+def sparse_cross_entropy(logits, sparse_labels, classes, name):
+  logits = tf.cast(logits, tf.float64)
+
+  dense = tf.cast(tf.equal(tf.range(0, classes), tf.cast(sparse_labels, dtype=tf.int32)), dtype=tf.float64)
+  loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, dense), name='cross_entropy')
+  loss = tf.cast(loss, tf.float32, name=name)
+  return loss
+  
+
+'''
 def sparse_cross_entropy(logits, sparse_labels):  
   likelyhood = logits + tf.Variable(1e-5, dtype=tf.float64, trainable=False)
   row_sums = tf.reshape(tf.reduce_sum(likelyhood, 1), [-1, 1])
@@ -16,6 +26,9 @@ def sparse_cross_entropy(logits, sparse_labels):
 def cross_entropy(logits, dense_labels):
   sparse_labels = tf.argmax(dense_labels, dimension=1)  
   return sparse_cross_entropy(logits, sparse_labels)
+'''
+
+
 
 def classification_rate(logits, labels):
   preds = tf.cast(logits, tf.float32)

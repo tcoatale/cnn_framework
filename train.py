@@ -8,12 +8,11 @@ import time
 import numpy as np
 from six.moves import xrange
 import tensorflow as tf
+from time import gmtime, strftime
 
 from update_manager import UpdateManager
 from input_manager import InputManager
 import configurations.interfaces.configuration_interface as config_interface
-
-
 
 def train(config):
   """Train model for a number of steps."""
@@ -25,17 +24,23 @@ def train(config):
 
     # Get images and labels for dataset.
     training_images, training_labels = input_manager.distorted_inputs()
+    eval_images, eval_labels = input_manager.evaluation_inputs()
 
     tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the inference model.
-    with tf.variable_scope("inference"):
-      training_logits = tf.to_double(config.inference(training_images))
-                        
+    with tf.variable_scope("inference") as scope:
+      training_logits = config.inference(training_images)
+      scope.reuse_variables()
+      eval_logits = config.inference(eval_images, testing=True)
+
     # Calculate loss.
     total_loss = update_manager.training_loss(training_logits, training_labels)
-    classirate = config.loss.classirate(config.dataset, training_logits, training_labels)
-    tf.scalar_summary('classirate', classirate)
+    classirate_training = config.loss.classirate(config.dataset, training_logits, training_labels)
+    classirate_eval = config.loss.classirate(config.dataset, eval_logits, eval_labels)
+    tf.scalar_summary('classirate_training', classirate_training)
+    tf.scalar_summary('classirate_eval', classirate_eval)
+    
    
     # Build a Graph that trains the model with one batch of examples and updates the model parameters.
     train_op = update_manager.update(total_loss, global_step)
@@ -60,11 +65,7 @@ def train(config):
 
     for step in xrange(config.training_params.max_steps):
       start_time = time.time()
-      _, _, _, total_loss_value, classirate_value = sess.run([training_logits, 
-                                      training_labels, 
-                                      train_op, 
-                                      total_loss, 
-                                      classirate])
+      _, total_loss_value, train_acc, eval_acc = sess.run([train_op, total_loss, classirate_training, classirate_eval])
                                       
       duration = time.time() - start_time
 
@@ -72,9 +73,14 @@ def train(config):
 
       if step % config.display_freq == 0:
         num_examples_per_step = config.training_params.batch_size
-        examples_per_sec = num_examples_per_step / duration
-        print(datetime.now(), 'Step', step, 'Speed:', int(examples_per_sec), end='\t')
-        print('Training loss:', total_loss_value, 'Classirate:', classirate_value, end='\n')
+        examples_per_sec = num_examples_per_step / duration        
+
+        print(strftime("%D %H:%M:%S", gmtime()), end=' ')
+        print('Step', '%06d' % step, end=' ')
+        print('Speed:', "%04d" % int(examples_per_sec), end=' ')
+        print('Training loss:', '%.4g' % total_loss_value, end=' ')
+        print('T score:', '%.4g' % train_acc, end=' ')
+        print('E score:', '%.4g' % eval_acc, end='\n')
         
       if step % config.summary_freq == 0:
         summary_str = sess.run(summary_op)

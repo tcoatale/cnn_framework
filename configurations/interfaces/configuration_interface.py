@@ -9,7 +9,7 @@ def get_config(argv):
     dataset_name, dataset_size, training, loss_name, model_name, model_size = argv[1:] 
   else:
     dataset_name = 'driver'
-    dataset_size = '64'
+    dataset_size = '32'
     training = 'fast'
     loss_name = 'driver'
     model_name = 'alex'
@@ -21,7 +21,7 @@ def get_config(argv):
   model = get_model(model_name, model_size)  
 
   name = '_'.join([dataset_name, dataset_size, training, loss_name, model_name, model_size])
-  freqs = {'display': 10, 'summary': 50, 'save': 500}
+  freqs = {'display': 50, 'summary': 250, 'save': 2000}
 
   config = Configuration(name, dataset, training_params, loss, model, freqs)
   return config

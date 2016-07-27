@@ -65,12 +65,12 @@ class Evaluator:
         step += 1
         
       average_classirate = np.mean(acc)
-      format_str = ('%s: loss = %.8f')
-      print (format_str % (datetime.now(), average_classirate))
-  
+      print (global_step, 'Classification rate:',  average_classirate)
+        
       summary = tf.Summary()
       summary.ParseFromString(sess.run(self.summary_op))
-      summary.value.add(tag='evaluation_loss', simple_value=average_classirate)
+      summary.value.add(tag='Classirate', simple_value=average_classirate)
+      
       self.summary_writer.add_summary(summary, global_step)    
       
       coord.request_stop()

@@ -6,4 +6,4 @@ def architecture(input):
   return base_architecture(input)
   
 def output(input, dataset):
-  return fc_output(input, dataset, [512, 256])
+  return fc_output(input, dataset.classes, [512, 256])

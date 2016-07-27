@@ -6,7 +6,7 @@ def normalize(input):
   return tf.nn.lrn(input, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75)
 
 def pool_layer(input, size, name):
-    return tf.nn.max_pool(input, ksize=[1, size+1, size+1, 1], strides=[1, size, size, 1], padding='SAME', name=name)
+  return tf.nn.max_pool(input, ksize=[1, size+1, size+1, 1], strides=[1, size, size, 1], padding='SAME', name=name)
 
 def conv2d_layer(input, filter_shape, channels, name):
   shape = filter_shape + [input.get_shape()[3].value] + [channels]
