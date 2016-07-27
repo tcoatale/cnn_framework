@@ -7,7 +7,7 @@ size = 64
 original_shape=[192, 64, 3]
 data_dir = os.path.join('data', 'processed', name, str(size))
 
-imshape=[160, 50, 3]
+imshape=[192, 64, 3]
 n_input = reduce(int.__mul__, imshape)
 
 
