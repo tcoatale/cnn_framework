@@ -5,7 +5,6 @@ from skimage.feature import hog
 from skimage import color, exposure
 from skimage import io
 from datetime import datetime
-import matplotlib.pyplot as plt
   
 #%%
 class HogAugmentationManager:
@@ -37,11 +36,15 @@ class HogAugmentationManager:
     
 #%%
 train_data_dir = os.path.join('..', 'raw', 'driver', 'train')
-train_dest_dir = os.path.join('..', 'augmented', 'driver', 'hog')
+test_data_dir = os.path.join('..', 'raw', 'driver', 'test')
+
+dest_dir = os.path.join('..', 'augmented', 'driver', 'hog')
+
 training_image_files = glob.glob(os.path.join(train_data_dir, '*', '*'))
+testing_image_files = glob.glob(os.path.join(test_data_dir, '*'))
 
 hog_augmentation_manager = HogAugmentationManager(files=training_image_files, 
-                                                  dest_dir=train_dest_dir, 
+                                                  dest_dir=dest_dir, 
                                                   pixels_per_cell=12, 
                                                   orientations=8)
 
