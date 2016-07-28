@@ -3,7 +3,22 @@ import skimage.transform
 import skimage.io
 import numpy as np
 import os
+import glob
 import struct
+
+class FileManager:
+  def __init__(self, data_dir, testing_dir):
+    self.data_dir = data_dir
+    self.testing_dir = testing_dir
+    
+  def get_training_files(self):
+    training_image_files = glob.glob(os.path.join(self.data_dir, '*', '*'))
+    return training_image_files
+
+  def get_testing_files(self):
+    testing_image_files = glob.glob(os.path.join(self.testing_dir, '*'))
+    return testing_image_files
+    
 
 class ImageManager:
   def __init__(self, resize, aug_dir):

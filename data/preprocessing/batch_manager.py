@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import glob
 import os
 import numpy as np
-from driver import ImageManager
 
 class BatchManager:
   def __init__(self, files, image_manager, batch_size, type, dest_dir):
@@ -19,7 +17,7 @@ class BatchManager:
     
   def load_chunk(self, i):
     files = self.chunks[i]
-    image_lines = list(map(lambda file: image_manager.load_file(file), files))
+    image_lines = list(map(lambda file: self.image_manager.load_file(file), files))
     return image_lines
     
   def write_chunk(self, i):
@@ -30,6 +28,8 @@ class BatchManager:
     
     batch_name = '_'.join([self.type, 'batch', str(i)])
     batch_file = os.path.join(self.dest_dir, batch_name)
+
+    print('Writing chunk to file', batch_file, end='\t... ')
     
     with open(batch_file, "wb") as f:
         f.write(binary_data)
@@ -39,13 +39,3 @@ class BatchManager:
   def run(self):
     n_batches = len(self.chunks)
     list(map(self.write_chunk, range(n_batches)))
-      
-#%%
-train_data_dir = os.path.join('..', 'raw', 'driver', 'train')
-aug_dir = os.path.join('..', 'augmented', 'driver', 'hog')
-training_image_files = glob.glob(os.path.join(train_data_dir, '*', '*'))
-image_manager = ImageManager((64, 64), aug_dir)
-batch_manager = BatchManager(training_image_files[0:10], image_manager, 4, 'train', '.')
-batch_manager.run()
-
-#%%
