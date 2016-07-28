@@ -6,6 +6,8 @@ import PIL.Image
 from random import shuffle
 from functools import reduce
 import struct
+import skimage.transform
+import skimage.io
 
 resize = 32
 testing_size = 8000
@@ -23,13 +25,12 @@ def dense_to_one_hot(labels, n_classes=2):
   labels_one_hot.flat[index_offset + labels.ravel()] = 1
   return labels_one_hot
 
-def load_thumbnail(f):
-  im = PIL.Image.open(f) 
-  im = im.resize((resize, resize), PIL.Image.ANTIALIAS)
-  result = np.asarray(im, dtype=np.uint8)
-  result = np.transpose(result, [2, 0, 1])
-  result = result.reshape(-1).tolist()
-  return result
+def load_image(f):
+  image = skimage.io.imread(f)
+  resized_image = skimage.transform.resize(image, (resize, resize))
+  transposed_image = np.transpose(resized_image, [2, 0, 1])
+  flattened_image = transposed_image.reshape(-1).tolist()
+  return flattened_image
   
 def get_label(filename):
   return [int(filename.split('/')[-2][1])]
@@ -49,7 +50,7 @@ def get_augmented_labels(filenames):
 def write_chunk(chunks, i, data_type, aug=False):
   print(data_type, '\t', 'chunk:', i)
   labels = get_labels(chunks[i]) if aug == False else get_augmented_labels(chunks[i])
-  images = list(map(load_thumbnail, chunks[i]))
+  images = list(map(load_image, chunks[i]))
   name = '../processed/driver/' + str(resize) + '/' + data_type + '_batch_' + str(i)
   write_data(labels, images, name)
   
@@ -97,7 +98,7 @@ def four_bytes_label(label):
 def write_submission_chunk(chunks, i):
   labels = list(map(lambda filename: int(filename.split('/')[-1][4:-4]), chunks[i]))
   labels = list(map(four_bytes_label, labels))
-  images = list(map(load_thumbnail, chunks[i]))
+  images = list(map(load_image, chunks[i]))
   
   images_and_labels = list(zip(labels, images))
   binary_lines = np.array(list(map(lambda line: line[0] + line[1], images_and_labels)), dtype=np.uint8)
