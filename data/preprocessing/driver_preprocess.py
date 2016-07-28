@@ -2,7 +2,6 @@ import os
 import glob
 import numpy as np
 import PIL
-import PIL.Image
 from random import shuffle
 from functools import reduce
 import struct
@@ -16,36 +15,11 @@ images_per_file = 4000
 classes = 10
 aug_classes = 2
 
-def dense_to_one_hot(labels, n_classes=2):
-  """Convert class labels from scalars to one-hot vectors."""
-  labels = np.array(labels)
-  n_labels = labels.shape[0]
-  index_offset = np.arange(n_labels) * n_classes
-  labels_one_hot = np.zeros((n_labels, n_classes), dtype=np.float32)
-  labels_one_hot.flat[index_offset + labels.ravel()] = 1
-  return labels_one_hot
 
-def load_image(f):
-  image = skimage.io.imread(f)
-  resized_image = skimage.transform.resize(image, (resize, resize))
-  transposed_image = np.transpose(resized_image, [2, 0, 1])
-  flattened_image = transposed_image.reshape(-1).tolist()
-  return flattened_image
   
-def get_label(filename):
-  return [int(filename.split('/')[-2][1])]
-  
-def get_augmented_label(label):
-  return [int(label in range(1, 4))]
-  
-def get_labels(filenames):
-  return np.array(list(map(get_label, filenames)), dtype=np.uint8)
+
     
-def get_augmented_labels(filenames):
-  labels = get_labels(filenames)
-  augmentation = np.array(list(map(get_augmented_label, labels)), dtype=np.uint8)
-  augmented_labels = np.hstack([labels, augmentation])
-  return augmented_labels
+
     
 def write_chunk(chunks, i, data_type, aug=False):
   print(data_type, '\t', 'chunk:', i)
