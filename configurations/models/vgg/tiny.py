@@ -12,4 +12,4 @@ def architecture(input):
   return pool6
   
 def output(input, dataset):
-  return fc_output(input, dataset, [384, 192])
+  return fc_output(input, dataset.classes, [384, 192])

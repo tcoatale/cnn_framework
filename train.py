@@ -8,17 +8,11 @@ import time
 import numpy as np
 from six.moves import xrange
 import tensorflow as tf
-import PIL.Image
+from time import gmtime, strftime
 
 from update_manager import UpdateManager
 from input_manager import InputManager
 import configurations.interfaces.configuration_interface as config_interface
-
-def display(image):
-  image = image - np.min(image)
-  image = image * 255 / np.max(image)
-  im = PIL.Image.fromarray(np.uint8(image))
-  im.show()
 
 def train(config):
   """Train model for a number of steps."""
@@ -30,16 +24,30 @@ def train(config):
 
     # Get images and labels for dataset.
     training_images, training_labels = input_manager.distorted_inputs()
+    eval_images, eval_labels = input_manager.evaluation_inputs()
 
     tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the inference model.
-    with tf.variable_scope("inference"):
-      training_logits = tf.to_double(config.inference(training_images))
-                        
-    # Calculate loss.
-    training_loss, total_loss = update_manager.training_loss(training_logits, training_labels)
+    with tf.variable_scope("inference") as scope:
+      training_logits = config.inference(training_images)
+      scope.reuse_variables()
+      eval_logits = config.inference(eval_images, testing=True)
 
+    # Calculate loss.
+    loss_training = config.training_loss(training_logits, training_labels)
+    loss_eval = config.evaluation_loss(eval_logits, eval_labels)
+    tf.scalar_summary('loss_eval', loss_eval)
+
+    total_loss = update_manager.training_loss(loss_training)
+
+    classirate_training = config.loss.classirate(config.dataset, training_logits, training_labels)
+    classirate_eval = config.loss.classirate(config.dataset, eval_logits, eval_labels)    
+
+    tf.scalar_summary('classirate_training', classirate_training)
+    tf.scalar_summary('classirate_eval', classirate_eval)
+    
+   
     # Build a Graph that trains the model with one batch of examples and updates the model parameters.
     train_op = update_manager.update(total_loss, global_step)
 
@@ -62,20 +70,24 @@ def train(config):
     summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
 
     for step in xrange(config.training_params.max_steps):
-      l, p = sess.run([training_logits, training_labels])
       start_time = time.time()
-      _, training_loss_value, total_loss_value = sess.run([train_op, training_loss, total_loss])
+      _, total_loss_value, train_acc, eval_acc = sess.run([train_op, total_loss, classirate_training, classirate_eval])
+                                      
       duration = time.time() - start_time
 
       assert not np.isnan(total_loss_value), 'Model diverged with loss = NaN'
 
       if step % config.display_freq == 0:
         num_examples_per_step = config.training_params.batch_size
-        examples_per_sec = num_examples_per_step / duration
-        sec_per_batch = float(duration) 
-        format_str = ('%s: step %d, training loss = %.8f total loss = %.8f (%.1f examples/sec; %.3f sec/batch)')
-        print (format_str % (datetime.now(), step, training_loss_value, total_loss_value, examples_per_sec, sec_per_batch))
+        examples_per_sec = num_examples_per_step / duration        
 
+        print(strftime("%D %H:%M:%S", gmtime()), end=' ')
+        print('Step', '%06d' % step, end=' ')
+        print('Speed:', "%04d" % int(examples_per_sec), end=' ')
+        print('Training loss:', '%.4g' % total_loss_value, end=' ')
+        print('T score:', '%.4g' % train_acc, end=' ')
+        print('E score:', '%.4g' % eval_acc, end='\n')
+        
       if step % config.summary_freq == 0:
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)
@@ -86,19 +98,8 @@ def train(config):
         saver.save(sess, checkpoint_path, global_step=step)
 
 def main(argv=None):
-  if argv and len(argv) == 7:
-    dataset_name, dataset_size, training, loss_name, model_name, model_size = argv[1:] 
-  else:
-    dataset_name = 'driver'
-    dataset_size = '64'
-    training = 'fast'
-    loss_name = 'driver'
-    model_name = 'resnet'
-    model_size = 'small'
-    
-  config = config_interface.get_config(dataset_name, dataset_size, training, loss_name, model_name, model_size)    
+  config = config_interface.get_config(argv)    
   train(config)
-
 
 if __name__ == '__main__':
   tf.app.run()

@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+from configurations.datasets.helper import sparse_to_dense
 
 #%% Dataset information
 name = 'driver'
@@ -12,9 +13,10 @@ classes=10
 sub_classes=2
 
 def split_labels(original_label):
-  label2 = tf.transpose(tf.gather(tf.transpose(original_label), list(range(classes))))
-  label1 = tf.transpose(tf.gather(tf.transpose(original_label), list(range(classes, classes + sub_classes))))
-  return label1, label2
+  true_sparse_label = tf.cast(tf.transpose(tf.gather(tf.transpose(original_label), list(range(1)))), tf.int32)
+  augmentation_sparse_label = tf.cast(tf.transpose(tf.gather(tf.transpose(original_label), list(range(1, 2)))), tf.int32)
+    
+  return augmentation_sparse_label, true_sparse_label
   
 def retrieve_file_id(file_array_id):
   multiplier = list(map(lambda i: (2 ** 8) ** i, range(id_bytes)))

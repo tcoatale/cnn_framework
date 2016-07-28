@@ -10,10 +10,30 @@ import configurations.models.resnet.tiny
 import configurations.models.resnet.small
 import configurations.models.resnet.normal
 
+import configurations.models.inception_resnet.dual_tiny
+import configurations.models.inception_resnet.tiny
 
-models_dictionnary = {'alex': {'tiny': configurations.models.alex.tiny, 'small': configurations.models.alex.small, 'normal': configurations.models.alex.normal}, 
-                      'vgg': {'tiny': configurations.models.vgg.tiny, 'normal': configurations.models.vgg.normal}, 
-                      'resnet': {'tiny': configurations.models.resnet.tiny, 'small': configurations.models.resnet.small, 'normal': configurations.models.resnet.normal}}
+import configurations.models.basic
+
+models_dictionnary = {
+  'alex': {
+    'tiny': configurations.models.alex.tiny, 
+    'small': configurations.models.alex.small, 
+    'normal': configurations.models.alex.normal
+  }, 'vgg': {
+    'tiny': configurations.models.vgg.tiny, 
+    'normal': configurations.models.vgg.normal
+  }, 'resnet': {
+    'tiny': configurations.models.resnet.tiny, 
+    'small': configurations.models.resnet.small, 
+    'normal': configurations.models.resnet.normal
+  }, 'inception': {
+    'dual_tiny': configurations.models.inception_resnet.dual_tiny, 
+    'tiny': configurations.models.inception_resnet.tiny
+  }, 'basic': {
+    'normal': configurations.models.basic
+  }
+}
 
 def get_model(name, size):
   try:
