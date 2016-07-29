@@ -23,9 +23,9 @@ def train(config):
     update_manager = UpdateManager(config)
 
     # Get images and labels for dataset.
-    training_images, training_labels = input_manager.distorted_inputs()
-    eval_images, eval_labels = input_manager.evaluation_inputs()
-
+    _, training_labels, training_images = input_manager.get_inputs()
+    _, eval_labels, eval_images = input_manager.get_inputs(type='test', distorted = False, shuffle = False)
+    
     tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the inference model.
@@ -70,6 +70,7 @@ def train(config):
     summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
 
     for step in xrange(config.training_params.max_steps):
+      labels, logits = sess.run([training_labels, training_logits])
       start_time = time.time()
       _, total_loss_value, train_acc, eval_acc = sess.run([train_op, total_loss, classirate_training, classirate_eval])
                                       

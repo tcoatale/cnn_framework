@@ -66,6 +66,8 @@ for col in cols:
 df_dict['file'] = image_files
 df = pd.DataFrame(df_dict)
 
+df.to_csv('gabor.csv', index=False)
+
 
 '''
 from sklearn.manifold import Isomap

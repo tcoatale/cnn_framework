@@ -9,7 +9,7 @@ def get_config(argv):
     dataset_name, dataset_size, training, loss_name, model_name, model_size = argv[1:] 
   else:
     dataset_name = 'driver'
-    dataset_size = '32'
+    dataset_size = '64'
     training = 'fast'
     loss_name = 'driver'
     model_name = 'alex'
