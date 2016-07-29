@@ -35,15 +35,14 @@ class HogAugmentationManager:
     list(map(lambda index: self.compute_hog(self.files, index), range(len(self.files))))
     
 #%%
+    
 train_data_dir = os.path.join('..', 'raw', 'driver', 'train')
 test_data_dir = os.path.join('..', 'raw', 'driver', 'test')
-
 dest_dir = os.path.join('..', 'augmented', 'driver', 'hog')
-
 training_image_files = glob.glob(os.path.join(train_data_dir, '*', '*'))
 testing_image_files = glob.glob(os.path.join(test_data_dir, '*'))
 
-hog_augmentation_manager = HogAugmentationManager(files=training_image_files, 
+hog_augmentation_manager = HogAugmentationManager(files=testing_image_files, 
                                                   dest_dir=dest_dir, 
                                                   pixels_per_cell=12, 
                                                   orientations=8)
