@@ -6,8 +6,7 @@ from skimage import color, exposure
 from skimage import io
 from datetime import datetime
   
-#%%
-class HogAugmentationManager:
+class HogExtractionManager:
   def __init__(self, files, dest_dir, pixels_per_cell, orientations):
     self.files = files
     self.dest_dir = dest_dir
@@ -31,20 +30,7 @@ class HogAugmentationManager:
     dest_file = os.path.join(self.dest_dir, os.path.split(file)[-1])
     io.imsave(dest_file, hog_image_rescaled)
     
-  def run(self):
+  def run_extraction(self):
     list(map(lambda index: self.compute_hog(self.files, index), range(len(self.files))))
     
-#%%
     
-train_data_dir = os.path.join('..', 'raw', 'driver', 'train')
-test_data_dir = os.path.join('..', 'raw', 'driver', 'test')
-dest_dir = os.path.join('..', 'augmented', 'driver', 'hog')
-training_image_files = glob.glob(os.path.join(train_data_dir, '*', '*'))
-testing_image_files = glob.glob(os.path.join(test_data_dir, '*'))
-
-hog_augmentation_manager = HogAugmentationManager(files=testing_image_files, 
-                                                  dest_dir=dest_dir, 
-                                                  pixels_per_cell=12, 
-                                                  orientations=8)
-
-hog_augmentation_manager.run()

@@ -6,24 +6,19 @@ import os
 import glob
 import struct
 
-class FileManager:
-  def __init__(self, data_dir, testing_dir):
-    self.data_dir = data_dir
-    self.testing_dir = testing_dir
-    
-  def get_training_files(self):
-    training_image_files = glob.glob(os.path.join(self.data_dir, '*', '*'))
-    return training_image_files
+data_dir = os.path.join('data', 'raw', 'driver', 'train')
+submission_dir = os.path.join('data', 'raw', 'driver', 'test')
 
-  def get_testing_files(self):
-    testing_image_files = glob.glob(os.path.join(self.testing_dir, '*'))
-    return testing_image_files
-    
+training_image_files = glob.glob(os.path.join(data_dir, '*', '*'))
+submission_image_files = glob.glob(os.path.join(submission_dir, '*'))
+
+dest_dir_base = os.path.join('data', 'processed', 'driver')
 
 class ImageManager:
-  def __init__(self, resize, aug_dir):
+  def __init__(self, resize):
     self.resize = resize
-    self.aug_dir = aug_dir
+    self.aug_dir = os.path.join('data', 'augmented', 'driver', 'hog')
+    self.data_types = ['train', 'test', 'submission']
     
   def load_file(self, file):
     file_id = self.get_file_id(file)
