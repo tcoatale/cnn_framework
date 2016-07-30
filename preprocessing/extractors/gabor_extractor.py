@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import glob
 import numpy as np
 from datetime import datetime
 import pandas as pd
@@ -9,6 +8,10 @@ from skimage.filters import gabor_kernel
 from scipy import ndimage as ndi
 from skimage import color
 from skimage import io
+
+import pathos.multiprocessing as mp
+
+processes = 4
 
 class GaborFeatureExtractor:
   thetas = np.arange(0, 1, 0.33) * np.pi
@@ -68,11 +71,26 @@ class GaborExtractionManager:
     df = pd.DataFrame(df_dict)
     return df
     
-  def write_to_csv(self, df):
-    dest_file = os.path.join(self.dest_dir, self.dest_file)
+  def write_to_csv(self, df, batch_index):
+    dest_file = os.path.join(self.dest_dir, str(batch_index) + '_' + self.dest_file)
     df.to_csv(dest_file, index=False)
     
-  def run_extraction(self):
-    features = np.array(list(map(self.wrap_extraction, enumerate(self.image_files))))
+  def run_extraction_batch(self, batch_index, batch_files):
+    features = np.array(list(map(self.wrap_extraction, enumerate(batch_files))))
     df = self.format_output(features)
-    self.write_to_csv(df)
+    self.write_to_csv(df, batch_index)
+    
+  def split_in_batches(self, n_split):
+    image_files = self.image_files
+    n_images = len(image_files)    
+    indices = np.linspace(0, n_images, n_split+1).astype(np.int)
+    batch_indices = zip(indices[:-1], indices[1:])
+    batches_of_files = [image_files[b[0]:b[1]] for b in batch_indices]
+    
+    return batches_of_files
+    
+  def run_extraction(self):
+    batches_of_files = self.split_in_batches(processes)
+    print('Split files in', len(batches_of_files), 'batches')
+    pool = mp.ProcessingPool(processes)
+    pool.map(lambda i: self.run_extraction_batch(i, batches_of_files[i]), range(len(batches_of_files)))

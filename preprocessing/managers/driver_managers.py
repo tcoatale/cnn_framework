@@ -17,7 +17,7 @@ dest_dir_base = os.path.join('data', 'processed', 'driver')
 class ImageManager:
   def __init__(self, resize):
     self.resize = resize
-    self.aug_dir = os.path.join('data', 'augmented', 'driver', 'hog')
+    self.hog_dir = os.path.join('data', 'augmented', 'driver', 'hog')
     self.data_types = ['train', 'test', 'submission']
     
   def load_file(self, file):
@@ -30,7 +30,7 @@ class ImageManager:
     
   def get_image(self, file):
     file_name = os.path.split(file)[-1]
-    aug_file = os.path.join(self.aug_dir, file_name)
+    aug_file = os.path.join(self.hog_dir, file_name)
     
     image = skimage.io.imread(file)
     resized_image = skimage.transform.resize(image, (self.resize[0], self.resize[1]))

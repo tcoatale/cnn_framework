@@ -18,8 +18,9 @@ class SubmissionManager:
     self.config = config
     self.input_manager = InputManager(config)
     
-  def run(self):     
-    images, files = self.input_manager.submission_inputs()  
+  def run(self):
+      files, labels, images = input_manager.get_inputs(type='submission', distorted = False, shuffle = False)
+
     with tf.variable_scope("inference"):    
       logits = self.config.inference(images, testing=True)
         

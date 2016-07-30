@@ -11,9 +11,7 @@ training_image_files = glob.glob(os.path.join(train_data_dir, '*', '*'))
 testing_image_files = glob.glob(os.path.join(test_data_dir, '*'))
 
 all_files = training_image_files + testing_image_files
-all_files = all_files[0:20]
+all_files = all_files
 
 gabor_dir = os.path.join('data', 'augmented', 'driver', 'gabor')
 hog_dir = os.path.join('data', 'augmented', 'driver', 'hog')
-
-
