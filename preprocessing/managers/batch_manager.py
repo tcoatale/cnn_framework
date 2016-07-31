@@ -17,7 +17,7 @@ class BatchManager:
     
   def load_chunk(self, i):
     files = self.chunks[i]
-    image_lines = list(map(lambda file: self.image_manager.load_file(file), files))
+    image_lines = list(map(lambda file: self.image_manager.load_file(file, self.type), files))
     return image_lines
     
   def write_chunk(self, i):

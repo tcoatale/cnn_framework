@@ -61,13 +61,13 @@ class GaborExtractionManager:
     
     return features
     
-  def format_output(self, output):
+  def format_output(self, output, files):
     df_dict = {}
     cols = list(range(output.shape[1]))
     
     for col in cols:
       df_dict[col] = output[:, col]
-    df_dict['file'] = self.image_files
+    df_dict['file'] = files
     df = pd.DataFrame(df_dict)
     return df
     
@@ -77,7 +77,7 @@ class GaborExtractionManager:
     
   def run_extraction_batch(self, batch_index, batch_files):
     features = np.array(list(map(self.wrap_extraction, enumerate(batch_files))))
-    df = self.format_output(features)
+    df = self.format_output(features, batch_files)
     self.write_to_csv(df, batch_index)
     
   def split_in_batches(self, n_split):

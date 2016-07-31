@@ -20,7 +20,7 @@ isomap_manager = ISOFeatureManager(data_directory.gabor_dir, gabor_file, gabor_i
 isomap_manager.run_extraction()
 
 print('Starting Hog feature extraction')
-hog_augmentation_manager = HogExtractionManager(image_files=data_directory.testing_image_files, #all_files, 
+hog_augmentation_manager = HogExtractionManager(image_files=data_directory.all_files, 
                                                   dest_dir=data_directory.hog_dir, 
                                                   pixels_per_cell=12, 
                                                   orientations=8)

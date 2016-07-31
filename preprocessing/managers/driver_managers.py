@@ -20,10 +20,10 @@ class ImageManager:
     self.hog_dir = os.path.join('data', 'augmented', 'driver', 'hog')
     self.data_types = ['train', 'test', 'submission']
     
-  def load_file(self, file):
+  def load_file(self, file, type):
     file_id = self.get_file_id(file)
     image = self.get_image(file)
-    label = self.get_label(file)
+    label = self.get_label(file, type)
     
     full_line = np.hstack([file_id, image, label])
     return full_line
@@ -48,12 +48,15 @@ class ImageManager:
     flattened_augmented_image = np.reshape(integer_augmented_image, [-1])
     return flattened_augmented_image
     
-  def get_label(self, file):
-    dir, file = os.path.split(file)
-    dir, file = os.path.split(dir)    
-    true_label = int(file[1])
-    augmentation = int(true_label in range(1, 4))
-    return np.array([true_label, augmentation], dtype=np.uint8)
+  def get_label(self, file, type):
+    if type == 'submission':
+      return np.array([0, 0], dtype=np.uint8)
+    else:
+      dir, file = os.path.split(file)
+      dir, file = os.path.split(dir)    
+      true_label = int(file[1])
+      augmentation = int(true_label in range(1, 4))
+      return np.array([true_label, augmentation], dtype=np.uint8)
     
   def get_file_id(self, file):
     dir, file_name = os.path.split(file)

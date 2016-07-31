@@ -12,6 +12,7 @@ train_size=14000
 valid_size=8000
 submission_size = 80000
 
+sequence_bytes = 0
 identifier_bytes = 4
 label_bytes=2
 
@@ -32,8 +33,5 @@ def sparse_to_dense_id(file_id_tensor):
   file_id = tf.reduce_sum(tf.mul(file_id_tensor_int32, multiplier_int32))
   return file_id
   
-def retrieve_file_id(file_array_id):
-  multiplier = list(map(lambda i: (2 ** 8) ** i, range(identifier_bytes)))
-  multiplier.reverse()
-  file_number = int(np.dot(file_array_id, multiplier))
+def retrieve_file_id(file_number):
   return 'img_' + str(file_number) + '.jpg'

@@ -12,14 +12,14 @@ import configurations.interfaces.configuration_interface as config_interface
 from input_manager import InputManager
 from session_manager import SessionManager
 from functools import reduce
-      
+
 class SubmissionManager:
   def __init__(self, config):
     self.config = config
     self.input_manager = InputManager(config)
     
   def run(self):
-      files, labels, images = input_manager.get_inputs(type='submission', distorted = False, shuffle = False)
+    files, labels, images = self.input_manager.get_inputs(type='submission', distorted = False, shuffle = False)
 
     with tf.variable_scope("inference"):    
       logits = self.config.inference(images, testing=True)
@@ -50,7 +50,7 @@ class SubmissionManager:
         
       predictions = np.vstack(predictions)
       predictions = np.float32(predictions)
-      predictions += 1e-3
+      predictions += 5e-2
       row_sums = np.reshape(predictions.sum(axis=1), [-1, 1])
       predictions /= row_sums
       
