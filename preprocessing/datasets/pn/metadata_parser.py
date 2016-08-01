@@ -1,9 +1,8 @@
 import os
 import pandas as pd
-from pn import app_raw_data_root
 
 class MetadataParser:
-  def __init__(self, sequence):
+  def __init__(self, sequence, app_raw_data_root):
     self.subsampling_rate = 10
     self.sequence = sequence
     self.segmentation_data = pd.read_excel(os.path.join(app_raw_data_root, sequence + '.xlsx'))

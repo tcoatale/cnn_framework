@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import glob
 import numpy as np
 from datetime import datetime
 import pandas as pd
@@ -89,8 +90,17 @@ class GaborExtractionManager:
     
     return batches_of_files
     
+  def clean_up(self):
+    gabor_batch_files = glob.glob(os.path.join(self.dest_dir, '*'))
+    dataframes = list(map(pd.read_csv, gabor_batch_files))
+    full_df = pd.concat(dataframes)
+    dest_file = os.path.join(self.dest_dir, self.dest_file)
+    list(map(os.remove, gabor_batch_files))
+    full_df.to_csv(dest_file, index=False)
+    
   def run_extraction(self):
     batches_of_files = self.split_in_batches(processes)
     print('Split files in', len(batches_of_files), 'batches')
     pool = mp.ProcessingPool(processes)
     pool.map(lambda i: self.run_extraction_batch(i, batches_of_files[i]), range(len(batches_of_files)))
+    self.clean_up()

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-import preprocessing.managers.driver_managers
+import preprocessing.datasets.driver
+import preprocessing.datasets.pn.pn
 
-datasets_dictionnary = {'driver': preprocessing.managers.driver_managers}
+datasets_dictionnary = {'driver': preprocessing.datasets.driver,
+                        'pn':preprocessing.datasets.pn.pn}
 
-def get_dataset_managers(name):
+def get_dataset(name):
   try:
     return datasets_dictionnary[name]
   except KeyError:

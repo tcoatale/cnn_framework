@@ -1,10 +1,9 @@
 import os
 import glob
 import pandas as pd
-from pn import app_raw_data_root
 
 class SegmentParser:
-  def __init__(self, segmentation_line):
+  def __init__(self, segmentation_line, app_raw_data_root):
     self.segmentation_line = segmentation_line
     self.data_dir = os.path.join(app_raw_data_root, 'frames')
     
@@ -29,11 +28,14 @@ class SegmentParser:
     
   def run(self):
     frames = self.get_correct_frames()
-    frames_with_index = list(map(self.get_frame_with_index, frames))
-    frames_of_segment = list(filter(self.in_video_file, frames_with_index))
+    frames_with_index = map(self.get_frame_with_index, frames)
+    frames_of_segment = filter(self.in_video_file, frames_with_index)
     frames_with_true_index = list(map(self.true_index, frames_of_segment))
-    sorted_data = sorted(list(map(self.add_class_data, frames_with_true_index)))
     
-    indices, labels, frames = list(zip(*sorted_data))
-    df = pd.DataFrame({'index': indices, 'labels': labels, 'files': frames})
+    if frames_with_true_index == []:
+      return None
+    else:
+      sorted_data = sorted(list(map(self.add_class_data, frames_with_true_index)))
+      indices, labels, frames = list(zip(*sorted_data))
+      df = pd.DataFrame({'index': indices, 'labels': labels, 'files': frames})
     return df

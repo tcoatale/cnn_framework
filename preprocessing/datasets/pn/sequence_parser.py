@@ -1,20 +1,20 @@
 import os
 import pandas as pd
-from metadata_parser import MetadataParser
-from segment_parser import SegmentParser
-from pn import app_raw_data_root
+from preprocessing.datasets.pn.metadata_parser import MetadataParser
+from preprocessing.datasets.pn.segment_parser import SegmentParser
 
 class SequenceParser:
-  def __init__(self, sequence):
+  def __init__(self, sequence, app_raw_data_root):
     self.sequence = sequence
+    self.app_raw_data_root = app_raw_data_root
         
   def parse_metadata(self):
-    metadata_parser = MetadataParser(self.sequence)
+    metadata_parser = MetadataParser(self.sequence, self.app_raw_data_root)
     metadata_parser.process_segmentation_data()
     self.segmentation_data = metadata_parser.segmentation_data
 
   def parse_segmentation_line(self, segmentation_line):
-    segment_parser = SegmentParser(segmentation_line)
+    segment_parser = SegmentParser(segmentation_line, self.app_raw_data_root)
     df = segment_parser.run()
     return [df]
     
@@ -27,16 +27,12 @@ class SequenceParser:
       
   def parse_sequence(self):
     self.parse_metadata()
-    path = os.path.join(app_raw_data_root, self.sequence + '.csv')
+    path = os.path.join(self.app_raw_data_root, self.sequence + '.csv')
     full_df = self.get_full_dataset()
     full_df.to_csv(path, index=False)
     
 #%%
-seq = '20160707'
-parser = SequenceParser(seq)
-parser.parse_sequence()
-
-#%%
+'''
 class Infix:
   def __init__(self, function):
       self.function = function
@@ -64,3 +60,4 @@ def my_pip(x):
 
 my_pip(2)
 #%%
+'''
