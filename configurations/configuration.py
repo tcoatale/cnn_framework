@@ -24,8 +24,8 @@ class Configuration:
     self.save_freq = freqs['save']
     
     
-  def inference(self, input, testing=False):
-    return self.model.inference(input, self.training_params, self.dataset, testing)
+  def inference(self, image, add_filters, features, testing=False):
+    return self.model.inference(image, add_filters, features, self.training_params, self.dataset, testing)
     
   def training_loss(self, logits, labels):
       return self.loss.training_loss(self.dataset, logits, labels)

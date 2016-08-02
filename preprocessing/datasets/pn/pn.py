@@ -17,8 +17,8 @@ hog_dir = os.path.join(aug_data_root, 'hog')
 
 dest_dir_base = os.path.join('data', 'processed', 'pn')
 
-training_sequences = ['20160707', '20160107']
-testing_sequences = ['20160505']
+training_sequences = ['20160707']
+testing_sequences = ['20160107']
 
 class ParsingManager:
   def __init__(self, sequences, app_raw_data_root):
@@ -40,13 +40,21 @@ class ParsingManager:
     
   
 def get_files_of_sequence(seq):
-  return glob.glob(os.path.join(app_raw_data_root, 'frames', '*' + seq + '*'))
+  files_of_seq_found = glob.glob(os.path.join(app_raw_data_root, 'frames', '*' + seq + '*'))
+  df = pd.concat(map(pd.read_csv, glob.glob(os.path.join(app_raw_data_root, '*.csv'))))
+  files_in_df = df.files.unique().tolist()
+  accepted_files = list(set(files_of_seq_found) & set(files_in_df))
+  
+  return accepted_files
 
-def get_files_by_type():  
+def get_files_by_type():
+  parsing_manager = ParsingManager(training_sequences + testing_sequences, app_raw_data_root)
+  parsing_manager.parse_sequences()
+  
   training_files = reduce(list.__add__, list(map(get_files_of_sequence, training_sequences)))
   testing_files = reduce(list.__add__, list(map(get_files_of_sequence, testing_sequences)))
   
-  return {'train': training_files[0:3600], 'test': testing_files[0:400]}
+  return {'train': training_files[:2000], 'test': testing_files[:200]}
   
 def get_all_files():
   files_by_type = get_files_by_type()
@@ -59,27 +67,27 @@ def byte_form(input):
   
 class ImageManager:
   def __init__(self, resize):
-    parsing_manager = ParsingManager(training_sequences + testing_sequences, app_raw_data_root)
-    parsing_manager.parse_sequences()
-
     self.df = pd.concat(map(pd.read_csv, glob.glob(os.path.join(app_raw_data_root, '*.csv'))))
     self.resize = resize    
     self.aug_features = pd.read_csv(os.path.join(gabor_dir, 'gabor_isomap_features.csv'))
 
   def load_file(self, file, type):
-    file_id = self.get_file_id(file)
-    label = self.get_label(file, type)
-    image = self.get_image(file)
-    aug_filters = self.get_aug_filters(file)
-    aug_features = self.get_aug_features(file)
-
-    full_line = np.hstack([file_id, label, image, aug_filters, aug_features])
-    return full_line
+    try:   
+      file_id = self.get_file_id(file)
+      label = self.get_label(file, type)
+      image = self.get_image(file)
+      aug_filters = self.get_aug_filters(file)
+      aug_features = self.get_aug_features(file)
+      full_line = np.hstack([file_id, label, image, aug_filters, aug_features])
+      return full_line
+    except:
+      print(file)
+      return None
     
   def get_label(self, file, type):
     line = self.df[self.df.files == file]
     label = line['labels'].tolist()[0]
-    return np.array([label])
+    return np.array([label], dtype=np.uint8)
     
   def get_file_id(self, file):
     line = self.df[self.df.files == file]
@@ -99,10 +107,11 @@ class ImageManager:
     
   def get_image(self, file):
     image = skimage.io.imread(file)
-    resized_image = skimage.transform.resize(image, (self.resize[0], self.resize[1]))
+    resized_image = skimage.transform.resize(image, self.resize)
     transposed_image = np.transpose(resized_image, [2, 0, 1])
     flattened = np.reshape(transposed_image, [-1])
-    return flattened
+    int_image = np.array(flattened * 255, np.uint8)
+    return int_image
 
   def get_aug_filters(self, file):
     file_name = os.path.split(file)[-1]
@@ -110,9 +119,11 @@ class ImageManager:
     augmentation = skimage.io.imread(aug_file)
     resized_augmentation = skimage.transform.resize(augmentation, tuple(self.resize))
     flattened = np.reshape(resized_augmentation, [-1])
-    return flattened
+    int_image = np.array(flattened * 255, np.uint8)
+    return int_image
     
   def get_aug_features(self, file):
     line = self.aug_features[self.aug_features.file == file]
-    values = np.array(line.drop('file', 1).iloc[0].tolist(), np.uint8)
-    return values
+    values = np.array(line.drop('file', 1).iloc[0].tolist())
+    int_values = np.array(255 * values, dtype=np.uint8)
+    return int_values

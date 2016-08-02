@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datetime import datetime
 import os.path
 import time
 import numpy as np
@@ -23,16 +22,18 @@ def train(config):
     update_manager = UpdateManager(config)
 
     # Get images and labels for dataset.
-    _, training_labels, training_images = input_manager.get_inputs()
-    _, eval_labels, eval_images = input_manager.get_inputs(type='test', distorted = False, shuffle = False)
+    with tf.variable_scope("training_inputs") as scope:
+      training_ids, training_labels, training_images, training_add_filters, training_features = input_manager.get_inputs()
+    with tf.variable_scope("eval_inputs") as scope:
+      eval_ids,  eval_labels,  eval_images,  eval_add_filters,  eval_features = input_manager.get_inputs(type='test', distorted = False, shuffle = False)
     
     tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the inference model.
     with tf.variable_scope("inference") as scope:
-      training_logits = config.inference(training_images)
+      training_logits = config.inference(training_images, training_add_filters, training_features)
       scope.reuse_variables()
-      eval_logits = config.inference(eval_images, testing=True)
+      eval_logits = config.inference(eval_images, training_add_filters, training_features, testing=True)
 
     # Calculate loss.
     loss_training = config.training_loss(training_logits, training_labels)
@@ -73,14 +74,14 @@ def train(config):
       labels, logits = sess.run([training_labels, training_logits])
       start_time = time.time()
       _, total_loss_value, train_acc, eval_acc = sess.run([train_op, total_loss, classirate_training, classirate_eval])
-                                      
+
       duration = time.time() - start_time
 
       assert not np.isnan(total_loss_value), 'Model diverged with loss = NaN'
 
       if step % config.display_freq == 0:
         num_examples_per_step = config.training_params.batch_size
-        examples_per_sec = num_examples_per_step / duration        
+        examples_per_sec = num_examples_per_step / duration
 
         print(strftime("%D %H:%M:%S", gmtime()), end=' ')
         print('Step', '%06d' % step, end=' ')
@@ -99,7 +100,7 @@ def train(config):
         saver.save(sess, checkpoint_path, global_step=step)
 
 def main(argv=None):
-  config = config_interface.get_config(argv)    
+  config = config_interface.get_config(argv)
   train(config)
 
 if __name__ == '__main__':

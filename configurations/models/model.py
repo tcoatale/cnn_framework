@@ -5,15 +5,21 @@ class Model:
     self.architecture = model.architecture    
     self.output = model.output
     
-  def training_inference(self, input, training_params, dataset):
-    architecture_output = self.architecture(input)
+  def training_inference(self, image, add_filters, features, training_params, dataset):
+    architecture_output = self.architecture(image, add_filters)
     dropout_layer = tf.nn.dropout(architecture_output, training_params.keep_prob)
-    return self.output(dropout_layer, dataset)
+    return self.output(dropout_layer, features, dataset)
       
-  def testing_inference(self, input, training_params, dataset):
-    architecture_output = self.architecture(input)
-    return self.output(architecture_output, dataset)
+  def testing_inference(self, image, add_filters, features, training_params, dataset):
+    architecture_output = self.architecture(image, add_filters)
+    return self.output(architecture_output, features, dataset)
     
-  def inference(self, input, training_params, dataset, testing=False):
+  def inference(self, image, add_filters, features, training_params, dataset, testing=False):
     function = self.testing_inference if testing else self.training_inference
-    return function(input, training_params, dataset)
+    output = function(image, add_filters, features, training_params, dataset)
+    
+    shape = output.get_shape()
+    loss_hedging = tf.constant(1e-8, shape=shape)
+    
+    return output + loss_hedging
+    

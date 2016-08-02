@@ -10,12 +10,12 @@ class PreprocessingManager:
     self.files = self.dataset.get_files_by_type()
     
   def run(self):
-    dest_dir = os.path.join(self.dataset.dest_dir_base, str(self.resize))
+    dest_dir = os.path.join(self.dataset.dest_dir_base, str(self.resize[1]))
     
     if not os.path.isdir(dest_dir):
       os.mkdir(dest_dir)
       
-    image_manager = self.dataset.ImageManager([self.resize, self.resize])
+    image_manager = self.dataset.ImageManager(self.resize)
     
     for type in self.files.keys():
       batch_manager = BatchManager(self.files[type],

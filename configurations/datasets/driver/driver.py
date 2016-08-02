@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-from configurations.datasets.helper import sparse_to_dense
 
 #%% Dataset information
 name = 'driver'

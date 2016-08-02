@@ -2,7 +2,7 @@
 from preprocessing.interfaces.dataset_interface import get_dataset
 from preprocessing.managers import preprocessing_manager
 
-resize = 64
+resize = [128, 64]
 batch_size = 4000
 
 dataset = get_dataset('pn')

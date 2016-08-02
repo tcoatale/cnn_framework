@@ -2,13 +2,15 @@
 import os
 from sklearn.manifold import Isomap
 import pandas as pd
+import numpy as np
 
 class ISOFeatureManager:
-  def __init__(self, dir, feature_file, dest_file, n_components):
+  def __init__(self, dir, feature_file, dest_file, n_components, ratio=0.05):
     self.dir = dir
     self.feature_file = feature_file
     self.dest_file = dest_file
     self.n_components = n_components
+    self.ratio = ratio
         
   def get_files(self, original_features):
     files = original_features.file
@@ -16,9 +18,19 @@ class ISOFeatureManager:
     
   def compute_iso_map(self, original_features):
     feature_matrix = original_features.drop('file', 1).as_matrix()
+    feature_matrix = np.nan_to_num(feature_matrix)
     
     dimen_reductor = Isomap(n_components=self.n_components)
-    reduced_features = dimen_reductor.fit_transform(feature_matrix)
+    
+    full_size = feature_matrix.shape[0]
+    train_size = int(self.ratio * full_size)
+    
+    row_indices = list(range(full_size))
+    feature_training_indices = np.random.choice(row_indices, size = train_size)
+    training_feature_matrix = feature_matrix[feature_training_indices, :]
+    
+    dimen_reductor.fit(training_feature_matrix)    
+    reduced_features = dimen_reductor.transform(feature_matrix)
     
     reduced_normalized_features = reduced_features - reduced_features.min()
     reduced_normalized_features /= reduced_normalized_features.max()
