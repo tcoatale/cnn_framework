@@ -17,9 +17,7 @@ class Model:
   def inference(self, image, add_filters, features, training_params, dataset, testing=False):
     function = self.testing_inference if testing else self.training_inference
     output = function(image, add_filters, features, training_params, dataset)
+    output = tf.clip_by_value(output, 1e-8, 1e0, name='rectified_output')
     
-    shape = output.get_shape()
-    loss_hedging = tf.constant(1e-8, shape=shape)
-    
-    return output + loss_hedging
+    return output
     

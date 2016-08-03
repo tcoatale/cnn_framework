@@ -10,7 +10,7 @@ def get_config(argv):
   else:
     dataset_name = 'pn'
     dataset_size = '64'
-    training = 'fast'
+    training = 'slow'
     loss_name = 'pn'
     model_name = 'resnet'
     model_size = 'small_aug'

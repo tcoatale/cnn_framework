@@ -67,14 +67,14 @@ def train(config):
 
     # Start the queue runners.
     tf.train.start_queue_runners(sess=sess)
-   
     summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
 
     for step in xrange(config.training_params.max_steps):
-      labels, logits = sess.run([training_labels, training_logits])
       start_time = time.time()
-      _, total_loss_value, train_acc, eval_acc = sess.run([train_op, total_loss, classirate_training, classirate_eval])
-
+      labels, logits = sess.run([training_labels, training_logits])
+      train_acc, eval_acc = sess.run([classirate_training, classirate_eval])
+      total_loss_value = sess.run([total_loss])
+      sess.run([train_op])
       duration = time.time() - start_time
 
       assert not np.isnan(total_loss_value), 'Model diverged with loss = NaN'
@@ -86,9 +86,9 @@ def train(config):
         print(strftime("%D %H:%M:%S", gmtime()), end=' ')
         print('Step', '%06d' % step, end=' ')
         print('Speed:', "%04d" % int(examples_per_sec), end=' ')
-        print('Training loss:', '%.4g' % total_loss_value, end=' ')
-        print('T score:', '%.4g' % train_acc, end=' ')
-        print('E score:', '%.4g' % eval_acc, end='\n')
+        print('Training loss:', total_loss_value, end=' ')
+        print('T score:', train_acc, end=' ')
+        print('E score:', eval_acc, end='\n')
         
       if step % config.summary_freq == 0:
         summary_str = sess.run(summary_op)
