@@ -16,7 +16,7 @@ def architecture(input):
   
 def output(input, dataset):
   classes = dataset.classes
-  augmentation_classes = dataset.sub_classes
+  augmentation_classes = dataset.aug_classes
   
   augmentation_reduction = average_pool_vector([3, 3], augmentation_classes ** 2, input, name='pool_reduce_aug')
   augmentation_output =  fc_output(augmentation_reduction, augmentation_classes, [92])

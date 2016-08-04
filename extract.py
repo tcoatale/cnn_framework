@@ -4,7 +4,7 @@ from preprocessing.extractors.isomap_extractor import ISOFeatureManager
 from preprocessing.extractors.hog_extractor import HogExtractionManager
 from preprocessing.interfaces.dataset_interface import get_dataset
 
-dataset = get_dataset('pn')
+dataset = get_dataset('driver')
 
 gabor_file = 'gabor_features.csv'
 gabor_isomap_file = 'gabor_isomap_features.csv'

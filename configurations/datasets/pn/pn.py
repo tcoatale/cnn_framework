@@ -4,9 +4,9 @@ import numpy as np
 #%% Dataset information
 name = 'pn'
 
+train_size=1800
+valid_size=200
 
-train_size=1800#38000
-valid_size=200#17000
 identifier_bytes = 8
 label_bytes=1
 aug_feature_bytes = 10

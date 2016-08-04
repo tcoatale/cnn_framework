@@ -24,7 +24,8 @@ class BatchManager:
     print('Processing batch number', i, 'of type', self.type, end='\t... ')
     
     image_lines = self.load_chunk(i)
-    binary_data = bytearray(np.array(image_lines, dtype=np.uint8).reshape(-1))
+    full_data = np.array(image_lines, dtype=np.uint8).reshape(-1)
+    binary_data = bytearray(full_data)
     
     batch_name = '_'.join([self.type, 'batch', str(i)])
     batch_file = os.path.join(self.dest_dir, batch_name)

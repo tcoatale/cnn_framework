@@ -14,6 +14,7 @@ import configurations.models.resnet.normal
 
 import configurations.models.inception_resnet.dual_tiny
 import configurations.models.inception_resnet.tiny
+import configurations.models.inception_resnet.tiny_aug_full
 
 import configurations.models.basic
 
@@ -32,6 +33,7 @@ models_dictionnary = {
     'small': configurations.models.resnet.small, 
     'normal': configurations.models.resnet.normal
   }, 'inception': {
+    'tiny_aug_full': configurations.models.inception_resnet.tiny_aug_full,
     'dual_tiny': configurations.models.inception_resnet.dual_tiny, 
     'tiny': configurations.models.inception_resnet.tiny
   }, 'basic': {

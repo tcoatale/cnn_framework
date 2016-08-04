@@ -32,7 +32,7 @@ def get_files_by_type():
   
   training_files, testing_files = get_split_data_sets(train_ratio, training_files)
     
-  return {'train': training_files, 'test': testing_files, 'submission':submission_files}
+  return {'train': training_files, 'test': testing_files}
 
 def get_all_files():
   files_by_type = get_files_by_type()
@@ -72,18 +72,23 @@ class ImageManager:
     
   def get_image(self, file):
     image = skimage.io.imread(file)
-    resized_image = skimage.transform.resize(image, (self.resize[0], self.resize[1]))
+    resized_image = skimage.transform.resize(image, self.resize)
     transposed_image = np.transpose(resized_image, [2, 0, 1])
-    return transposed_image
+    flattened = np.reshape(transposed_image, [-1])
+    int_image = np.array(flattened * 255, np.uint8)
+    return int_image
 
   def get_aug_filters(self, file):
     file_name = os.path.split(file)[-1]
     aug_file = os.path.join(hog_dir, file_name)
     augmentation = skimage.io.imread(aug_file)
     resized_augmentation = skimage.transform.resize(augmentation, tuple(self.resize))
-    return resized_augmentation
+    flattened = np.reshape(resized_augmentation, [-1])
+    int_image = np.array(flattened * 255, np.uint8)
+    return int_image
     
   def get_aug_features(self, file):
     line = self.aug_features[self.aug_features.file == file]
-    return 0
-    
+    values = np.array(line.drop('file', 1).iloc[0].tolist())
+    int_values = np.array(255 * values, dtype=np.uint8)
+    return int_values

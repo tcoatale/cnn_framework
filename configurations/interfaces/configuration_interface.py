@@ -8,12 +8,12 @@ def get_config(argv):
   if argv and len(argv) == 7:
     dataset_name, dataset_size, training, loss_name, model_name, model_size = argv[1:] 
   else:
-    dataset_name = 'pn'
+    dataset_name = 'driver'
     dataset_size = '64'
     training = 'slow'
-    loss_name = 'pn'
-    model_name = 'resnet'
-    model_size = 'small_aug'
+    loss_name = 'dual_driver'
+    model_name = 'inception'
+    model_size = 'tiny_aug_full'
     
   dataset = get_dataset(dataset_name, dataset_size)
   loss = get_loss(loss_name)

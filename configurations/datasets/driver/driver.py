@@ -4,16 +4,14 @@ import numpy as np
 #%% Dataset information
 name = 'driver'
 
-classes = 10
-sub_classes = 2
-
 train_size=14000
 valid_size=8000
-submission_size = 80000
 
-sequence_bytes = 0
-identifier_bytes = 4
+identifier_bytes=4
 label_bytes=2
+aug_feature_bytes=10
+classes=10
+aug_classes = 2
 
 def split_labels(original_label):
   true_sparse_label = tf.cast(tf.transpose(tf.gather(tf.transpose(original_label), list(range(1)))), tf.int32)
