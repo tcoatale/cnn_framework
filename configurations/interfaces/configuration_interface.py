@@ -10,7 +10,7 @@ def get_config(argv):
   else:
     dataset_name = 'driver'
     dataset_size = '64'
-    training = 'slow'
+    training = 'fast'
     loss_name = 'dual_driver'
     model_name = 'inception'
     model_size = 'tiny_aug_full'

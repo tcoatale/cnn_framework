@@ -5,7 +5,7 @@ def sparse_cross_entropy(logits, sparse_labels, classes, name):
   dense = tf.cast(tf.equal(tf.range(0, classes), tf.cast(sparse_labels, dtype=tf.int32)), dtype=tf.float64)
   loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, dense), name='cross_entropy')
   loss = tf.cast(loss, tf.float32, name=name)
-  rect_loss = tf.clip_by_value(loss, 1e-4, 1e4, name='rect_' + name)
+  rect_loss = tf.clip_by_value(loss, 1e-4, 1e4, name= name+'_rect')
   return rect_loss
   
 def classification_rate(logits, labels):
