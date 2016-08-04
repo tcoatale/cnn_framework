@@ -12,7 +12,7 @@ def get_config(argv):
     dataset_size = '64'
     training = 'fast'
     loss_name = 'dual_driver'
-    model_name = 'inception'
+    model_name = 'alex'
     model_size = 'tiny_aug_full'
     
   dataset = get_dataset(dataset_name, dataset_size)

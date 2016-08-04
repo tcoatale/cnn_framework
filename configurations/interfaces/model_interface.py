@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import configurations.models.alex.tiny_aug_full
 import configurations.models.alex.tiny_aug
 import configurations.models.alex.tiny
 import configurations.models.alex.small
@@ -20,6 +21,7 @@ import configurations.models.basic
 
 models_dictionnary = {
   'alex': {
+    'tiny_aug_full': configurations.models.alex.tiny_aug_full,
     'tiny_aug': configurations.models.alex.tiny_aug,
     'tiny': configurations.models.alex.tiny, 
     'small': configurations.models.alex.small, 
