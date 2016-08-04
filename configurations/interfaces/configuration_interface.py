@@ -11,9 +11,9 @@ def get_config(argv):
     dataset_name = 'driver'
     dataset_size = '64'
     training = 'fast'
-    loss_name = 'dual_driver'
+    loss_name = 'driver'
     model_name = 'alex'
-    model_size = 'tiny_aug_full'
+    model_size = 'tiny_aug'
     
   dataset = get_dataset(dataset_name, dataset_size)
   loss = get_loss(loss_name)

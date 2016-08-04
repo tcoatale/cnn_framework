@@ -10,8 +10,8 @@ def architecture(image, add_filters):
   
 def output(input, features, dataset):
   with tf.variable_scope("feat_augmentation"):
-    linear_features = fc_stream(input, [256])
+    linear_features = fc_stream(input, [256], name='features')
     all_features = tf.concat(1, [linear_features, features])
-  out = fc_output(all_features, dataset.classes, [192, 128])
+  out = fc_output(all_features, dataset.classes, [192, 128], name='output')
   return out
   

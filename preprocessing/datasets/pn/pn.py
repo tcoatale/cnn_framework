@@ -17,7 +17,7 @@ hog_dir = os.path.join(aug_data_root, 'hog')
 
 dest_dir_base = os.path.join('data', 'processed', 'pn')
 
-training_sequences = ['20160707']
+training_sequences = ['20160707', '20160505', '20150505', '20151126', '20140619', '20140911']
 testing_sequences = ['20160107']
 
 class ParsingManager:
@@ -54,7 +54,7 @@ def get_files_by_type():
   training_files = reduce(list.__add__, list(map(get_files_of_sequence, training_sequences)))
   testing_files = reduce(list.__add__, list(map(get_files_of_sequence, testing_sequences)))
   
-  return {'train': training_files[:2000], 'test': testing_files[:200]}
+  return {'train': training_files, 'test': testing_files}
   
 def get_all_files():
   files_by_type = get_files_by_type()
