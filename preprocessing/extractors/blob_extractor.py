@@ -5,8 +5,7 @@ from skimage.feature import blob_dog, blob_log, blob_doh
 from math import sqrt
 import numpy as np
 from functools import reduce
-
-
+import pathos.multiprocessing as mp
 
 class BlobFeatureExtractor:
   def is_coorect_coord(self, coord, image_shape)  :
@@ -71,8 +70,8 @@ class BlobFeatureExtractor:
 
 
 class BlobExtractionManager:
-  def __init__(self, files, dest_dir):
-    self.files = files
+  def __init__(self, image_files, dest_dir):
+    self.image_files = image_files
     self.dest_dir = dest_dir
     self.extractor = BlobFeatureExtractor()
     
@@ -86,5 +85,21 @@ class BlobExtractionManager:
     dest_file = os.path.join(self.dest_dir, id)
     skimage.io.imsave(dest_file, blob_image)
     
-  def run_extraction(self):
-    list(map(self.extract, self.files))
+  def split_in_batches(self, n_split):
+    image_files = self.image_files
+    n_images = len(image_files)    
+    indices = np.linspace(0, n_images, n_split+1).astype(np.int)
+    batch_indices = zip(indices[:-1], indices[1:])
+    batches_of_files = [image_files[b[0]:b[1]] for b in batch_indices]
+    
+    return batches_of_files
+    
+  def run_extraction_batch(self, files):
+    list(map(self.extract, files))
+    
+  def run_extraction(self):    
+    processes = 4
+    batches_of_files = self.split_in_batches(processes)
+    print('Split files in', len(batches_of_files), 'batches')
+    pool = mp.ProcessingPool(processes)
+    pool.map(lambda batch_files: self.run_extraction_batch(batch_files), batches_of_files)

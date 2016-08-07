@@ -45,11 +45,10 @@ def run_extractions():
   gabor_file = 'gabor_features.csv'
   
   
+  print('Starting Blob feature extraction')
   blob_extraction_manager = BlobExtractionManager(files, blob_dir)
   blob_extraction_manager.run_extraction()
   
-'''
   print('Starting Gabor feature extraction')
   gabor_manager = GaborExtractionManager(files, gabor_dir, gabor_file)
   gabor_manager.run_extraction()
-'''
