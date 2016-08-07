@@ -6,8 +6,8 @@ import skimage.io
 import skimage.color
 
 
-videos_dir = os.path.join('data/pcle/raw/videos')
-frames_dir = os.path.join('data/pcle/raw/frames')
+videos_dir = os.path.join('..', '..', 'data', 'pcle', 'raw', 'videos')
+frames_dir = os.path.join('..', '..', 'data', 'pcle', 'raw', 'frames')
 
 videos_path = os.path.join(videos_dir, '*', '*')
 videos = glob.glob(videos_path)
@@ -26,6 +26,7 @@ def get_frames(video_file):
   
   reader = imageio.get_reader(video_file,  'ffmpeg', loop=False)
   frames = list(reader)
+  frames = frames[::10]
   gray_frames = map(preprocess_frame, frames)
   
   names = map(lambda i: os.path.join(frames_dir, '_'.join([label, id, str(i) + '.jpg'])), range(len(frames)))

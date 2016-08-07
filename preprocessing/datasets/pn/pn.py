@@ -9,6 +9,8 @@ from preprocessing.extractors.gabor_extractor import GaborExtractionManager
 from preprocessing.extractors.isomap_extractor import ISOFeatureManager
 from preprocessing.extractors.hog_extractor import HogExtractionManager
 
+from preprocessing.image_managers.driver import ImageManager
+
 app_raw_data_root = os.path.join('data', 'raw', 'pn')
 
 aug_data_root = os.path.join('data', 'augmented', 'pn')

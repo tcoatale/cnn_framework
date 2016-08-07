@@ -8,6 +8,8 @@ from preprocessing.extractors.gabor_extractor import GaborExtractionManager
 from preprocessing.extractors.isomap_extractor import ISOFeatureManager
 from preprocessing.extractors.hog_extractor import HogExtractionManager
 
+from preprocessing.image_managers.driver import ImageManager
+
 app_raw_data_root = os.path.join('data', 'raw', 'driver')
 data_dir = os.path.join(app_raw_data_root, 'train')
 train_ratio = 0.7

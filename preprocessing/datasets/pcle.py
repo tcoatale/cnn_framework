@@ -7,12 +7,16 @@ from functools import reduce
 from preprocessing.extractors.gabor_extractor import GaborExtractionManager
 from preprocessing.extractors.blob_extractor import BlobExtractionManager
 
+from preprocessing.image_managers.pcle import ImageManager
+
 videos_dir = os.path.join('data', 'pcle', 'raw', 'videos')
 frames_dir = os.path.join('data', 'pcle', 'raw', 'frames')
 
 aug_dir = os.path.join('data', 'pcle', 'augmented')
 blob_dir = os.path.join(aug_dir, 'blob')
 gabor_dir = os.path.join(aug_dir, 'gabor')
+dest_dir_base = os.path.join('data', 'pcle', 'processed')
+
 
 #%%
 def get_files_of_sequence(seq):
@@ -38,8 +42,10 @@ def get_files_by_type():
 def get_all_files():
   files_by_type = get_files_by_type()
   all_files = reduce(list.__add__, files_by_type.values())
-  return all_files[0:20]
-  
+  return all_files
+
+
+#%%  
 def run_extractions():
   files = get_all_files()
   gabor_file = 'gabor_features.csv'

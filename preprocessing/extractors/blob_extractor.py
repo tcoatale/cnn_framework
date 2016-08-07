@@ -5,6 +5,7 @@ from skimage.feature import blob_dog, blob_log, blob_doh
 from math import sqrt
 import numpy as np
 from functools import reduce
+from datetime import datetime
 import pathos.multiprocessing as mp
 
 class BlobFeatureExtractor:
@@ -61,7 +62,6 @@ class BlobFeatureExtractor:
   def extract(self, file):
     image = skimage.io.imread(file)
     blobs = self.get_blobs(image)
-    
     blob_image = np.zeros(image.shape)
     list(map(lambda b: self.update_blobs(blob_image, b), blobs))
     
@@ -78,16 +78,20 @@ class BlobExtractionManager:
   def compute_blobs(self, file):
     return self.extractor.extract(file)
     
-  def extract(self, file):
-    blob_image = self.compute_blobs(file)
+  def extract(self, line):
+    index, file = line
+
+    if index % 50 == 0:
+      print(datetime.now(), index)
     
+    blob_image = self.compute_blobs(file)    
     _, id = os.path.split(file)
     dest_file = os.path.join(self.dest_dir, id)
     skimage.io.imsave(dest_file, blob_image)
     
   def split_in_batches(self, n_split):
     image_files = self.image_files
-    n_images = len(image_files)    
+    n_images = len(image_files)
     indices = np.linspace(0, n_images, n_split+1).astype(np.int)
     batch_indices = zip(indices[:-1], indices[1:])
     batches_of_files = [image_files[b[0]:b[1]] for b in batch_indices]
@@ -95,7 +99,7 @@ class BlobExtractionManager:
     return batches_of_files
     
   def run_extraction_batch(self, files):
-    list(map(self.extract, files))
+    list(map(self.extract, enumerate(files)))
     
   def run_extraction(self):    
     processes = 4
