@@ -71,7 +71,7 @@ def train(config):
 
     for step in xrange(config.training_params.max_steps):
       start_time = time.time()
-      #labels, logits = sess.run([training_labels, training_logits])
+      labels, logits = sess.run([training_labels, training_logits])
       train_acc, eval_acc = sess.run([classirate_training, classirate_eval])
       total_loss_value = sess.run([total_loss])[0]
       sess.run([train_op])

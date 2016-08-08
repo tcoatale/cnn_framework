@@ -10,7 +10,7 @@ import numpy as np
 processes = 4  
   
 class HogExtractionManager:
-  def __init__(self, image_files, dest_dir, pixels_per_cell, orientations):
+  def __init__(self, image_files, dest_dir, pixels_per_cell=8, orientations=8):
     self.image_files = image_files
     self.dest_dir = dest_dir
     self.pixels_per_cell = pixels_per_cell

@@ -25,11 +25,12 @@ class InputManager:
 
   def read_binary(self, filename_queue):  
     width, height, depth = self.config.dataset.original_shape
+    additional_channels = self.config.dataset.additional_filters
 
     identifier_bytes = self.config.dataset.identifier_bytes
     label_bytes = self.config.dataset.label_bytes
     image_bytes = width * height * depth
-    aug_filter_bytes = width * height * self.config.dataset.additional_filters
+    aug_filter_bytes = width * height * additional_channels
     aug_feature_bytes = self.config.dataset.aug_feature_bytes
     
     segments_lengths = [identifier_bytes, label_bytes, image_bytes, aug_filter_bytes, aug_feature_bytes]
@@ -59,7 +60,7 @@ class InputManager:
     image = tf.reshape(image_read, [depth, height, width])
     transposed_image = tf.cast(tf.transpose(image, [2, 1, 0]), tf.float32)
     
-    add_filter = tf.reshape(add_filter_read, [1, height, width])
+    add_filter = tf.reshape(add_filter_read, [additional_channels, height, width])
     transposed_add_filter = tf.cast(tf.transpose(add_filter, [2, 1, 0]), tf.float32)
     
     add_features = tf.cast(add_features_read, tf.float32)  

@@ -12,6 +12,7 @@ label_dict = {'GBM': 0, 'meningioma': 1}
 aug_data_root = os.path.join('data', 'pcle', 'augmented')
 gabor_dir = os.path.join(aug_data_root, 'gabor')
 blob_dir = os.path.join(aug_data_root, 'blob')
+hog_dir = os.path.join(aug_data_root, 'hog')
 
 
 def byte_form(input):
@@ -61,13 +62,21 @@ class ImageManager:
     flattened = np.reshape(transposed_image, [-1])
     int_image = np.array(flattened * 255, np.uint8)
     return int_image
-
-  def get_aug_filters(self, file):
+  
+  def get_aug_channel(self, dir, file):
     file_name = os.path.split(file)[-1]
-    aug_file = os.path.join(blob_dir, file_name)
+    aug_file = os.path.join(dir, file_name)
     augmentation = skimage.io.imread(aug_file)
     resized_augmentation = skimage.transform.resize(augmentation, tuple(self.resize))
-    flattened = np.reshape(resized_augmentation, [-1])
+    final_aug_channel = resized_augmentation.reshape(resized_augmentation.shape + (1,))
+    return final_aug_channel
+    
+  def get_aug_filters(self, file):
+    hog_channel = self.get_aug_channel(hog_dir, file)
+    blob_channel = self.get_aug_channel(blob_dir, file)
+    augmentation_filters = np.concatenate((hog_channel, blob_channel), 2)
+    
+    flattened = np.reshape(augmentation_filters , [-1])
     int_image = np.array(flattened * 255, np.uint8)
     return int_image
     

@@ -10,7 +10,7 @@ valid_size=1600
 
 identifier_bytes=6
 label_bytes=1
-aug_feature_bytes=100
+aug_feature_bytes=96
 classes=2
 
 def split_labels(original_label):

@@ -6,16 +6,17 @@ from functools import reduce
 
 from preprocessing.extractors.gabor_extractor import GaborExtractionManager
 from preprocessing.extractors.blob_extractor import BlobExtractionManager
-
+from preprocessing.extractors.hog_extractor import HogExtractionManager
 from preprocessing.image_managers.pcle import ImageManager
 
 videos_dir = os.path.join('data', 'pcle', 'raw', 'videos')
 frames_dir = os.path.join('data', 'pcle', 'raw', 'frames')
+dest_dir_base = os.path.join('data', 'pcle', 'processed')
 
 aug_dir = os.path.join('data', 'pcle', 'augmented')
 blob_dir = os.path.join(aug_dir, 'blob')
 gabor_dir = os.path.join(aug_dir, 'gabor')
-dest_dir_base = os.path.join('data', 'pcle', 'processed')
+hog_dir = os.path.join(aug_dir, 'hog')
 
 
 #%%
@@ -50,7 +51,7 @@ def run_extractions():
   files = get_all_files()
   gabor_file = 'gabor_features.csv'
   
-  
+
   print('Starting Blob feature extraction')
   blob_extraction_manager = BlobExtractionManager(files, blob_dir)
   blob_extraction_manager.run_extraction()
@@ -58,3 +59,7 @@ def run_extractions():
   print('Starting Gabor feature extraction')
   gabor_manager = GaborExtractionManager(files, gabor_dir, gabor_file)
   gabor_manager.run_extraction()
+
+  print('Starting Hog feature extraction')
+  hog_manager = HogExtractionManager(files, hog_dir)
+  hog_manager.run_extraction()
