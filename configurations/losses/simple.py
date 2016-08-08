@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from configurations.losses.loss_functions import classification_rate, sparse_cross_entropy
 
 def training_loss(dataset, logits, labels):
@@ -11,5 +12,3 @@ def evaluation_loss(dataset, logits, labels):
 def classirate(dataset, logits, labels):
   classirate = classification_rate(logits, labels)
   return classirate
-  
-  

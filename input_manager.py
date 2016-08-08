@@ -28,7 +28,7 @@ class InputManager:
 
     identifier_bytes = self.config.dataset.identifier_bytes
     label_bytes = self.config.dataset.label_bytes
-    image_bytes = width * height * 3
+    image_bytes = width * height * depth
     aug_filter_bytes = width * height * self.config.dataset.additional_filters
     aug_feature_bytes = self.config.dataset.aug_feature_bytes
     
