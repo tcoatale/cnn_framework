@@ -11,7 +11,7 @@ class FrameExtractor:
     self.frames_dir = frames_dir
     self.downsample = downsample
     
-  def write(self, line):
+  def write_frame(self, line):
     name, frame = line
     skimage.io.imsave(name, frame)
     
