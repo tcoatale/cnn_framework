@@ -7,6 +7,8 @@ from functools import reduce
 from preprocessing.extractors.gabor_extractor import GaborExtractionManager
 from preprocessing.extractors.blob_extractor import BlobExtractionManager
 from preprocessing.extractors.hog_extractor import HogExtractionManager
+from preprocessing.extractors.frame_extractor import FrameExtractionManager
+
 from preprocessing.image_managers.pcle import ImageManager
 
 videos_dir = os.path.join('data', 'pcle', 'raw', 'videos')
@@ -51,7 +53,10 @@ def run_extractions():
   files = get_all_files()
   gabor_file = 'gabor_features.csv'
   
-
+  print('Starting frame extraction')
+  frame_extraction_manager = FrameExtractionManager(videos_dir=videos_dir, frames_dir=frames_dir, downsample=2)
+  frame_extraction_manager.run_extraction()
+  
   print('Starting Blob feature extraction')
   blob_extraction_manager = BlobExtractionManager(files, blob_dir)
   blob_extraction_manager.run_extraction()
