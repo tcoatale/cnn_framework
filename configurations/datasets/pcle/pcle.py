@@ -5,6 +5,7 @@ import numpy as np
 #%% Dataset information
 name = 'pcle'
 
+set_sizes = {'train': 10000, 'test': 8000}
 train_size=10000
 valid_size=5000
 

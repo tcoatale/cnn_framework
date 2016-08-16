@@ -87,7 +87,7 @@ class InputManager:
     return ids, labels, images, add_filters, features
       
   def get_inputs(self, type='train', distorted = True, shuffle = True):
-    min_queue_examples = int(self.config.dataset.train_size * 0.4)
+    min_queue_examples = int(self.config.dataset.set_sizes[type] * 0.8)
     print ('Filling queue with %d images before starting to train. This will take a few minutes.' % min_queue_examples)
 
     # Get file queue
