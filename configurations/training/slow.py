@@ -1,5 +1,5 @@
 #%% Training information
-batch_size = 128
+batch_size = 100
 max_steps = 400000
 
 #%%
