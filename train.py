@@ -25,7 +25,7 @@ def train(config):
     with tf.variable_scope("training_inputs") as scope:
       training_ids, training_labels, training_images, training_add_filters, training_features = input_manager.get_inputs()
     with tf.variable_scope("eval_inputs") as scope:
-      eval_ids,  eval_labels,  eval_images,  eval_add_filters,  eval_features = input_manager.get_inputs(type='test', distorted = False, shuffle = False)
+      eval_ids,  eval_labels,  eval_images,  eval_add_filters,  eval_features = input_manager.get_inputs(type='test', distorted = False, shuffle = True)
     
     tf.image_summary('images', training_images, max_images=64)
 

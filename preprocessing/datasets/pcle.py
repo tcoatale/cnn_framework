@@ -35,11 +35,13 @@ def get_files_by_type():
   np.random.seed(213)
   videos_path = os.path.join(videos_dir, '*', '*')
   videos = glob.glob(videos_path)
-  training_sequences = np.random.choice(videos, int(0.5 * len(videos)), replace=False).tolist()
+  training_sequences = np.random.choice(videos, int(0.8 * len(videos)), replace=False).tolist()
   testing_sequences = list(set(videos) - set(training_sequences))
     
   training_files = reduce(list.__add__, list(map(get_files_of_sequence, training_sequences)))
   testing_files = reduce(list.__add__, list(map(get_files_of_sequence, testing_sequences)))
+  
+  print('Training size:', len(training_files), 'Testing size:', len(testing_files))
   return {'train': training_files, 'test': testing_files}
   
 def get_all_files():
