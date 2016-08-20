@@ -10,7 +10,7 @@ def get_config(argv):
   else:
     dataset_name = 'pcle'
     dataset_size = '64'
-    training = 'slow'
+    training = 'fast'
     loss_name = 'simple'
     model_name = 'alex'
     model_size = 'tiny_aug'

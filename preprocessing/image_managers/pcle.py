@@ -73,10 +73,11 @@ class ImageManager:
     
   def get_aug_filters(self, file):
     hog_channel = self.get_aug_channel(hog_dir, file)
-    blob_channel = self.get_aug_channel(blob_dir, file)
-    augmentation_filters = np.concatenate((hog_channel, blob_channel), 2)
+    #blob_channel = self.get_aug_channel(blob_dir, file)
+    #augmentation_filters = np.concatenate((hog_channel, blob_channel), 2)
     
-    flattened = np.reshape(augmentation_filters , [-1])
+    #flattened = np.reshape(augmentation_filters , [-1])
+    flattened = np.reshape(hog_channel, [-1])
     int_image = np.array(flattened * 255, np.uint8)
     return int_image
     

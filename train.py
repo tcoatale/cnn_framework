@@ -72,7 +72,7 @@ def train(config):
     for step in xrange(config.training_params.max_steps):
       start_time = time.time()
       labels, logits = sess.run([training_labels, training_logits])
-      train_acc, eval_acc = sess.run([classirate_training, classirate_eval])
+      train_loss_value, eval_loss_value = sess.run([loss_training, loss_eval])
       total_loss_value = sess.run([total_loss])[0]
       sess.run([train_op])
       duration = time.time() - start_time
@@ -87,8 +87,8 @@ def train(config):
         print('Step', '%06d' % step, end=' ')
         print('Speed:', "%04d" % int(examples_per_sec), end=' ')
         print('Training loss:', total_loss_value, end=' ')
-        print('T score:', train_acc, end=' ')
-        print('E score:', eval_acc, end='\n')
+        print('T:', train_loss_value, end=' ')
+        print('E:', eval_loss_value, end=' ')
         
       if step % config.summary_freq == 0:
         summary_str = sess.run(summary_op)

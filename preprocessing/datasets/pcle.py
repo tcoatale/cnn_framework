@@ -67,7 +67,3 @@ def run_extractions():
   print('Starting Gabor feature extraction')
   gabor_manager = GaborExtractionManager(files, gabor_dir, gabor_file)
   gabor_manager.run_extraction()
-
-  print('Starting Hog feature extraction')
-  hog_manager = HogExtractionManager(files, hog_dir)
-  hog_manager.run_extraction()
