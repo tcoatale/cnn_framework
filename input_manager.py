@@ -100,10 +100,6 @@ class InputManager:
     # Distort image
     processed_image, processed_filter = self.config.dataset.process_inputs(image, add_filter, distort=distorted)
     
-    width, height, depth = self.config.dataset.imshape
-    filter_num = self.config.dataset.additional_filters
-    depth -= filter_num
-    
     # Generate a batch of images and labels by building up a queue of examples.
     return self._generate_image_and_label_batch(id=id, 
                                                 label=label, 

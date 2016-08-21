@@ -8,7 +8,7 @@ size = 64
 original_shape=[64, 64, 1]
 data_dir = os.path.join('data', name, 'processed', str(size))
 
-imshape=[50, 50, 2]
+imshape=[50, 50, 1]
 additional_filters = 1
 
 n_input = reduce(int.__mul__, imshape)
@@ -17,9 +17,11 @@ n_input = reduce(int.__mul__, imshape)
 #%%
 def process_inputs(image, add_filter, distort=True):
   augmented_image = tf.concat(2, [image, add_filter])
+  width, height, depth = imshape
+  aug_shape = [width, height, depth + additional_filters]
 
   if distort:
-    augmented_image = tf.random_crop(augmented_image, imshape)
+    augmented_image = tf.random_crop(augmented_image, aug_shape)
     augmented_image = tf.image.random_brightness(augmented_image, max_delta=65)
     augmented_image = tf.image.random_contrast(augmented_image, lower=0.20, upper=1.80)
   
@@ -27,11 +29,7 @@ def process_inputs(image, add_filter, distort=True):
     width, height, _ = imshape
     augmented_image = tf.image.resize_image_with_crop_or_pad(augmented_image, width, height)
 
-  float_image = tf.image.per_image_whitening(augmented_image)
-  
-  width, height, depth = imshape
-  depth -= additional_filters
-  
+  float_image = tf.image.per_image_whitening(augmented_image)  
   simple_image = tf.slice(float_image, [0, 0, 0], imshape, name='image_slicer')
   aug_filter = tf.slice(float_image, [0, 0, depth], [width, height, additional_filters], name='feature_slicer')
   

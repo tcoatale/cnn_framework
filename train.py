@@ -27,7 +27,7 @@ def train(config):
     with tf.variable_scope("eval_inputs") as scope:
       eval_ids,  eval_labels,  eval_images,  eval_add_filters,  eval_features = input_manager.get_inputs(type='test', distorted = False, shuffle = True)
     
-    tf.image_summary('images', training_images, max_images=64)
+    #tf.image_summary('images', training_images, max_images=64)
 
     # Build a Graph that computes the logits predictions from the inference model.
     with tf.variable_scope("inference") as scope:
