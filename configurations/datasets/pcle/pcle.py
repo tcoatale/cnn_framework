@@ -5,7 +5,7 @@ import numpy as np
 #%% Dataset information
 name = 'pcle'
 
-set_sizes = {'train': 15000, 'test': 3000}
+set_sizes = {'train': 6000, 'test': 1200}
 
 identifier_bytes=6
 label_bytes=1
