@@ -5,5 +5,5 @@ from configurations.models.blocks.output_blocks import fc_output
 def architecture(image, add_filters):
   return base_architecture(image)
   
-def output(input, features, dataset):
+def output(input, features, dataset):  
   return fc_output(input, dataset.classes, [256, 192])
