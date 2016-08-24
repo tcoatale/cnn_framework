@@ -12,7 +12,7 @@ def architecture(image, add_filters):
   conv3 = conv2d_layer(pool2, [5, 5], 128, name='conv3')
   pool4 = pool_layer(conv3, 2, name='pool4')
   conv5 = conv2d_layer(pool4, [3, 3], 256, name='conv5')
-  dropout_layer = tf.nn.dropout(conv5, 0.75)
+  dropout_layer = tf.nn.dropout(conv5, 0.50)
   conv6 = conv2d_layer(dropout_layer, [3, 3], 256, name='conv6')
   conv7 = conv2d_layer(conv6, [3, 3], 128, name='conv7')
   pool8 = pool_layer(conv7, 2, name='pool8')

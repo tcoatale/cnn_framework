@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
-import configurations.models.alex.tiny_aug_full
 import configurations.models.alex.tiny_aug
 import configurations.models.alex.tiny
-import configurations.models.alex.small
-import configurations.models.alex.small_aug
-import configurations.models.alex.normal
 
 import configurations.models.vgg.tiny
 import configurations.models.vgg.normal
@@ -22,12 +18,8 @@ import configurations.models.basic
 
 models_dictionnary = {
   'alex': {
-    'tiny_aug_full': configurations.models.alex.tiny_aug_full,
     'tiny_aug': configurations.models.alex.tiny_aug,
-    'tiny': configurations.models.alex.tiny, 
-    'small': configurations.models.alex.small, 
-    'small_aug': configurations.models.alex.small_aug, 
-    'normal': configurations.models.alex.normal
+    'tiny': configurations.models.alex.tiny
   }, 'vgg': {
     'tiny': configurations.models.vgg.tiny, 
     'normal': configurations.models.vgg.normal
