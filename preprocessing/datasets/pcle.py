@@ -66,19 +66,26 @@ def get_all_files():
 
 #%%  
 def run_extractions():
+  '''
   print('Starting frame extraction')
   frame_extraction_manager = FrameExtractionManager(videos_dir=videos_dir, frames_dir=frames_dir, downsample=4)
   frame_extraction_manager.run_extraction()
-
+  '''
+  
   files = get_all_files()
   print('Starting Brief feature extraction')
   brief_extraction_manager = BriefExtractionManager(files, brief_dir)
   brief_extraction_manager.run_extraction()
   
+  '''
+  print('Starting Blob feature extraction')
+  blob_extraction_manager = BlobExtractionManager(files, blob_dir)
+  blob_extraction_manager.run_extraction()
+  
   print('Starting Gabor feature extraction')  
   gabor_file = 'gabor_features.csv'
   gabor_manager = GaborExtractionManager(files, gabor_dir, gabor_file)
   gabor_manager.run_extraction()
-  
+  '''
 #%%
 
