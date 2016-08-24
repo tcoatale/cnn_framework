@@ -12,7 +12,7 @@ def architecture(input, add_filters, features):
   conv3 = conv2d_layer(pool2, [5, 5], 128, name='conv3')
   pool4 = pool_layer(conv3, 2, name='pool4')
   conv5 = conv2d_layer(pool4, [3, 3], 256, name='conv5')
-  dropout_layer = tf.nn.dropout(conv5, 0.50)
+  dropout_layer = tf.nn.dropout(conv5, 0.30)
   conv6 = conv2d_layer(dropout_layer, [3, 3], 256, name='conv6')
   conv7 = conv2d_layer(conv6, [3, 3], 128, name='conv7')
   pool8 = pool_layer(conv7, 2, name='pool8')
@@ -21,7 +21,7 @@ def architecture(input, add_filters, features):
   with tf.variable_scope("feat_augmentation"):
     linear_features = fc_stream(input, [256], name='features')
     all_features = tf.concat(1, [linear_features, features])
-    output = fc_stream(all_features, [192], name='features')    
+    output = fc_stream(all_features, [192], name='output')    
   print(output.get_shape())
   return output
   
