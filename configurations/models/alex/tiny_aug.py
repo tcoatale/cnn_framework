@@ -4,7 +4,7 @@ from configurations.models.blocks.layers import conv2d_layer, pool_layer
 import tensorflow as tf
 
 #%%
-def architecture(image, add_filters):
+def architecture(input, add_filters):
   print(input.get_shape())
   conv1 = conv2d_layer(input, [11, 11], 96, name='conv1')
   augmented_image = tf.concat(3, [conv1, add_filters])  
