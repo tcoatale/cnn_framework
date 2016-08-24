@@ -12,6 +12,7 @@ label_dict = {'GBM': 0, 'meningioma': 1}
 aug_data_root = os.path.join('data', 'pcle', 'augmented')
 gabor_dir = os.path.join(aug_data_root, 'gabor')
 blob_dir = os.path.join(aug_data_root, 'blob')
+brief_dir = os.path.join(aug_data_root, 'brief')
 
 
 def byte_form(input):
@@ -67,23 +68,24 @@ class ImageManager:
     aug_file = os.path.join(dir, file_name)
     augmentation = skimage.io.imread(aug_file)
     resized_augmentation = skimage.transform.resize(augmentation, tuple(self.resize))
-    final_aug_channel = resized_augmentation.reshape(resized_augmentation.shape + (1,))
-    return final_aug_channel
+    return resized_augmentation
     
   def get_aug_filters(self, file):
     #hog_channel = self.get_aug_channel(hog_dir, file)
-    blob_channel = self.get_aug_channel(blob_dir, file)
+    channel1 = self.get_aug_channel(brief_dir, file)
     #augmentation_filters = np.concatenate((hog_channel, blob_channel), 2)
-    
+    skimage.io.imshow(channel1)
     #flattened = np.reshape(augmentation_filters , [-1])
-    flattened = np.reshape(blob_channel, [-1])
+    flattened = np.reshape(channel1, [-1])
     int_image = np.array(flattened * 255, np.uint8)
     return int_image
     
   def get_aug_features(self, file):
+    '''
     line = self.aug_features[self.aug_features.file == file]
     values = np.array(line.drop('file', 1).iloc[0].tolist())
     int_values = np.array(255 * values, dtype=np.uint8)
-    return int_values
+    '''
+    return np.array([]*96)
 
 

@@ -12,12 +12,13 @@ from time import gmtime, strftime
 from update_manager import UpdateManager
 from input_manager import InputManager
 import configurations.interfaces.configuration_interface as config_interface
+import skimage.io
 
 def train(config):
   """Train model for a number of steps."""
   with tf.Graph().as_default():
     global_step = tf.Variable(0, trainable=False)
-    
+
     input_manager = InputManager(config)
     update_manager = UpdateManager(config)
 
@@ -88,7 +89,7 @@ def train(config):
         print('Speed:', "%04d" % int(examples_per_sec), end=' ')
         print('Training loss:', total_loss_value, end=' ')
         print('T:', train_loss_value, end=' ')
-        print('E:', eval_loss_value, end=' ')
+        print('E:', eval_loss_value, end='\n')
         
       if step % config.summary_freq == 0:
         summary_str = sess.run(summary_op)

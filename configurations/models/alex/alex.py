@@ -1,4 +1,5 @@
 from configurations.models.blocks.layers import conv2d_layer, pool_layer
+import tensorflow as tf
 
 #%%
 def architecture(input):
@@ -8,7 +9,8 @@ def architecture(input):
   conv3 = conv2d_layer(pool2, [5, 5], 128, name='conv3')
   pool4 = pool_layer(conv3, 2, name='pool4')
   conv5 = conv2d_layer(pool4, [3, 3], 256, name='conv5')
-  conv6 = conv2d_layer(conv5, [3, 3], 256, name='conv6')
+  dropout_layer = tf.nn.dropout(conv5, 0.75)
+  conv6 = conv2d_layer(dropout_layer, [3, 3], 256, name='conv6')
   conv7 = conv2d_layer(conv6, [3, 3], 128, name='conv7')
   pool8 = pool_layer(conv7, 2, name='pool8')
   print(pool8.get_shape())

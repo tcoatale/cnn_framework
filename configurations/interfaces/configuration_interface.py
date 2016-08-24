@@ -10,10 +10,10 @@ def get_config(argv):
   else:
     dataset_name = 'pcle'
     dataset_size = '64'
-    training = 'fast'
+    training = 'slow'
     loss_name = 'simple'
     model_name = 'alex'
-    model_size = 'tiny_aug'
+    model_size = 'tiny'
     
   dataset = get_dataset(dataset_name, dataset_size)
   loss = get_loss(loss_name)
@@ -21,7 +21,7 @@ def get_config(argv):
   model = get_model(model_name, model_size)  
 
   name = '_'.join([dataset_name, dataset_size, training, loss_name, model_name, model_size])
-  freqs = {'display': 50, 'summary': 250, 'save': 2000}
+  freqs = {'display': 10, 'summary': 250, 'save': 2000}
 
   config = Configuration(name, dataset, training_params, loss, model, freqs)
   return config

@@ -3,6 +3,7 @@ import configurations.models.alex.tiny_aug_full
 import configurations.models.alex.tiny_aug
 import configurations.models.alex.tiny
 import configurations.models.alex.small
+import configurations.models.alex.small_aug
 import configurations.models.alex.normal
 
 import configurations.models.vgg.tiny
@@ -25,6 +26,7 @@ models_dictionnary = {
     'tiny_aug': configurations.models.alex.tiny_aug,
     'tiny': configurations.models.alex.tiny, 
     'small': configurations.models.alex.small, 
+    'small_aug': configurations.models.alex.small_aug, 
     'normal': configurations.models.alex.normal
   }, 'vgg': {
     'tiny': configurations.models.vgg.tiny, 

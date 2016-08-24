@@ -26,7 +26,7 @@ def get_files_of_sequence(seq):
   id = id.split('.')[0]
   dir, label = os.path.split(dir)
   
-  seq_path = os.path.join(frames_dir, '*' + '_'.join([label, id]) + '*')
+  seq_path = os.path.join(frames_dir, '*' + '_'.join([label, id]) + '_*')
   frame_files = glob.glob(seq_path)
   return frame_files
 
