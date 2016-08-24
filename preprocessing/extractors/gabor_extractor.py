@@ -4,20 +4,18 @@ import glob
 import numpy as np
 from datetime import datetime
 import pandas as pd
-
-from skimage.filters import gabor_kernel
+import skimage.color
+import skimage.io
+import skimage.filters
 from scipy import ndimage as ndi
-from skimage import color
-from skimage import io
-
 import pathos.multiprocessing as mp
 
-processes = 4
+processes = 6
 
 class GaborFeatureExtractor:
   thetas = np.arange(0, 1, 0.33) * np.pi
   sigmas = np.arange(1, 10, 3)
-  freqs = np.arange(0, 10, 3)
+  freqs = np.arange(0, 1.1, 0.5)
 
   def __init__(self):
     self.kernels = self.get_kernels()
@@ -27,22 +25,28 @@ class GaborFeatureExtractor:
     for theta in GaborFeatureExtractor.thetas:
         for sigma in GaborFeatureExtractor.sigmas:
             for frequency in GaborFeatureExtractor.freqs:
-                kernel = np.real(gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
+                kernel = np.real(skimage.filters.gabor_kernel(frequency, theta=theta, sigma_x=sigma, sigma_y=sigma))
                 kernels += [kernel]
                 
     return kernels
     
-  def extract_features(self, image):
+  def extract_features_sample(self, image):
     feats = np.zeros((len(self.kernels), 2), dtype=np.double)
     for k, kernel in enumerate(self.kernels):
       filtered = ndi.convolve(image, kernel, mode='wrap')
       feats[k, 0] = filtered.mean()
       feats[k, 1] = filtered.var()
     return feats
+    
+  def extract_features(self, file):
+    freq = 84
+    image = skimage.color.rgb2gray(skimage.io.imread(file))
+    samples = skimage.util.view_as_blocks(image, (freq, freq))
+    samples = samples.reshape([-1] + list(samples.shape[2:]))
+    features = list(map(self.extract_features_sample, samples))
+    return np.array(features)
       
 class GaborExtractionManager:
-  shrink = (slice(0, None, 4), slice(0, None, 4))
-
   def __init__(self, image_files, dest_dir, dest_file):
     self.dest_dir = dest_dir
     self.dest_file = dest_file
@@ -54,12 +58,8 @@ class GaborExtractionManager:
     
     if index % 50 == 0:
       print(datetime.now(), index)
-        
-    image = color.rgb2gray(io.imread(file))
-    image = image[GaborExtractionManager.shrink]
-    features = self.extractor.extract_features(image)
-    features = features.reshape([-1])
-    
+    features = self.extractor.extract_features(file)
+    features = features.reshape([-1])    
     return features
     
   def format_output(self, output, files):
