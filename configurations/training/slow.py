@@ -9,5 +9,5 @@ learning_rate_decay_factor = 0.1
 initial_learning_rate = 1e-2
 
 #%%
-keep_prob = 0.20
+keep_prob = [0.50, 0.20]
 eval_interval_secs = int(60 * 1.5)
