@@ -71,12 +71,11 @@ class ImageManager:
     return resized_augmentation
     
   def get_aug_filters(self, file):
-    #hog_channel = self.get_aug_channel(hog_dir, file)
-    channel1 = self.get_aug_channel(brief_dir, file)
-    #augmentation_filters = np.concatenate((hog_channel, blob_channel), 2)
-    skimage.io.imshow(channel1)
-    #flattened = np.reshape(augmentation_filters , [-1])
-    flattened = np.reshape(channel1, [-1])
+    brief_channel = self.get_aug_channel(brief_dir, file)
+    blob_channel = self.get_aug_channel(blob_dir, file)
+    blob_channel = blob_channel.reshape(blob_channel.shape + (1,))
+    augmentation_filters = np.concatenate((brief_channel, blob_channel), 2)    
+    flattened = np.reshape(augmentation_filters, [-1])
     int_image = np.array(flattened * 255, np.uint8)
     return int_image
     
