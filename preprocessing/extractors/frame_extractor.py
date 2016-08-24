@@ -16,7 +16,8 @@ class FrameExtractor:
     skimage.io.imsave(name, frame)
     
   def preprocess_frame(self, frame):
-    return skimage.color.rgb2gray(frame)
+    image = skimage.color.rgb2gray(frame)
+    return image[:, 64:-64]
     
   def run_extraction(self):
     dir, id = os.path.split(self.video_file)
