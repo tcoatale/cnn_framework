@@ -3,7 +3,7 @@ from configurations.models.blocks.layers import conv2d_layer, pool_layer
 import tensorflow as tf
 
 #%%
-def architecture(input, add_filters):
+def architecture(input, add_filters, features):
   print(input.get_shape())
   conv1 = conv2d_layer(input, [11, 11], 96, name='conv1')
   pool2 = pool_layer(conv1, 2, name='pool2')
@@ -17,5 +17,5 @@ def architecture(input, add_filters):
   print(pool8.get_shape())
   return pool8
   
-def output(input, features, dataset):  
+def output(input, dataset):  
   return fc_output(input, dataset.classes, [192, 128], name='output')

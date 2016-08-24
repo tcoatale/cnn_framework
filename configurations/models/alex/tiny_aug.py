@@ -4,7 +4,7 @@ from configurations.models.blocks.layers import conv2d_layer, pool_layer
 import tensorflow as tf
 
 #%%
-def architecture(input, add_filters):
+def architecture(input, add_filters, features):
   print(input.get_shape())
   conv1 = conv2d_layer(input, [11, 11], 96, name='conv1')
   augmented_image = tf.concat(3, [conv1, add_filters])  
@@ -17,12 +17,14 @@ def architecture(input, add_filters):
   conv7 = conv2d_layer(conv6, [3, 3], 128, name='conv7')
   pool8 = pool_layer(conv7, 2, name='pool8')
   print(pool8.get_shape())
-  return pool8
   
-
-def output(input, features, dataset):
   with tf.variable_scope("feat_augmentation"):
     linear_features = fc_stream(input, [256], name='features')
     all_features = tf.concat(1, [linear_features, features])
-  out = fc_output(all_features, dataset.classes, [192, 128], name='output')
+    output = fc_stream(all_features, [192], name='features')    
+  print(output.get_shape())
+  return output
+  
+def output(input, dataset):
+  out = fc_output(input, dataset.classes, [128], name='output')
   return out

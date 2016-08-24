@@ -6,13 +6,13 @@ class Model:
     self.output = model.output
     
   def training_inference(self, image, add_filters, features, training_params, dataset):
-    architecture_output = self.architecture(image, add_filters)
+    architecture_output = self.architecture(image, add_filters, features)
     dropout_layer = tf.nn.dropout(architecture_output, training_params.keep_prob)
-    return self.output(dropout_layer, features, dataset)
+    return self.output(dropout_layer, dataset)
       
   def testing_inference(self, image, add_filters, features, training_params, dataset):
-    architecture_output = self.architecture(image, add_filters)
-    return self.output(architecture_output, features, dataset)
+    architecture_output = self.architecture(image, add_filters, features)
+    return self.output(architecture_output, dataset)
     
   def inference(self, image, add_filters, features, training_params, dataset, testing=False):
     function = self.testing_inference if testing else self.training_inference
