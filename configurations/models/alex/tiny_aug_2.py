@@ -20,7 +20,8 @@ def architecture_end(input, add_filters, features):
   print(pool8.get_shape())
   
   flat_features = flat(pool8)
-  full_features = tf.concat(1, [flat_features, features])
+  dropout_features = tf.nn.dropout(features, 0.5)
+  full_features = tf.concat(1, [flat_features, dropout_features])
   return full_features
   
 def output(input, dataset):
