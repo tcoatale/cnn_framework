@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from configurations.models.blocks.output_blocks import fc_output
-from configurations.models.blocks.layers import conv2d_layer, pool_layer, flat
+from configurations.models.blocks.layers import conv2d_layer, pool_layer, flat, fc_layer
 import tensorflow as tf
 
 #%%
@@ -22,10 +22,12 @@ def architecture_end(input, add_filters, features):
   print(pool8.get_shape())
   
   flat_features = flat(pool8)
-  dropout_features = tf.nn.dropout(features, 0.5)
+  dropout_features = tf.nn.dropout(features, 0.8)
   full_features = tf.concat(1, [flat_features, dropout_features])
-  return full_features
+  units = flat_features.get_shape()[1].value
+  output_features = fc_layer(input=full_features, units=units, name='output_features')
+  return output_features
   
 def output(input, dataset):
-  out = fc_output(input, dataset.classes, [1024, 128], name='output')
+  out = fc_output(input, dataset.classes, [128], name='output')
   return out
