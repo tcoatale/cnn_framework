@@ -6,24 +6,6 @@ def resnet_starter(input, channels):
     conv = conv2d_layer(input, [11, 11], channels, name='conv')
   return conv
 
-def resnet_macro_block(input, channels, name):
-  with tf.variable_scope(name + '_macro'):
-    b0 = reduction_block(input, channels, name='b0')
-    b1 = resnet_block(b0, name='b1')
-    b2 = resnet_block(b1, name='b2')
-    b3 = resnet_block(b2, name='b3')
-    b4 = resnet_block(b3, name='b4')
-  return b4
-  
-def resnet_inception_macro_block(input, channels, name):
-  with tf.variable_scope(name + '_macro'):
-    b0 = reduction_block(input, channels, name='b0')
-    b1 = resnet_inception_block(b0, name='b1')
-    b2 = resnet_inception_block(b1, name='b2')
-    b3 = resnet_inception_block(b2, name='b3')
-    b4 = resnet_inception_block(b3, name='b4')
-  return b4
-
 def resnet_block(input, name):
   channels = input.get_shape()[3].value
   with tf.variable_scope(name + '_residual_block'):
@@ -53,11 +35,3 @@ def reduction_block(input, channels, name):
     conv = conv2d_layer(input, [3, 3], channels, name='conv')
     pool = pool_layer(conv, 2, name='pool')
   return pool
-
-
-
-  
-
-
-    
-  
