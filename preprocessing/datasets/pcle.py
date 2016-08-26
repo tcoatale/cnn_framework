@@ -9,6 +9,7 @@ from preprocessing.extractors.blob_extractor import BlobExtractionManager
 from preprocessing.extractors.hog_extractor import HogExtractionManager
 from preprocessing.extractors.frame_extractor import FrameExtractionManager
 from preprocessing.extractors.brief_extractor import BriefExtractionManager
+from preprocessing.extractors.isomap_extractor import ISOFeatureManager
 from preprocessing.image_managers.pcle import ImageManager
 
 videos_dir = os.path.join('data', 'pcle', 'raw', 'videos')
@@ -68,6 +69,9 @@ def get_all_files():
 
 #%%  
 def run_extractions():
+  gabor_file = 'gabor_features.csv'
+  gabor_isomap_file = 'gabor_iso_features.csv'
+
   print('Starting frame extraction')
   frame_extraction_manager = FrameExtractionManager(videos_dir=videos_dir, frames_dir=frames_dir, downsample=4)
   frame_extraction_manager.run_extraction()
@@ -82,9 +86,12 @@ def run_extractions():
   blob_extraction_manager.run_extraction()
   
   print('Starting Gabor feature extraction')  
-  gabor_file = 'gabor_features.csv'
   gabor_manager = GaborExtractionManager(files, gabor_dir, gabor_file)
   gabor_manager.run_extraction()
+  
+  print('Starting Isomap feature extraction')
+  isomap_manager = ISOFeatureManager(gabor_dir, gabor_file, gabor_isomap_file, n_components=50)
+  isomap_manager.run_extraction()
 
 #%%
 
