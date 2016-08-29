@@ -34,7 +34,7 @@ def train(config):
     with tf.variable_scope("inference") as scope:
       training_logits = config.inference(training_images, training_add_filters, training_features)
       scope.reuse_variables()
-      eval_logits = config.inference(eval_images, training_add_filters, training_features, testing=True)
+      eval_logits = config.inference(eval_images, training_add_filters, eval_features, testing=True)
 
     # Calculate loss.
     loss_training = config.training_loss(training_logits, training_labels)

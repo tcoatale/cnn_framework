@@ -24,7 +24,7 @@ def architecture_end(input, add_filters, features):
   flat_features = flat(pool8)
   dropout_features = tf.nn.dropout(features, 0.8)
   full_features = tf.concat(1, [flat_features, dropout_features])
-  units = flat_features.get_shape()[1].value
+  units = 1024
   output_features = fc_layer(input=full_features, units=units, name='output_features')
   return output_features
   

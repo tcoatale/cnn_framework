@@ -22,12 +22,13 @@ class Evaluator:
     
   def run(self):
     with tf.Graph().as_default() as g:
-      images, self.labels = self.input_manager.evaluation_inputs()  
+      eval_ids,  self.labels,  images,  eval_add_filters,  eval_features = self.input_manager.get_inputs(type='test', distorted=False, shuffle=False)
       with tf.variable_scope("inference"):    
         self.logits = tf.to_double(self.config.inference(images, testing=True))
+        self.config.inference(images, eval_add_filters, images, testing=True)
       
       self.classirate = self.config.loss.classirate(self.config.dataset, self.logits, self.labels)
-    
+
       # Restore the moving average version of the learned variables for eval.
       variable_averages = tf.train.ExponentialMovingAverage(self.config.training_params.moving_average_decay)
       variables_to_restore = variable_averages.variables_to_restore()
