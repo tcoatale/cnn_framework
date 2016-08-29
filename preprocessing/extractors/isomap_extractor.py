@@ -8,7 +8,7 @@ class ISOFeatureManager:
   def __init__(self, dir, feature_file, dest_file, n_components, ratio=0.05):
     self.dir = dir
     self.feature_file = feature_file
-    self.dest_file = dest_file
+    self.dest_file = os.path.join(dir, dest_file)
     self.n_components = n_components
     self.ratio = ratio
         
@@ -32,8 +32,8 @@ class ISOFeatureManager:
     dimen_reductor.fit(training_feature_matrix)    
     reduced_features = dimen_reductor.transform(feature_matrix)
     
-    reduced_normalized_features = reduced_features - reduced_features.min()
-    reduced_normalized_features /= reduced_normalized_features.max()
+    reduced_normalized_features = reduced_features - reduced_features.min(axis=0)
+    reduced_normalized_features /= reduced_normalized_features.max(axis=0)
     
     return reduced_normalized_features
     
@@ -45,12 +45,11 @@ class ISOFeatureManager:
       df_dict[col] = reduced_normalized_features[:, col]
     df_dict['file'] = files
     df = pd.DataFrame(df_dict)
-    df.to_csv('gabor_features.csv', index=False)
+    df.to_csv(self.dest_file, index=False)
     return df
     
   def write_output(self, output):
-    dest_file = os.path.join(self.dir, self.dest_file)
-    output.to_csv(dest_file, index=False)
+    output.to_csv(self.dest_file, index=False)
 
   def run_extraction(self):
     path_to_file = os.path.join(self.dir, self.feature_file)

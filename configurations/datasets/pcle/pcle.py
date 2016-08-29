@@ -9,7 +9,7 @@ set_sizes = {'train': 5000, 'test': 1000}
 
 identifier_bytes=6
 label_bytes=1
-aug_feature_bytes=1152
+aug_feature_bytes=50
 classes=2
 
 def split_labels(original_label):

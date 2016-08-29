@@ -88,11 +88,9 @@ class ImageManager:
     return int_image
     
   def get_aug_features(self, file):
-    '''
     line = self.aug_features[self.aug_features.file == file]
     values = np.array(line.drop('file', 1).iloc[0].tolist())
     int_values = np.array(255 * values, dtype=np.uint8)
-    '''
-    return np.array([]*96)
+    return int_values
 
 
