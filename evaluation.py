@@ -22,28 +22,19 @@ class Evaluator:
     
   def run(self):
     with tf.Graph().as_default() as g:
-      with tf.variable_scope("eval_inputs") as scope:
+      with tf.variable_scope("eval_inputs"):
         eval_ids,  eval_labels,  eval_images,  eval_add_filters,  eval_features = self.input_manager.get_inputs(type='test', distorted = False, shuffle = True)
+      with tf.variable_scope("inference"):
+        eval_logits = self.config.inference(eval_images, eval_add_filters, eval_features, testing=True)
+        
+      self.logits = eval_logits
+      self.labels = eval_labels
       
-      with tf.variable_scope("inference") as scope:
-        eval_logits = config.inference(eval_images, eval_add_filters, eval_features, testing=True)
-      
-      
-      with tf.variable_scope("inference"):    
-        self.logits = tf.to_double(self.config.inference(images, testing=True))
-        self.config.inference(images, eval_add_filters, images, testing=True)
-      
-      self.classirate = self.config.loss.classirate(self.config.dataset, self.logits, self.labels)
-
       # Restore the moving average version of the learned variables for eval.
       variable_averages = tf.train.ExponentialMovingAverage(self.config.training_params.moving_average_decay)
       variables_to_restore = variable_averages.variables_to_restore()
       self.saver = tf.train.Saver(variables_to_restore)
    
-      # Build the summary operation based on the TF collection of Summaries.
-      self.summary_op = tf.merge_all_summaries()
-      self.summary_writer = tf.train.SummaryWriter(self.config.eval_dir, g)
-
       while(True):    
         # Run evaluation
         try:
@@ -64,22 +55,20 @@ class Evaluator:
       
       step = 0
       acc = []
+      
+      full_logits = []
+      full_labels = []
 
 
       while step < num_iter and not coord.should_stop():
-        classirate, logits, labels = sess.run([self.classirate, self.logits, self.labels])
-        acc += [classirate]
+        logits, labels = sess.run([self.logits, self.labels])
+        full_logits += [logits]
+        full_labels += [labels]
         step += 1
-        
+      
+      
       average_classirate = np.mean(acc)
-      print (global_step, 'Classification rate:',  average_classirate)
-        
-      summary = tf.Summary()
-      summary.ParseFromString(sess.run(self.summary_op))
-      summary.value.add(tag='Classirate', simple_value=average_classirate)
-      
-      self.summary_writer.add_summary(summary, global_step)    
-      
+      print (global_step, 'Classification rate:',  average_classirate)        
       coord.request_stop()
       coord.join(threads, stop_grace_period_secs=10)
     except Exception as e:
