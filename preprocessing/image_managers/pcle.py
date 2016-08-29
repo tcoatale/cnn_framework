@@ -22,7 +22,7 @@ def byte_form(input):
 class ImageManager:
   def __init__(self, resize):
     self.resize = resize    
-    self.aug_features = pd.read_csv(os.path.join(gabor_dir, 'gabor_features.csv'))
+    self.aug_features = pd.read_csv(os.path.join(gabor_dir, 'gabor_iso_features.csv'))
 
   def load_file(self, file, type):
     file_id = self.get_file_id(file)
