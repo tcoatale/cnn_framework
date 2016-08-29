@@ -22,7 +22,13 @@ class Evaluator:
     
   def run(self):
     with tf.Graph().as_default() as g:
-      eval_ids,  self.labels,  images,  eval_add_filters,  eval_features = self.input_manager.get_inputs(type='test', distorted=False, shuffle=False)
+      with tf.variable_scope("eval_inputs") as scope:
+        eval_ids,  eval_labels,  eval_images,  eval_add_filters,  eval_features = self.input_manager.get_inputs(type='test', distorted = False, shuffle = True)
+      
+      with tf.variable_scope("inference") as scope:
+        eval_logits = config.inference(eval_images, eval_add_filters, eval_features, testing=True)
+      
+      
       with tf.variable_scope("inference"):    
         self.logits = tf.to_double(self.config.inference(images, testing=True))
         self.config.inference(images, eval_add_filters, images, testing=True)
