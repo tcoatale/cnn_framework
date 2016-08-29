@@ -62,6 +62,13 @@ class ImageManager:
     flattened = np.reshape(transposed_image, [-1])
     int_image = np.array(flattened * 255, np.uint8)
     return int_image
+    
+  def get_brief(self, dir, file):
+    file_name = os.path.split(file)[-1]
+    aug_file = os.path.join(dir, file_name)
+    augmentation = skimage.io.imread(aug_file)
+    resized_augmentation = skimage.transform.resize(augmentation, tuple(self.resize), order=0)
+    return resized_augmentation
   
   def get_aug_channel(self, dir, file):
     file_name = os.path.split(file)[-1]
@@ -69,9 +76,10 @@ class ImageManager:
     augmentation = skimage.io.imread(aug_file)
     resized_augmentation = skimage.transform.resize(augmentation, tuple(self.resize))
     return resized_augmentation
+
     
   def get_aug_filters(self, file):
-    brief_channel = self.get_aug_channel(brief_dir, file)
+    brief_channel = self.get_brief(brief_dir, file)
     blob_channel = self.get_aug_channel(blob_dir, file)
     blob_channel = blob_channel.reshape(blob_channel.shape + (1,))
     augmentation_filters = np.concatenate((brief_channel, blob_channel), 2)    
