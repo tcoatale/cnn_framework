@@ -63,13 +63,13 @@ def train(config):
     summary_op = tf.merge_all_summaries()
     
     session_manager = SessionManager(config)
-    global_step, sess = session_manager.restore(saver)
+    current_step, sess = session_manager.restore(saver)
 
     # Start the queue runners.
     tf.train.start_queue_runners(sess=sess)
     summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
-
-    for step in xrange(config.training_params.max_steps):
+    
+    for step in xrange(int(current_step), config.training_params.max_steps):
       start_time = time.time()
       labels, logits = sess.run([training_labels, training_logits])
       train_loss_value, eval_loss_value = sess.run([loss_training, loss_eval])

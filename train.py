@@ -71,11 +71,13 @@ def train(config):
     summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
 
     for step in xrange(config.training_params.max_steps):
+      step_increment = global_step.assign(step)
       start_time = time.time()
+
       labels, logits = sess.run([training_labels, training_logits])
       train_loss_value, eval_loss_value = sess.run([loss_training, loss_eval])
-      total_loss_value = sess.run([total_loss])[0]
-      sess.run([train_op])
+      total_loss_value = sess.run([total_loss])[0]      
+      sess.run([step_increment, train_op])
       duration = time.time() - start_time
 
       assert not np.isnan(total_loss_value), 'Model diverged with loss = NaN'
