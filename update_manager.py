@@ -29,7 +29,7 @@ class UpdateManager:
                                               global_step,
                                               decay_steps,
                                               self.config.training_params.learning_rate_decay_factor,
-                                              staircase=True)
+                                              staircase=False)
                                     
     tf.scalar_summary('learning_rate', learning_rate)
     
