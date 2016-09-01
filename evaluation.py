@@ -22,8 +22,9 @@ class Evaluator:
     
   def run(self):
     with tf.Graph().as_default() as g:
+      tf.set_random_seed(1)
       with tf.variable_scope("eval_inputs"):
-        eval_ids,  eval_labels,  eval_images,  eval_add_filters,  eval_features = self.input_manager.get_inputs(type='test', distorted = False, shuffle = True)
+        eval_ids,  eval_labels,  eval_images,  eval_add_filters,  eval_features = self.input_manager.get_inputs(type='test', distorted = False, shuffle = False)
       with tf.variable_scope("inference"):
         eval_logits = self.config.inference(eval_images, eval_add_filters, eval_features, testing=True)
         
@@ -35,13 +36,10 @@ class Evaluator:
       variables_to_restore = variable_averages.variables_to_restore()
       self.saver = tf.train.Saver(variables_to_restore)
    
-      while(True):    
-        # Run evaluation
-        try:
-          self.evaluate_once()
-        except Exception as err:
-          print('oHo: {0}'.format(err))            
-        time.sleep(self.config.training_params.eval_interval_secs)
+      try:
+        self.evaluate_once()
+      except Exception as err:
+        print('oHo: {0}'.format(err))            
 
   def evaluate_once(self):
     session_manager = SessionManager(self.config)
@@ -51,7 +49,7 @@ class Evaluator:
       queue_runners = tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS)
       threads_per_qr = map(lambda qr: qr.create_threads(sess, coord=coord, daemon=True, start=True), queue_runners)
       threads = reduce(list.__add__, threads_per_qr)
-      num_iter = math.ceil(self.config.dataset.valid_size / self.config.training_params.batch_size)
+      num_iter = math.ceil(self.config.dataset.set_sizes['test'] / self.config.training_params.batch_size)
       
       step = 0
       acc = []
@@ -66,9 +64,14 @@ class Evaluator:
         full_labels += [labels]
         step += 1
       
+      logits = np.vstack(full_logits)
+      labels = np.vstack(full_labels)
+      labels = np.array(labels, np.uint8).reshape((-1))
       
-      average_classirate = np.mean(acc)
-      print (global_step, 'Classification rate:',  average_classirate)        
+      good_logits = logits[np.arange(logits.shape[0]), labels]
+      classirate = good_logits.sum() / logits.shape[0]
+      
+      print ('Classification rate:',  classirate)        
       coord.request_stop()
       coord.join(threads, stop_grace_period_secs=10)
     except Exception as e:
