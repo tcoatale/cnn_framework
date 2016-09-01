@@ -1,17 +1,16 @@
+# -*- coding: utf-8 -*-
 import tensorflow as tf
 import numpy as np
 
 #%% Dataset information
-name = 'driver'
+name = 'pcle'
 
-train_size=14000
-valid_size=8000
+set_sizes = {'train': 4500, 'test': 1500}
 
-identifier_bytes=4
-label_bytes=2
-aug_feature_bytes=10
-classes=10
-aug_classes = 2
+identifier_bytes=6
+label_bytes=1
+aug_feature_bytes=50
+classes=2
 
 def split_labels(original_label):
   true_sparse_label = tf.cast(tf.transpose(tf.gather(tf.transpose(original_label), list(range(1)))), tf.int32)

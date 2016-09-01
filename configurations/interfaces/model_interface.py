@@ -1,37 +1,21 @@
 # -*- coding: utf-8 -*-
+import configurations.models.alex.tiny_aug_1
+import configurations.models.alex.tiny_aug_2
+import configurations.models.alex.tiny_aug_3
 import configurations.models.alex.tiny
-import configurations.models.alex.small
-import configurations.models.alex.normal
-
-import configurations.models.vgg.tiny
-import configurations.models.vgg.normal
-
-import configurations.models.resnet.tiny
-import configurations.models.resnet.small
-import configurations.models.resnet.normal
-
-import configurations.models.inception_resnet.dual_tiny
-import configurations.models.inception_resnet.tiny
-
-import configurations.models.basic
+import configurations.models.inception_resnet.standard
+import configurations.models.resnet.standard
 
 models_dictionnary = {
   'alex': {
-    'tiny': configurations.models.alex.tiny, 
-    'small': configurations.models.alex.small, 
-    'normal': configurations.models.alex.normal
-  }, 'vgg': {
-    'tiny': configurations.models.vgg.tiny, 
-    'normal': configurations.models.vgg.normal
-  }, 'resnet': {
-    'tiny': configurations.models.resnet.tiny, 
-    'small': configurations.models.resnet.small, 
-    'normal': configurations.models.resnet.normal
+    'tiny_aug_1': configurations.models.alex.tiny_aug_1,
+    'tiny_aug_2': configurations.models.alex.tiny_aug_2,
+    'tiny_aug_3': configurations.models.alex.tiny_aug_3,
+    'tiny': configurations.models.alex.tiny
   }, 'inception': {
-    'dual_tiny': configurations.models.inception_resnet.dual_tiny, 
-    'tiny': configurations.models.inception_resnet.tiny
-  }, 'basic': {
-    'normal': configurations.models.basic
+    'standard': configurations.models.inception_resnet.standard
+  }, 'resnet': {
+    'standard': configurations.models.resnet.standard
   }
 }
 

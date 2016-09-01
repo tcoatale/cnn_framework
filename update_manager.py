@@ -21,7 +21,7 @@ class UpdateManager:
   
   def update(self, loss, global_step):
     # Variables that affect learning rate.
-    num_batches_per_epoch = self.config.dataset.train_size / self.config.training_params.batch_size
+    num_batches_per_epoch = self.config.dataset.set_sizes['train'] / self.config.training_params.batch_size
     decay_steps = int(num_batches_per_epoch * self.config.training_params.num_epochs_per_decay)
   
     # Decay the learning rate exponentially based on the number of steps.
@@ -29,7 +29,7 @@ class UpdateManager:
                                               global_step,
                                               decay_steps,
                                               self.config.training_params.learning_rate_decay_factor,
-                                              staircase=True)
+                                              staircase=False)
                                     
     tf.scalar_summary('learning_rate', learning_rate)
     

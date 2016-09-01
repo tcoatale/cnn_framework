@@ -1,179 +1,111 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-from functools import reduce
 
 import os
 import tensorflow as tf
 import glob
 import numpy as np
 
+class FileManager:
+  def __init__(self, config):
+    self.config = config
+    
+  def get_files(self, type):
+    filenames = glob.glob(os.path.join(self.config.dataset.data_dir, type + '*'))    
+    if filenames == []:
+      raise ValueError('No such batch files')
+      
+    filename_queue = tf.train.string_input_producer(filenames)
+    return filename_queue
+
 class InputManager:
   def __init__(self, config):
     self.config = config
 
-  def read_binary(self, filename_queue, label_size_exception=False):
-    """Reads and parses examples from binary data files.
-    Recommendation: if you want N-way read parallelism, call this function
-    N times.  This will give you N independent Readers reading different
-    files & positions within those files, which will give better mixing of
-    examples.
-    Args:
-      filename_queue: A queue of strings with the filenames to read from.
-    Returns:
-      An object representing a single example, with the following fields:
-        height: number of rows in the result (32)
-        width: number of columns in the result (32)
-        depth: number of color channels in the result (3)
-        key: a scalar string Tensor describing the filename & record number
-          for this example.
-        label: an int32 Tensor with the label in the range 0..9.
-        uint8image: a [height, width, depth] uint8 Tensor with the image data
-    """
-  
-    class Record(object):
-      pass
-    result = Record()
-  
-    label_bytes = self.config.dataset.label_bytes if not label_size_exception else label_size_exception     
-    result.height, result.width, result.depth = self.config.dataset.original_shape
-    image_bytes = reduce(int.__mul__, self.config.dataset.original_shape)
-    record_bytes = label_bytes + image_bytes
-  
+  def read_binary(self, filename_queue):  
+    width, height, depth = self.config.dataset.original_shape
+    additional_channels = self.config.dataset.additional_filters
+
+    identifier_bytes = self.config.dataset.identifier_bytes
+    label_bytes = self.config.dataset.label_bytes
+    image_bytes = width * height * depth
+    aug_filter_bytes = width * height * additional_channels
+    aug_feature_bytes = self.config.dataset.aug_feature_bytes
+    
+    segments_lengths = [identifier_bytes, label_bytes, image_bytes, aug_filter_bytes, aug_feature_bytes]
+    segments_starts = np.cumsum([0] + segments_lengths[:-1])
+    record_bytes = np.sum(segments_lengths)
+
     reader = tf.FixedLengthRecordReader(record_bytes=record_bytes)
-    result.key, value = reader.read(filename_queue)
-  
+    key, value = reader.read(filename_queue)
+
     # Convert from a string to a vector of uint8 that is record_bytes long.
     record_bytes = tf.decode_raw(value, tf.uint8)
-  
-    # The first bytes represent the label, which we convert from uint8->int32.
-    result.label = tf.cast(tf.slice(record_bytes, [0], [label_bytes]), tf.float32)
-  
-    # The remaining bytes after the label represent the image, which we reshape
-    # from [depth * height * width] to [depth, height, width].
-    depth_major = tf.reshape(tf.slice(record_bytes, [label_bytes], [image_bytes]), [result.depth, result.height, result.width])
+
+    # Get the appropriate bytes depending on the positions within the vector
+    id_read = tf.slice(record_bytes, [segments_starts[0]], [segments_lengths[0]], name='id_slicer')
+    label_read = tf.slice(record_bytes, [segments_starts[1]], [segments_lengths[1]], name='label_slicer')
+    image_read = tf.slice(record_bytes, [segments_starts[2]], [segments_lengths[2]], name='image_slicer')
+    add_filter_read = tf.slice(record_bytes, [segments_starts[3]], [segments_lengths[3]], name='filter_slicer')
+    add_features_read = tf.slice(record_bytes, [segments_starts[4]], [segments_lengths[4]], name='feature_slicer')
     
-    # Convert from [depth, height, width] to [height, width, depth].
-    result.uint8image = tf.transpose(depth_major, [1, 2, 0])
+    # Fetch the actual id of the file based on the bytes read    
+    id = self.config.dataset.sparse_to_dense_id(id_read)
+    
+    # Cast the label to float
+    label = tf.cast(label_read, tf.float32)
+    
+    # Fetch the image by converting from [depth * height * width] to [width, height, depth].
+    image = tf.reshape(image_read, [depth, height, width])
+    transposed_image = tf.cast(tf.transpose(image, [2, 1, 0]), tf.float32)
+    
+    add_filter = tf.reshape(add_filter_read, [additional_channels, height, width])
+    transposed_add_filter = tf.cast(tf.transpose(add_filter, [2, 1, 0]), tf.float32)
+    
+    add_features = tf.cast(add_features_read, tf.float32)  
+    return id, label, transposed_image, transposed_add_filter, add_features
   
-    return result
   
-  
-  def _generate_image_and_label_batch(self, image, label, min_queue_examples, batch_size, shuffle):
-    """Construct a queued batch of images and labels.
-    Args:
-      image: 3-D Tensor of [height, width, 3] of type.float32.
-      label: 1-D Tensor of type.int32
-      min_queue_examples: int32, minimum number of samples to retain
-        in the queue that provides of batches of examples.
-      batch_size: Number of images per batch.
-      shuffle: boolean indicating whether to use a shuffling queue.
-    Returns:
-      images: Images. 4D tensor of [batch_size, height, width, 3] size.
-      labels: Labels. 1D tensor of [batch_size] size.
-    """
-    # Create a queue that shuffles the examples, and then
-    # read 'batch_size' images + labels from the example queue.
+  def _generate_image_and_label_batch(self, id, label, image, add_filter, add_features, min_queue_examples, batch_size, shuffle):
     num_preprocess_threads = 16
+    
     if shuffle:
-      images, label_batch = tf.train.shuffle_batch(
-          [image, label],
+      ids, labels, images, add_filters, features = tf.train.shuffle_batch(
+          [id, label, image, add_filter, add_features],
           batch_size=batch_size,
           num_threads=num_preprocess_threads,
           capacity=min_queue_examples + 3 * batch_size,
           min_after_dequeue=min_queue_examples)
     else:
-      images, label_batch = tf.train.batch(
-          [image, label],
+      ids, labels, images, add_filters, features = tf.train.batch(
+          [id, label, image, add_filter, add_features],
           batch_size=batch_size,
           num_threads=num_preprocess_threads,
           capacity=min_queue_examples + 3 * batch_size)
   
-    return images, label_batch
-  
-  
-  def distorted_inputs(self):
-    """Construct distorted input for training using the Reader ops.
-    Args:
-  
-    Returns:
-      images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
-      labels: Labels. 1D tensor of [batch_size] size.
-    """
-    filenames = glob.glob(os.path.join(self.config.dataset.data_dir, 'data_batch_*'))
-    for f in filenames:
-      if not tf.gfile.Exists(f):
-        raise ValueError('Failed to find file: ' + f)
-  
-    # Create a queue that produces the filenames to read.
-    filename_queue = tf.train.string_input_producer(filenames)
-  
-    # Read examples from files in the filename queue.
-    read_input = self.read_binary(filename_queue)
-    reshaped_image = tf.cast(read_input.uint8image, tf.float32)
-    float_image = self.config.dataset.distort_inputs(reshaped_image)
-  
-    # Ensure that the random shuffling has good mixing properties.
-    print ('Filling queue with %d images before starting to train. This will take a few minutes.' % self.config.dataset.train_size)
-  
-    # Generate a batch of images and labels by building up a queue of examples.
-    return self._generate_image_and_label_batch(float_image, read_input.label, self.config.dataset.train_size, self.config.training_params.batch_size, shuffle=True)
-  
-  def training_inputs(self):
-    label_size_exception = False
-    filenames = glob.glob(os.path.join(self.config.dataset.data_dir, 'data_batch_*'))
-    num_examples_per_epoch = self.config.dataset.train_size  
-  
-    return self.inputs(filenames, num_examples_per_epoch, label_size_exception)
-    
-  def evaluation_inputs(self):
-    label_size_exception = False
-    filenames = glob.glob(os.path.join(self.config.dataset.data_dir, 'test_batch*'))
-    num_examples_per_epoch = self.config.dataset.valid_size
-    
-    return self.inputs(filenames, num_examples_per_epoch, label_size_exception)
-    
-  def submission_inputs(self):
-    filenames = glob.glob(os.path.join(self.config.dataset.data_dir, 'submission_batch*'))
-    num_examples_per_epoch = self.config.dataset.valid_size
-    label_size_exception = self.config.dataset.id_bytes    
-  
-    return self.inputs(filenames, num_examples_per_epoch, label_size_exception)
-  
-  def inputs(self, filenames, num_examples_per_epoch, label_size_exception):
-    """Construct input for evaluation using the Reader ops.
-    Args:
-      num_examples_per_epoch: number of images per epoch
-      filenames: the corresponding files
-      batch_size: Number of images per batch.
-      label_size_exception: Number to check in the case of submission files
-    Returns:
-      images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
-      labels: Labels. 1D tensor of [batch_size] size.
-    """
+    return ids, labels, images, add_filters, features
       
-    for f in filenames:
-      if not tf.gfile.Exists(f):
-        raise ValueError('Failed to find file: ' + f)
-  
-    # Create a queue that produces the filenames to read.
-    filename_queue = tf.train.string_input_producer(filenames)
-  
+  def get_inputs(self, type='train', distorted = True, shuffle = True):
+    min_queue_examples = int(self.config.dataset.set_sizes[type] * 0.8)
+    print ('Filling queue with %d images before starting to train. This will take a few minutes.' % min_queue_examples)
+
+    # Get file queue
+    file_manager = FileManager(self.config)
+    filename_queue = file_manager.get_files(type)
+
     # Read examples from files in the filename queue.
-    read_input = self.read_binary(filename_queue, label_size_exception)
-    reshaped_image = tf.cast(read_input.uint8image, tf.float32)
+    id, label, image, add_filter, add_features = self.read_binary(filename_queue)
+
+    # Distort image
+    processed_image, processed_filter = self.config.dataset.process_inputs(image, add_filter, distort=distorted)
     
-    width, height, _ = self.config.dataset.imshape
-  
-    # Image processing for evaluation.
-    # Crop the central [height, width] of the image.
-    resized_image = tf.image.resize_image_with_crop_or_pad(reshaped_image, width, height)
-  
-    # Subtract off the mean and divide by the variance of the pixels.
-    float_image = tf.image.per_image_whitening(resized_image)
-  
-    # Ensure that the random shuffling has good mixing properties.
-    min_queue_examples = int(num_examples_per_epoch)
-  
     # Generate a batch of images and labels by building up a queue of examples.
-    return self._generate_image_and_label_batch(float_image, read_input.label, min_queue_examples, self.config.training_params.batch_size, shuffle=False)
+    return self._generate_image_and_label_batch(id=id, 
+                                                label=label, 
+                                                image=processed_image, 
+                                                add_filter=processed_filter, 
+                                                add_features=add_features,
+                                                min_queue_examples=min_queue_examples, 
+                                                batch_size=self.config.training_params.batch_size, 
+                                                shuffle=shuffle)

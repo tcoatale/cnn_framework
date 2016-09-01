@@ -14,9 +14,9 @@ class Configuration:
     self.initialize_frequencies(freqs)
 
   def initialize_directories(self):
-    dirs = ['training_board', 'ckpt', 'eval_board']
+    dirs = ['training_board', 'ckpt']
     dirs = list(map(lambda d: os.path.join('log', d), dirs))
-    self.log_dir, self.ckpt_dir , self.eval_dir = initialize_directories(dirs, self.dataset.name, self.name)
+    self.log_dir, self.ckpt_dir = initialize_directories(dirs, self.dataset.name, self.name)
     
   def initialize_frequencies(self, freqs):
     self.display_freq = freqs['display']
@@ -24,8 +24,8 @@ class Configuration:
     self.save_freq = freqs['save']
     
     
-  def inference(self, input, testing=False):
-    return self.model.inference(input, self.training_params, self.dataset, testing)
+  def inference(self, image, add_filters, features, testing=False):
+    return self.model.inference(image, add_filters, features, self.training_params, self.dataset, testing)
     
   def training_loss(self, logits, labels):
       return self.loss.training_loss(self.dataset, logits, labels)
