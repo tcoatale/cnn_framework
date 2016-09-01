@@ -13,7 +13,7 @@ def get_config(argv):
     training = 'slow'
     loss_name = 'simple'
     model_name = 'alex'
-    model_size = 'tiny_aug_3'
+    model_size = 'tiny_aug_2'
     
   dataset = get_dataset(dataset_name, dataset_size)
   loss = get_loss(loss_name)

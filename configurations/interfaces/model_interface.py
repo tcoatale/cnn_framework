@@ -3,7 +3,8 @@ import configurations.models.alex.tiny_aug_1
 import configurations.models.alex.tiny_aug_2
 import configurations.models.alex.tiny_aug_3
 import configurations.models.alex.tiny
-import configurations.models.inception_resnet.tiny_aug_1
+import configurations.models.inception_resnet.standard
+import configurations.models.resnet.standard
 
 models_dictionnary = {
   'alex': {
@@ -12,7 +13,9 @@ models_dictionnary = {
     'tiny_aug_3': configurations.models.alex.tiny_aug_3,
     'tiny': configurations.models.alex.tiny
   }, 'inception': {
-    'tiny_aug_1': configurations.models.inception_resnet.tiny_aug_1
+    'standard': configurations.models.inception_resnet.standard
+  }, 'resnet': {
+    'standard': configurations.models.resnet.standard
   }
 }
 

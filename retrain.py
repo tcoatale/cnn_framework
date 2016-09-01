@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -11,6 +12,8 @@ from time import gmtime, strftime
 
 from update_manager import UpdateManager
 from input_manager import InputManager
+from session_manager import SessionManager
+
 import configurations.interfaces.configuration_interface as config_interface
 import skimage.io
 
@@ -58,26 +61,20 @@ def train(config):
 
     # Build the summary operation based on the TF collection of Summaries.
     summary_op = tf.merge_all_summaries()
-
-    # Build an initialization operation to run below.
-    init = tf.initialize_all_variables()
-
-    # Start running operations on the Graph.
-    sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    sess.run(init)
+    
+    session_manager = SessionManager(config)
+    current_step, sess = session_manager.restore(saver)
 
     # Start the queue runners.
     tf.train.start_queue_runners(sess=sess)
     summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
-
-    for step in xrange(config.training_params.max_steps):
-      step_increment = global_step.assign(step)
+    
+    for step in xrange(int(current_step), config.training_params.max_steps):
       start_time = time.time()
-
       labels, logits = sess.run([training_labels, training_logits])
       train_loss_value, eval_loss_value = sess.run([loss_training, loss_eval])
-      total_loss_value = sess.run([total_loss])[0]      
-      sess.run([step_increment, train_op])
+      total_loss_value = sess.run([total_loss])[0]
+      sess.run([train_op])
       duration = time.time() - start_time
 
       assert not np.isnan(total_loss_value), 'Model diverged with loss = NaN'
@@ -108,3 +105,4 @@ def main(argv=None):
 
 if __name__ == '__main__':
   tf.app.run()
+
