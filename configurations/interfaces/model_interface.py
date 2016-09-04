@@ -8,6 +8,7 @@ import configurations.models.alex.aug_6
 import configurations.models.alex.tiny
 import configurations.models.inception_resnet.standard
 import configurations.models.resnet.standard
+import configurations.models.resnet.aug_1
 
 models_dictionnary = {
   'alex': {
@@ -21,7 +22,8 @@ models_dictionnary = {
   }, 'inception': {
     'standard': configurations.models.inception_resnet.standard
   }, 'resnet': {
-    'standard': configurations.models.resnet.standard
+    'standard': configurations.models.resnet.standard,
+    'aug_1': configurations.models.resnet.aug_1
   }
 }
 
