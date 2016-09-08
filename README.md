@@ -3,7 +3,18 @@ General Purpose Image Recognition Framework
 
 The purpose of this framework is to provide a basis for image recognition, and go slightly further, in order to include complex data augmentations, while keeping the framework generic.
 
-# Usage
-The main files consist of files created in order to train a network and evaluate it. Those files, respectively named train.py and submission.py can be called with 6 arguments, which will provide the software with information on which dataset to work on, which model to do it with and how. The specifics of these arguments are provided in the README.me file found in the configurations/interfaces directory. the retrain.py file with the correct arguments will restart the training of a network based on the last stored version of the model
+# Applications
+This framework consists of three different applications, united into one global project.
 
-Those main file then make use of manager classes, such as update_manager or input_manager in order to manage the images provided to the network, the tensorflow session used as well as the updates needed for the training of the model.
+- The first application consists of using raw images in order to extract features and store them in a local directory.
+- The second application uses local files and images in order to create training and testing batches in a general format.
+- The third application uses those local files together with training configurations in order to train and evaluate networks.
+
+## Extraction
+In order to extract the features, the extract.py file calls files from the preprocessing/datasets/ directory. It is in this directory that all datasets should be registered, providing the appropriate methods.
+
+## Preprocessing
+The preprocessing application, called from the preprocess.py file, then uses the same dataset file and an Image manager in order, for each image, to gather all of the information and to write it in a single numerical line. Those lines are then passed through batches and written locally.
+
+## Training and Evaluation
+In order to train a network, the train.py, retrain.py and evaluation.py files take 6 arguments, whose default values are set in the configurations/interfaces/configuration_interface.py file. Those 6 arguments are explained in the configuratoins/interfaces directory.
