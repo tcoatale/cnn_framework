@@ -47,10 +47,10 @@ class GaborFeatureExtractor:
     return np.array(features)
       
 class GaborExtractionManager:
-  def __init__(self, image_files, dest_dir, dest_file):
-    self.dest_dir = dest_dir
-    self.dest_file = dest_file
-    self.image_files = image_files
+  def __init__(self, frames_dir, dest_file):
+    self.dest_file = dest_file    
+    self.frames = glob.glob(os.path.join(frames_dir, '*'))
+
     self.extractor = GaborFeatureExtractor()
     
   def wrap_extraction(self, line):
@@ -73,7 +73,9 @@ class GaborExtractionManager:
     return df
     
   def write_to_csv(self, df, batch_index):
-    dest_file = os.path.join(self.dest_dir, str(batch_index) + '_' + self.dest_file)
+    dest_dir, _ = os.path.split(self.dest_file)
+    
+    dest_file = os.path.join(dest_dir, str(batch_index) + '_.csv')
     df.to_csv(dest_file, index=False)
     
   def run_extraction_batch(self, batch_index, batch_files):
@@ -82,21 +84,23 @@ class GaborExtractionManager:
     self.write_to_csv(df, batch_index)
     
   def split_in_batches(self, n_split):
-    image_files = self.image_files
-    n_images = len(image_files)    
+    frames = self.frames
+    n_images = len(frames)    
     indices = np.linspace(0, n_images, n_split+1).astype(np.int)
     batch_indices = zip(indices[:-1], indices[1:])
-    batches_of_files = [image_files[b[0]:b[1]] for b in batch_indices]
+    batches_of_files = [frames[b[0]:b[1]] for b in batch_indices]
     
     return batches_of_files
     
   def clean_up(self):
-    gabor_batch_files = glob.glob(os.path.join(self.dest_dir, '*'))
+    dest_dir, _ = os.path.split(self.dest_file)
+
+    gabor_batch_files = glob.glob(os.path.join(dest_dir, '*_.csv'))
     dataframes = list(map(pd.read_csv, gabor_batch_files))
     full_df = pd.concat(dataframes)
-    dest_file = os.path.join(self.dest_dir, self.dest_file)
+
     list(map(os.remove, gabor_batch_files))
-    full_df.to_csv(dest_file, index=False)
+    full_df.to_csv(self.dest_file, index=False)
     
   def run_extraction(self):
     batches_of_files = self.split_in_batches(processes)

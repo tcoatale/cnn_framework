@@ -19,6 +19,10 @@ class FrameExtractor:
     image = skimage.color.rgb2gray(frame)
     return image[:, 64:-64]
     
+  def name_frame(self, label, id, index):
+    name = os.path.join(self.frames_dir, '_'.join([label, id, str(index) + '.jpg']))
+    return name
+    
   def run_extraction(self):
     dir, id = os.path.split(self.video_file)
     id, _ = id.split('.')
@@ -27,16 +31,19 @@ class FrameExtractor:
     reader = imageio.get_reader(self.video_file,  'ffmpeg', loop=False)
     frames = list(reader)
     frames = frames[::self.downsample]
-    gray_frames = map(self.preprocess_frame, frames)
     
-    names = map(lambda i: os.path.join(self.frames_dir, '_'.join([label, id, str(i) + '.jpg'])), range(len(frames)))
+    num_frames = len(frames)
+    
+    indices = list(range(num_frames))
+    names = list(map(lambda i: self.name_frame(label=label, id=id, index=i), indices))
+    
+    gray_frames = map(self.preprocess_frame, frames)
     results = zip(names, gray_frames)
     
     list(map(self.write_frame, results))
     
-    
 class FrameExtractionManager:
-  def __init__(self, videos_dir, frames_dir, downsample):
+  def __init__(self, videos_dir, frames_dir, downsample=4):
     self.videos_dir = videos_dir
     self.frames_dir = frames_dir
     self.downsample = downsample
@@ -44,7 +51,7 @@ class FrameExtractionManager:
   def run_extraction_video(self, line):
     index, video = line
     print('Extracting frames from video', index) 
-    extractor = FrameExtractor(self.frames_dir, video, self.downsample)
+    extractor = FrameExtractor(frames_dir=self.frames_dir, video_file=video, downsample=self.downsample)
     extractor.run_extraction()
 
   def run_extraction(self):

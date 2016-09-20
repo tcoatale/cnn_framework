@@ -6,12 +6,13 @@ from skimage import io
 from datetime import datetime
 import pathos.multiprocessing as mp
 import numpy as np
-  
+import glob
+
 processes = 4  
   
 class HogExtractionManager:
-  def __init__(self, image_files, dest_dir, pixels_per_cell=8, orientations=8):
-    self.image_files = image_files
+  def __init__(self, frames_dir, dest_dir, pixels_per_cell=8, orientations=8):
+    self.frames = glob.glob(os.path.join(frames_dir, '*'))
     self.dest_dir = dest_dir
     self.pixels_per_cell = pixels_per_cell
     self.orientations = orientations
@@ -44,11 +45,11 @@ class HogExtractionManager:
     list(map(lambda index: self.extract(batch_files, index), range(len(batch_files))))
     
   def split_in_batches(self, n_split):
-    image_files = self.image_files
-    n_images = len(image_files)    
+    frames = self.frames
+    n_images = len(frames)    
     indices = np.linspace(0, n_images, n_split+1).astype(np.int)
     batch_indices = zip(indices[:-1], indices[1:])
-    batches_of_files = [image_files[b[0]:b[1]] for b in batch_indices]
+    batches_of_files = [frames[b[0]:b[1]] for b in batch_indices]
     
     return batches_of_files
     

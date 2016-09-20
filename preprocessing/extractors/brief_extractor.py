@@ -7,8 +7,8 @@ import itertools
 from tqdm import tqdm
 import sklearn.decomposition
 import os
+import glob
 
-#%%
 class BriefExtractor:
   def __init__(self, file, freq=16):
     self.file = file
@@ -24,15 +24,13 @@ class BriefExtractor:
     brief.extract(image, self.keypoints)
     return brief.descriptors
   
-  
-#%%
 class BriefExtractionManager:
-  def __init__(self, files, dest_dir, freq=16, n_components=3):
-    self.files = files
+  def __init__(self, frames_dir, dest_dir, freq=16, n_components=3):
+    self.frames = glob.glob(os.path.join(dir, '*'))
     self.dest_dir = dest_dir
     self.n_components = n_components
     self.freq = freq
-    size = skimage.io.imread(self.files[0]).shape[0]
+    size = skimage.io.imread(self.frames[0]).shape[0]
     self.num = int(size / self.freq)
     
   def get_brief_wrapper(self, file):
@@ -41,7 +39,7 @@ class BriefExtractionManager:
     
   def get_all_briefs(self):
     briefs = []
-    for file in tqdm(self.files):
+    for file in tqdm(self.frames):
       briefs += [self.get_brief_wrapper(file)]
     return briefs
     
@@ -72,9 +70,7 @@ class BriefExtractionManager:
     briefs = self.get_all_briefs()
     pca = self.train_pca(briefs)
     reduced_descriptors = self.get_brief_reduced_descriptors(briefs, pca)
-    image_reductions = reduced_descriptors.reshape([len(self.files), self.num, self.num, self.n_components])
-    lines = list(zip(self.files, image_reductions))
+    image_reductions = reduced_descriptors.reshape([len(self.frames), self.num, self.num, self.n_components])
+    lines = list(zip(self.frames, image_reductions))
     list(map(self.write_as_image, lines))
 
-    
-#%%

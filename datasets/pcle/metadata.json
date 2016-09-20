@@ -1,0 +1,39 @@
+{
+    "name": "pcle",
+    "sets": {
+        "train": 4500,
+        "test": 1500
+    },
+    "classes": 2,
+    "images": {
+        "normal": {
+            "width": 336,
+            "heigth": 336,
+            "depth": 1
+        },
+        "resized": {
+            "width": 64,
+            "heigth": 64,
+            "depth": 1
+        },
+        "additional_channels": 4
+    },
+    "directories": {
+        "videos": "data/pcle/raw/videos", 
+        "frames": "data/pcle/raw/frames", 
+        "final": "data/pcle/processed", 
+        "augmentations": "data/pcle/raw"
+    },
+    "augmentations": [
+        {"name": "frames", "input": "videos", "output": "frames", "priority": 1},
+        {"name": "gabor", "input": "frames", "output": "file", "priority": 2},
+        {"name": "blob", "input": "frames", "output": "frames", "priority": 2},
+        {"name": "brief", "input": "frames", "output": "frames", "priority": 2},
+        {"name": "isomap", "input": "gabor", "output": "file", "priority": 3}
+    ],
+    "bytes": {
+        "identifier": 6,
+        "label": 2,
+        "external_features": 50
+    }
+}

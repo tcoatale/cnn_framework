@@ -71,6 +71,7 @@ class BlobFeatureExtractor:
 
 class BlobExtractionManager:
   def __init__(self, image_files, dest_dir):
+    
     self.image_files = image_files
     self.dest_dir = dest_dir
     self.extractor = BlobFeatureExtractor()
