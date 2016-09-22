@@ -36,11 +36,16 @@ class AugmentationExtractor:
       
     return input
     
-  def _output(self):     
+  def _output(self):
+    if self.input != 'frames':
+      output_dir = os.path.join(self.data['directories']['augmentations'], self.input)
+    else:
+      output_dir = os.path.join(self.data['directories']['augmentations'], self.name)
+      
     if self.output == 'frames':
-      output = os.path.join(self.data['directories']['augmentations'], self.name)
-    else:      
-      output = os.path.join(self.data['directories']['augmentations'], self.input, self.name + '_output.csv')
+      output = output_dir
+    else:
+      output = os.path.join(output_dir, 'output.csv')
     
     return output
       
