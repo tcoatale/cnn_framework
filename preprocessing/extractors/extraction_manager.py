@@ -37,15 +37,18 @@ class AugmentationExtractor:
     return input
     
   def _output(self):
-    if self.input != 'frames':
+    if self.input != 'frames' and self.input != 'videos':
       output_dir = os.path.join(self.data['directories']['augmentations'], self.input)
     else:
       output_dir = os.path.join(self.data['directories']['augmentations'], self.name)
       
     if self.output == 'frames':
       output = output_dir
-    else:
+    elif self.input == 'frames':
       output = os.path.join(output_dir, 'output.csv')
+    else:
+      output = os.path.join(output_dir, self.name + '_output.csv')
+      
     
     return output
       
@@ -75,16 +78,9 @@ class ExtractionManager:
     return AugmentationExtractor(data, augmentation)
     
   def run(self):
-    augmentations = data['augmentations']
+    augmentations = self.data['augmentations']
 
     extractors = list(map(lambda augmentation: self.create(self.data, augmentation), augmentations))
     list(map(lambda e: e.run(), extractors))
     
 #%%
-from datasets.json_interface import JsonInterface
-interface = JsonInterface('datasets/pcle/metadata.json')
-data = interface.parse()
-
-#%%
-extraction_manager = ExtractionManager(data)
-extraction_manager.run()

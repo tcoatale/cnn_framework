@@ -5,10 +5,9 @@ import pandas as pd
 import numpy as np
 
 class ISOFeatureManager:
-  def __init__(self, dir, feature_file, dest_file, n_components, ratio=0.05):
-    self.dir = dir
-    self.feature_file = feature_file
-    self.dest_file = os.path.join(dir, dest_file)
+  def __init__(self, input_file, output_file, n_components=50, ratio=0.05):
+    self.feature_file = input_file
+    self.dest_file = output_file
     self.n_components = n_components
     self.ratio = ratio
         
@@ -52,8 +51,7 @@ class ISOFeatureManager:
     output.to_csv(self.dest_file, index=False)
 
   def run_extraction(self):
-    path_to_file = os.path.join(self.dir, self.feature_file)
-    original_features = pd.read_csv(path_to_file)
+    original_features = pd.read_csv(self.feature_file)
 
     files = self.get_files(original_features)
     reduced_normalized_features = self.compute_iso_map(original_features)

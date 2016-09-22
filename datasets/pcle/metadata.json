@@ -25,11 +25,7 @@
         "augmentations": "data/pcle/raw"
     },
     "augmentations": [
-        {"name": "frames", "input": "videos", "output": "frames", "priority": 1},
-        {"name": "gabor", "input": "frames", "output": "file", "priority": 2},
-        {"name": "blob", "input": "frames", "output": "frames", "priority": 2},
-        {"name": "brief", "input": "frames", "output": "frames", "priority": 2},
-        {"name": "isomap", "input": "gabor", "output": "file", "priority": 3}
+        {"name": "isomap",  "input": "gabor",  "output": "file",   "priority": 3}
     ],
     "bytes": {
         "identifier": 6,

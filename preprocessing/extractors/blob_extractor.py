@@ -7,6 +7,7 @@ import numpy as np
 from functools import reduce
 from datetime import datetime
 import pathos.multiprocessing as mp
+import glob
 
 class BlobFeatureExtractor:
   def is_coorect_coord(self, coord, image_shape)  :
@@ -70,9 +71,9 @@ class BlobFeatureExtractor:
 
 
 class BlobExtractionManager:
-  def __init__(self, image_files, dest_dir):
+  def __init__(self, frames_dir, dest_dir):
     
-    self.image_files = image_files
+    self.frames = glob.glob(os.path.join(frames_dir, '*'))
     self.dest_dir = dest_dir
     self.extractor = BlobFeatureExtractor()
     
@@ -91,7 +92,7 @@ class BlobExtractionManager:
     skimage.io.imsave(dest_file, blob_image)
     
   def split_in_batches(self, n_split):
-    image_files = self.image_files
+    image_files = self.frames
     n_images = len(image_files)
     indices = np.linspace(0, n_images, n_split+1).astype(np.int)
     batch_indices = zip(indices[:-1], indices[1:])

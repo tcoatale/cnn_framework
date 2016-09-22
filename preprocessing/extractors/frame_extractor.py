@@ -4,6 +4,8 @@ import glob
 import imageio
 import skimage.io
 import skimage.color
+from tqdm import tqdm
+import time
 
 class FrameExtractor:
   def __init__(self, frames_dir, video_file, downsample):
@@ -48,13 +50,14 @@ class FrameExtractionManager:
     self.frames_dir = frames_dir
     self.downsample = downsample
     
-  def run_extraction_video(self, line):
-    index, video = line
-    print('Extracting frames from video', index) 
+  def run_extraction_video(self, video):
     extractor = FrameExtractor(frames_dir=self.frames_dir, video_file=video, downsample=self.downsample)
     extractor.run_extraction()
 
   def run_extraction(self):
     videos_path = os.path.join(self.videos_dir, '*', '*')
     videos = glob.glob(videos_path)
-    list(map(self.run_extraction_video, enumerate(videos)))
+    
+    time.sleep (1.0)
+    for video in tqdm(videos):
+      self.run_extraction_video(video)

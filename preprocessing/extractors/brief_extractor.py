@@ -26,7 +26,7 @@ class BriefExtractor:
   
 class BriefExtractionManager:
   def __init__(self, frames_dir, dest_dir, freq=16, n_components=3):
-    self.frames = glob.glob(os.path.join(dir, '*'))
+    self.frames = glob.glob(os.path.join(frames_dir, '*'))
     self.dest_dir = dest_dir
     self.n_components = n_components
     self.freq = freq
