@@ -35,7 +35,7 @@ class ImageManager:
     return file_id
     
   def get_label(self, file):
-    return self.label_handler
+    return self.label_handler(file)
     
   def get_image(self, file):
     image = skimage.io.imread(file)
