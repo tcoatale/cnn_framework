@@ -25,32 +25,11 @@ class AugmentationExtractor:
     self.input = augmentation['input']
     self.output = augmentation['output']
     
-    
   def _input(self):
-    if self.input == 'videos':
-      input = self.data['directories']['videos']
-    elif self.input == 'frames':
-      input = self.data['directories']['frames']
-    else:
-      input = os.path.join(self.data['directories']['augmentations'], self.input, 'output.csv')
-      
-    return input
+    return os.path.join(self.data['directories']['raw'], self.input)
     
   def _output(self):
-    if self.input != 'frames' and self.input != 'videos':
-      output_dir = os.path.join(self.data['directories']['augmentations'], self.input)
-    else:
-      output_dir = os.path.join(self.data['directories']['augmentations'], self.name)
-      
-    if self.output == 'frames':
-      output = output_dir
-    elif self.input == 'frames':
-      output = os.path.join(output_dir, 'output.csv')
-    else:
-      output = os.path.join(output_dir, self.name + '_output.csv')
-      
-    
-    return output
+    return os.path.join(self.data['directories']['raw'], self.output)
       
   def _extractor(self):
     return extractor_dir[self.name]
@@ -80,7 +59,6 @@ class ExtractionManager:
   def run(self):
     augmentations = self.data['augmentations']
 
-    extractors = list(map(lambda augmentation: self.create(self.data, augmentation), augmentations))
+    extractors = sorted(list(map(lambda augmentation: self.create(self.data, augmentation), augmentations)))
     list(map(lambda e: e.run(), extractors))
     
-#%%

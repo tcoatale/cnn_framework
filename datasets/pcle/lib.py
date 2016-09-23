@@ -9,10 +9,6 @@ import skimage.io
 import skimage.transform
 import pandas as pd
 
-
-
-
-
 label_dict = {'GBM': 0, 'meningioma': 1}
 
 class Dataset:
@@ -100,32 +96,6 @@ class Dataset:
     files_by_type = self.get_files_by_type()
     all_files = reduce(list.__add__, files_by_type.values())
     return all_files
-  
-  def run_extractions(self):
-    gabor_file = 'gabor_features.csv'
-    gabor_isomap_file = 'gabor_iso_features.csv'
-    files = self.get_all_files()
-  
-    print('Starting frame extraction')
-    frame_extraction_manager = FrameExtractionManager(videos_dir=videos_dir, frames_dir=frames_dir, downsample=4)
-    frame_extraction_manager.run_extraction()
-    files = self.get_all_files()
-  
-    print('Starting Brief feature extraction')
-    brief_extraction_manager = BriefExtractionManager(files, brief_dir)
-    brief_extraction_manager.run_extraction()  
-    
-    print('Starting Blob feature extraction')
-    blob_extraction_manager = BlobExtractionManager(files, blob_dir)
-    blob_extraction_manager.run_extraction()
-    
-    print('Starting Gabor feature extraction')  
-    gabor_manager = GaborExtractionManager(files, gabor_dir, gabor_file)
-    gabor_manager.run_extraction()
-    
-    print('Starting Isomap feature extraction')
-    isomap_manager = ISOFeatureManager(dir=gabor_dir, feature_file=gabor_file, dest_file=gabor_isomap_file, n_components=50)
-    isomap_manager.run_extraction()
   
   def byte_form(input):
     return np.array(list(struct.unpack('4B', struct.pack('>I', int(input)))), dtype=np.uint8)

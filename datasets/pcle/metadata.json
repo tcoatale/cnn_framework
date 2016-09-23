@@ -8,28 +8,58 @@
     "images": {
         "normal": {
             "width": 336,
-            "heigth": 336,
+            "height": 336,
             "depth": 1
         },
         "resized": {
             "width": 64,
-            "heigth": 64,
+            "height": 64,
             "depth": 1
         },
         "additional_channels": 4
     },
     "directories": {
-        "videos": "data/pcle/raw/videos", 
-        "frames": "data/pcle/raw/frames", 
-        "final": "data/pcle/processed", 
-        "augmentations": "data/pcle/raw"
+        "raw": "data/pcle/raw", 
+        "processed": "data/pcle/processed"
     },
     "augmentations": [
-        {"name": "isomap",  "input": "gabor",  "output": "file",   "priority": 3}
+         {
+            "name": "Frame Extraction",       
+            "input": "videos",
+            "output": "frames",
+            "usage": "main",
+            "priority": 1
+        },{
+            "name": "Gabor Extraction",
+            "input": "frames",
+            "output": "gabor/output.csv",
+            "usage": "features",
+            "priority": 2
+        },{
+            "name": "Blob Extraction",
+            "input": "frames",
+            "output": "blob",
+            "usage": "channel",
+            "number": 1,
+            "priority": 2
+        },{
+            "name": "Brief Extraction",
+            "input": "frames",
+            "output": "brief",
+            "usage": "channel",
+            "number": 3,
+            "priority": 2
+        },{
+            "name": "Gabor Isomap Reduction", 
+            "input": "gabor/output.csv",  
+            "output": "gabor/isomap_output.csv",
+            "usage": "features",
+            "number": 50,
+            "priority": 3
+        }
     ],
     "bytes": {
         "identifier": 6,
-        "label": 2,
-        "external_features": 50
+        "label": 2
     }
 }
