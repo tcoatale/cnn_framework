@@ -33,7 +33,7 @@
             "name": "Gabor Extraction",
             "input": "frames",
             "output": "gabor/output.csv",
-            "usage": "features",
+            "usage": "none",
             "priority": 2
         },{
             "name": "Blob Extraction",
