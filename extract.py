@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from datasets.json_interface import JsonInterface
+from datasets.interface import get_dataset
 from preprocessing.extractors.extraction_manager import ExtractionManager
 
-interface = JsonInterface('datasets/pcle/metadata.json')
-data = interface.parse()
-extraction_manager = ExtractionManager(data)
+dataset = get_dataset('pcle')
+
+extraction_manager = ExtractionManager(dataset)
 extraction_manager.run()

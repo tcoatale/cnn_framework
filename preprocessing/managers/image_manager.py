@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
-from datasets.json_interface import JsonInterface
 from preprocessing.managers.channel_manager import ChannelManager
 from preprocessing.managers.feature_manager import FeatureManager
 import skimage.io
 import skimage.transform
 import numpy as np
-import glob
-import os
 
 class ImageManager:
-  def __init__(self, data, dataset_label_handler=None):
-    self.data = data
-    self.max_file_length = 50
-    self.resize = (data['images']['resized']['width'], data['images']['resized']['height'])
-    self.raw_dir = data['directories']['raw']
+  def __init__(self, dataset):
+    self.data = dataset.data
+    self.max_file_length = 60
+    self.resize = (self.data['images']['resized']['width'], self.data['images']['resized']['height'])
+    self.raw_dir = self.data['directories']['raw']
     
-    self.label_handler = dataset_label_handler
-    self.channel_manager = ChannelManager(data, self.raw_dir, self.resize)
-    self.feature_manager = FeatureManager(data, self.raw_dir)
+    self.label_handler = dataset.label_handler
+    self.channel_manager = ChannelManager(self.data, self.raw_dir, self.resize)
+    self.feature_manager = FeatureManager(self.data, self.raw_dir)
 
   def load_file(self, file):
     file_id = self.get_file_id(file)
@@ -50,17 +47,3 @@ class ImageManager:
   
   def get_augmentation_features(self, file):
     return self.feature_manager.get_augmentation_features(file)
-    
-#%%
-interface = JsonInterface('datasets/pcle/metadata.json')
-data = interface.parse()
-image_manager = ImageManager(data)
-
-#%%
-raw_dir = data['directories']['raw']
-files = glob.glob(os.path.join(raw_dir, 'frames', '*'))
-file = files[0]
-
-#%%
-result = image_manager.load_file(file)
-

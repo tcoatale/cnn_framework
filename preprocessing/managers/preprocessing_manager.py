@@ -1,26 +1,29 @@
 # -*- coding: utf-8 -*-
 from preprocessing.managers.batch_manager import BatchManager
+from preprocessing.managers.image_manager import ImageManager
+from tqdm import tqdm
 import os
 
 class PreprocessingManager:
-  def __init__(self, dataset, resize, batch_size):
-    self.dataset = dataset
-    self.resize = resize
-    self.batch_size = batch_size
-    self.files = self.dataset.get_files_by_type()
+  def __init__(self, dataset):    
+    self.resize = (dataset.data['images']['resized']['width'], dataset.data['images']['resized']['height'])
+    self.batch_size = dataset.data['images_per_batch_file']
+    self.files = dataset.get_files_by_type()
+    self.image_manager = ImageManager(dataset)
+    self.dest_dir = dataset.data['directories']['processed']
+    
+  def wrap_batch_run(self, type):
+    batch_manager = BatchManager(self.files[type],
+                                 self.image_manager, 
+                                 self.batch_size, 
+                                 type,
+                                 self.dest_dir)
+    
+    batch_manager.run()
     
   def run(self):
-    dest_dir = os.path.join(self.dataset.dest_dir_base, str(self.resize[1]))
-    
-    if not os.path.isdir(dest_dir):
-      os.mkdir(dest_dir)
+    if not os.path.isdir(self.dest_dir):
+      os.mkdir(self.dest_dir)
+    for type in tqdm(self.files.keys()):
+      self.wrap_batch_run(type)
       
-    image_manager = self.dataset.ImageManager(self.resize)
-    
-    for type in self.files.keys():
-      batch_manager = BatchManager(self.files[type],
-                                   image_manager, 
-                                   self.batch_size, 
-                                   type,
-                                   dest_dir)
-      batch_manager.run()

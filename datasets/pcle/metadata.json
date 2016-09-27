@@ -59,7 +59,8 @@
         }
     ],
     "bytes": {
-        "identifier": 6,
-        "label": 2
-    }
+        "identifier": 60,
+        "label": 1
+    },
+    "images_per_batch_file": 100
 }

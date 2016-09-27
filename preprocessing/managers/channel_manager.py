@@ -67,4 +67,4 @@ class ChannelManager:
     augmentations = self.data['augmentations']
     channel_augmentations = filter(lambda a: a['usage'] == 'channel', augmentations)
     result = np.vstack(list(map(lambda a: self.get_channels(file, a), channel_augmentations)))
-    return result
+    return result.flatten()

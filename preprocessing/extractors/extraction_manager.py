@@ -9,12 +9,12 @@ from preprocessing.extractors.brief_extractor import BriefExtractionManager
 from preprocessing.extractors.isomap_extractor import ISOFeatureManager
 
 extractor_dir = {
-  'frames': FrameExtractionManager, 
-  'gabor': GaborExtractionManager, 
-  'blob': BlobExtractionManager, 
-  'hog': HogExtractionManager, 
-  'brief': BriefExtractionManager, 
-  'isomap': ISOFeatureManager
+  'Frame Extraction': FrameExtractionManager, 
+  'Gabor Extraction': GaborExtractionManager, 
+  'Blob Extraction': BlobExtractionManager, 
+  'Hog Extraction': HogExtractionManager, 
+  'Brief Extraction': BriefExtractionManager, 
+  'Gabor Isomap Reduction': ISOFeatureManager
 }
 
 class AugmentationExtractor:
@@ -50,8 +50,8 @@ class AugmentationExtractor:
     return self.name
     
 class ExtractionManager:
-  def __init__(self, data):
-    self.data = data
+  def __init__(self, dataset):
+    self.data = dataset.data
     
   def create(self, data, augmentation):
     return AugmentationExtractor(data, augmentation)

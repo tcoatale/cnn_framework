@@ -1,12 +1,7 @@
-# * coding: utf8 *
-from preprocessing.interfaces.dataset_interface import get_dataset
-from preprocessing.managers import preprocessing_manager
-
-resize = [64, 64]
-batch_size = 1000
+# -*- coding: utf-8 -*-
+from datasets.interface import get_dataset
+from preprocessing.managers.preprocessing_manager import PreprocessingManager
 
 dataset = get_dataset('pcle')
-preprocessing_manager = preprocessing_manager.PreprocessingManager(dataset=dataset, 
-                                                                   resize=resize,
-                                                                   batch_size=batch_size)
+preprocessing_manager = PreprocessingManager(dataset)
 preprocessing_manager.run()
