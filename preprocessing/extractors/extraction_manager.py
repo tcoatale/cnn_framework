@@ -58,7 +58,7 @@ class ExtractionManager:
     
   def run(self):
     augmentations = self.data['augmentations']
-
-    extractors = sorted(list(map(lambda augmentation: self.create(self.data, augmentation), augmentations)))
+    augmentations_to_compute = list(filter(lambda a: a['compute'] == True, augmentations))
+    extractors = sorted(list(map(lambda augmentation: self.create(self.data, augmentation), augmentations_to_compute)))
     list(map(lambda e: e.run(), extractors))
     

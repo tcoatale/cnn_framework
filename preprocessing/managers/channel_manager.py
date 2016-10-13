@@ -28,18 +28,15 @@ class MultipleChannelReader(ChannelReader):
     resized_augmentation = skimage.transform.resize(augmentation, self.resize, order=0)
     return resized_augmentation
     
-  def resize(self, image):
-    return skimage.transform.resize(image, self.resize, order=0)
-    
   def read(self, file):
     file_name = os.path.split(file)[-1]
-    file_name, _ = file_name.split('.')
+    aug_file = os.path.join(self.directory, file_name).split('.')[0]
+    aug_files = glob.glob(aug_file + '_*')
     
-    aug_files = glob.glob(file_name + '_*')
-    augmentations = map(self.read_single, aug_files)
-    resized_augmentations = list(map(self.resize, augmentations))
+    augmentations = list(map(self.read_single, aug_files))
+    augmentations_array = np.array(augmentations)
         
-    return np.array(resized_augmentations)
+    return augmentations_array
   
 class ChannelManager:
   def __init__(self, data, raw_dir, resize):
