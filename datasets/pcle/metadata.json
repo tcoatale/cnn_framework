@@ -60,5 +60,9 @@
         "identifier": 60,
         "label": 1
     },
-    "images_per_batch_file": 100
+    "images_per_batch_file": 1000, 
+    "datasets": {
+      "training": 5024, 
+      "testing": 1385
+    } 
 }

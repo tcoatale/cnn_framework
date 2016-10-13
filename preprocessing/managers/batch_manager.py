@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os
 import numpy as np
+from tqdm import trange
+import time
 
 class BatchManager:
   def __init__(self, files, image_manager, batch_size, type, dest_dir):
@@ -20,23 +22,20 @@ class BatchManager:
     image_lines = list(map(lambda file: self.image_manager.load_file(file), files))
     return image_lines
     
-  def write_chunk(self, i):
-    print('Processing batch number', i, 'of type', self.type, end='\t... ')
-    
+  def write_chunk(self, i):    
     image_lines = self.load_chunk(i)
     full_data = np.array(image_lines, dtype=np.uint8).reshape(-1)
     binary_data = bytearray(full_data)
     
     batch_name = '_'.join([self.type, 'batch', str(i)])
     batch_file = os.path.join(self.dest_dir, batch_name)
-
-    print('Writing chunk to file', batch_file, end='\t... ')
     
     with open(batch_file, "wb") as f:
         f.write(binary_data)
-        
-    print('Done.')
-        
+                
   def run(self):
     n_batches = len(self.chunks)
-    list(map(self.write_chunk, range(n_batches)))
+    time.sleep(1)
+    
+    for batch in trange(n_batches):
+      self.write_chunk(batch)

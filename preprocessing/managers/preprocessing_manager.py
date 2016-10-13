@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from preprocessing.managers.batch_manager import BatchManager
 from preprocessing.managers.image_manager import ImageManager
-from tqdm import tqdm
 import os
 
 class PreprocessingManager:
@@ -24,6 +23,7 @@ class PreprocessingManager:
   def run(self):
     if not os.path.isdir(self.dest_dir):
       os.mkdir(self.dest_dir)
-    for type in tqdm(self.files.keys()):
+    for type in self.files.keys():
+      print('Processing', type, 'batches')
       self.wrap_batch_run(type)
       
