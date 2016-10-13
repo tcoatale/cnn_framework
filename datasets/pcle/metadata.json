@@ -23,19 +23,7 @@
         "processed": "data/pcle/processed"
     },
     "augmentations": [
-         {
-            "name": "Frame Extraction",       
-            "input": "videos",
-            "output": "frames",
-            "usage": "main",
-            "priority": 1
-        },{
-            "name": "Gabor Extraction",
-            "input": "frames",
-            "output": "gabor/output.csv",
-            "usage": "none",
-            "priority": 2
-        },{
+{
             "name": "Blob Extraction",
             "input": "frames",
             "output": "blob",
@@ -43,12 +31,12 @@
             "number": 1,
             "priority": 2
         },{
-            "name": "Brief Extraction",
+            "name": "Gabor Extraction",
             "input": "frames",
-            "output": "brief",
-            "usage": "channel",
-            "number": 3,
+            "output": "gabor/output.csv",
+            "usage": "none",
             "priority": 2
+
         },{
             "name": "Gabor Isomap Reduction", 
             "input": "gabor/output.csv",  
