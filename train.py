@@ -12,7 +12,6 @@ from time import gmtime, strftime
 from update_manager import UpdateManager
 from input_manager import InputManager
 import configurations.interfaces.configuration_interface as config_interface
-import skimage.io
 
 def train(config):
   """Train model for a number of steps."""

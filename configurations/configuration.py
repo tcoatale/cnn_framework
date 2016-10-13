@@ -4,7 +4,6 @@ import os
 
 class Configuration:
   def __init__(self, name, dataset, training_params, loss, model, freqs):
-    self.dataset = dataset
     self.training_params = training_params
     self.loss = loss
     self.model = Model(model)
