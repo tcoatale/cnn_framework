@@ -9,17 +9,19 @@ from six.moves import xrange
 import tensorflow as tf
 from time import gmtime, strftime
 
-from update_manager import UpdateManager
-from input_manager import InputManager
-import configurations.interfaces.configuration_interface as config_interface
+from training.update_manager import UpdateManager
+from training.input_manager import InputManager
+from training.session_manager import SessionManager
 
-def train(config):
+from models.model import Model
+
+def train(model):
   """Train model for a number of steps."""
   with tf.Graph().as_default():
     global_step = tf.Variable(0, trainable=False)
 
-    input_manager = InputManager(config)
-    update_manager = UpdateManager(config)
+    input_manager = InputManager(model)
+    update_manager = UpdateManager(model)
 
     # Get images and labels for dataset.
     with tf.variable_scope("training_inputs") as scope:
@@ -31,19 +33,19 @@ def train(config):
 
     # Build a Graph that computes the logits predictions from the inference model.
     with tf.variable_scope("inference") as scope:
-      training_logits = config.inference(training_images, training_add_filters, training_features)
+      training_logits = model.inference(training_images, training_add_filters, training_features)
       scope.reuse_variables()
-      eval_logits = config.inference(eval_images, eval_add_filters, eval_features, testing=True)
+      eval_logits = model.inference(eval_images, eval_add_filters, eval_features, testing=True)
 
     # Calculate loss.
-    loss_training = config.training_loss(training_logits, training_labels)
-    loss_eval = config.evaluation_loss(eval_logits, eval_labels)
+    loss_training = model.loss(training_logits, training_labels)
+    loss_eval = model.loss(eval_logits, eval_labels)
     tf.scalar_summary('loss_eval', loss_eval)
 
     total_loss = update_manager.training_loss(loss_training)
 
-    classirate_training = config.loss.classirate(config.dataset, training_logits, training_labels)
-    classirate_eval = config.loss.classirate(config.dataset, eval_logits, eval_labels)    
+    classirate_training = model.classirate(training_logits, training_labels)
+    classirate_eval = model.classirate(eval_logits, eval_labels)    
 
     tf.scalar_summary('classirate_training', classirate_training)
     tf.scalar_summary('classirate_eval', classirate_eval)
@@ -58,18 +60,22 @@ def train(config):
     # Build the summary operation based on the TF collection of Summaries.
     summary_op = tf.merge_all_summaries()
 
-    # Build an initialization operation to run below.
-    init = tf.initialize_all_variables()
 
-    # Start running operations on the Graph.
-    sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    sess.run(init)
+    if model.params['continue']:
+      session_manager = SessionManager(model)
+      current_step, sess = session_manager.restore(saver)
+      
+    else:   
+      init = tf.initialize_all_variables()
+      sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
+      sess.run(init)
+      current_step = 0
 
     # Start the queue runners.
     tf.train.start_queue_runners(sess=sess)
-    summary_writer = tf.train.SummaryWriter(config.log_dir, sess.graph)
+    summary_writer = tf.train.SummaryWriter(model.log_dir, sess.graph)
 
-    for step in xrange(config.training_params.max_steps):
+    for step in xrange(int(current_step), model.params['max_steps']):
       step_increment = global_step.assign(step)
       start_time = time.time()
 
@@ -81,8 +87,8 @@ def train(config):
 
       assert not np.isnan(total_loss_value), 'Model diverged with loss = NaN'
 
-      if step % config.display_freq == 0:
-        num_examples_per_step = config.training_params.batch_size
+      if step % model.params['display_freq'] == 0:
+        num_examples_per_step = model.params['batch_size']
         examples_per_sec = num_examples_per_step / duration
 
         print(strftime("%D %H:%M:%S", gmtime()), end=' ')
@@ -92,18 +98,18 @@ def train(config):
         print('T:', train_loss_value, end=' ')
         print('E:', eval_loss_value, end='\n')
         
-      if step % config.summary_freq == 0:
+      if step % model.params['summary_freq'] == 0:
         summary_str = sess.run(summary_op)
         summary_writer.add_summary(summary_str, step)
                 
       # Save the model checkpoint periodically.
-      if step > 0 and (step % config.save_freq == 0 or (step + 1) == config.training_params.max_steps):
-        checkpoint_path = os.path.join(config.ckpt_dir, 'model.ckpt')
+      if step > 0 and (step % model.params['save_freq'] == 0 or (step + 1) == model.params['max_steps']):
+        checkpoint_path = os.path.join(model.ckpt_dir, 'model.ckpt')
         saver.save(sess, checkpoint_path, global_step=step)
 
 def main(argv=None):
-  config = config_interface.get_config(argv)
-  train(config)
+  model = Model()
+  train(model)
 
 if __name__ == '__main__':
   tf.app.run()

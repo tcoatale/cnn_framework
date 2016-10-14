@@ -1,12 +1,12 @@
 import tensorflow as tf
 
 class SessionManager:
-  def __init__(self, config):
-    self.config = config
+  def __init__(self, model):
+    self.model = model
 
   def restore(self, saver):
       sess = tf.Session()
-      ckpt = tf.train.get_checkpoint_state(self.config.ckpt_dir)
+      ckpt = tf.train.get_checkpoint_state(self.model.ckpt_dir)
       if ckpt and ckpt.model_checkpoint_path:
         print('Restoring model from', ckpt.model_checkpoint_path)
         saver.restore(sess, ckpt.model_checkpoint_path)

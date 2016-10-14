@@ -5,8 +5,8 @@ from __future__ import print_function
 import tensorflow as tf
 
 class UpdateManager:
-  def __init__(self, config):
-    self.config = config
+  def __init__(self, model):
+    self.model = model
   
   def training_loss(self, true_loss):
     tf.add_to_collection('losses', true_loss)
@@ -21,14 +21,14 @@ class UpdateManager:
   
   def update(self, loss, global_step):
     # Variables that affect learning rate.
-    num_batches_per_epoch = self.config.dataset.set_sizes['train'] / self.config.training_params.batch_size
-    decay_steps = int(num_batches_per_epoch * self.config.training_params.num_epochs_per_decay)
+    num_batches_per_epoch = self.model.dataset.data['set_sizes']['train'] / self.model.params['batch_size']
+    decay_steps = int(num_batches_per_epoch * self.model.params['num_epochs_per_decay'])
   
     # Decay the learning rate exponentially based on the number of steps.
-    learning_rate = tf.train.exponential_decay(self.config.training_params.initial_learning_rate,
+    learning_rate = tf.train.exponential_decay(self.model.params['initial_learning_rate'],
                                               global_step,
                                               decay_steps,
-                                              self.config.training_params.learning_rate_decay_factor,
+                                              self.model.params['learning_rate_decay_factor'],
                                               staircase=False)
                                     
     tf.scalar_summary('learning_rate', learning_rate)
@@ -51,7 +51,7 @@ class UpdateManager:
     list(map(self._histogram_grad, grads))
         
     # Track the moving averages of all trainable variables.
-    variable_averages = tf.train.ExponentialMovingAverage(self.config.training_params.moving_average_decay, global_step)
+    variable_averages = tf.train.ExponentialMovingAverage(self.model.params['moving_average_decay'], global_step)
     variables_averages_op = variable_averages.apply(tf.trainable_variables())
   
     with tf.control_dependencies([apply_gradient_op, variables_averages_op]):

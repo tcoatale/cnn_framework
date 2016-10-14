@@ -16,11 +16,13 @@
             "height": 64,
             "depth": 1
         },
-        "additional_channels": 4
+        "additional_channels": 2
     },
     "directories": {
         "raw": "data/pcle/raw", 
-        "processed": "data/pcle/processed"
+        "processed": "data/pcle/processed",
+        "log": "log/pcle/",
+        "ckpt": "log/ckpt"
     },
     "augmentations": [
         {
@@ -61,8 +63,8 @@
         "label": 1
     },
     "images_per_batch_file": 1000, 
-    "datasets": {
-      "training": 5024, 
-      "testing": 1385
+    "set_sizes": {
+      "train": 5024, 
+      "test": 1385
     } 
 }

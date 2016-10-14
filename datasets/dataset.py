@@ -6,9 +6,9 @@ class Dataset:
     self.data = None
     
   def process_inputs(self, image, add_filter, distort=True):
-    depth, height, width = self.data['images']['normal'].values()
-    additional_channels = self.data['images']['additional_channels']
-    
+    image_dim = self.data['images']['resized']
+    height, width, depth = image_dim['height'], image_dim['width'], image_dim['depth']
+    additional_channels = self.get_number('channel')    
     augmented_image = tf.concat(2, [image, add_filter])
   
     if distort:
@@ -25,3 +25,9 @@ class Dataset:
     transposed_float_image = tf.transpose(float_simple_image, [1, 0, 2])
     transposed_aug_filter = tf.transpose(float_aug_filter, [1, 0, 2])
     return transposed_float_image, transposed_aug_filter
+
+  def get_number(self, type):
+    augmentations = self.data['augmentations']
+    type_augmentations = list(filter(lambda a: a['usage'] == type, augmentations))
+    type_numbers = list(map(lambda a: a['number'], type_augmentations))
+    return sum(type_numbers)

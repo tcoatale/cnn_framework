@@ -1,5 +1,5 @@
 import tensorflow as tf
-from configurations.models.blocks.layers import conv2d_layer, pool_layer
+from models.architectures.building_blocks.layers import conv2d_layer, pool_layer
 
 def resnet_starter(input, channels):
   with tf.variable_scope('starter'):

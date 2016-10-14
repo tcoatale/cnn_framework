@@ -8,11 +8,11 @@ import glob
 import numpy as np
 
 class FileManager:
-  def __init__(self, config):
-    self.config = config
+  def __init__(self, model):
+    self.model = model
     
   def get_files(self, type):
-    filenames = glob.glob(os.path.join(self.config.dataset.data_dir, type + '*'))    
+    filenames = glob.glob(os.path.join(self.model.dataset.data['directories']['processed'], type + '*'))    
     if filenames == []:
       raise ValueError('No such batch files')
       
@@ -20,18 +20,19 @@ class FileManager:
     return filename_queue
 
 class InputManager:
-  def __init__(self, config):
-    self.config = config
+  def __init__(self, model):
+    self.model = model
 
-  def read_binary(self, filename_queue):  
-    width, height, depth = self.config.dataset.original_shape
-    additional_channels = self.config.dataset.additional_filters
-
-    identifier_bytes = self.config.dataset.identifier_bytes
-    label_bytes = self.config.dataset.label_bytes
+  def read_binary(self, filename_queue):
+    image_dim = self.model.dataset.data['images']['resized']
+    height, width, depth = image_dim['height'], image_dim['width'], image_dim['depth']
+    additional_channels = self.model.dataset.get_number('channel')
+    
+    identifier_bytes = self.model.dataset.data['bytes']['identifier']
+    label_bytes = self.model.dataset.data['bytes']['label']
     image_bytes = width * height * depth
     aug_filter_bytes = width * height * additional_channels
-    aug_feature_bytes = self.config.dataset.aug_feature_bytes
+    aug_feature_bytes = self.model.dataset.get_number('features')
     
     segments_lengths = [identifier_bytes, label_bytes, image_bytes, aug_filter_bytes, aug_feature_bytes]
     segments_starts = np.cumsum([0] + segments_lengths[:-1])
@@ -50,8 +51,6 @@ class InputManager:
     add_filter_read = tf.slice(record_bytes, [segments_starts[3]], [segments_lengths[3]], name='filter_slicer')
     add_features_read = tf.slice(record_bytes, [segments_starts[4]], [segments_lengths[4]], name='feature_slicer')
     
-    # Fetch the actual id of the file based on the bytes read    
-    id = self.config.dataset.sparse_to_dense_id(id_read)
     
     # Cast the label to float
     label = tf.cast(label_read, tf.float32)
@@ -64,7 +63,7 @@ class InputManager:
     transposed_add_filter = tf.cast(tf.transpose(add_filter, [2, 1, 0]), tf.float32)
     
     add_features = tf.cast(add_features_read, tf.float32)  
-    return id, label, transposed_image, transposed_add_filter, add_features
+    return id_read, label, transposed_image, transposed_add_filter, add_features
   
   
   def _generate_image_and_label_batch(self, id, label, image, add_filter, add_features, min_queue_examples, batch_size, shuffle):
@@ -87,18 +86,18 @@ class InputManager:
     return ids, labels, images, add_filters, features
       
   def get_inputs(self, type='train', distorted = True, shuffle = True):
-    min_queue_examples = int(self.config.dataset.set_sizes[type] * 0.8)
+    min_queue_examples = int(self.model.dataset.data['set_sizes'][type] * 0.8)
     print ('Filling queue with %d images before starting to train. This will take a few minutes.' % min_queue_examples)
 
     # Get file queue
-    file_manager = FileManager(self.config)
+    file_manager = FileManager(self.model)
     filename_queue = file_manager.get_files(type)
 
     # Read examples from files in the filename queue.
     id, label, image, add_filter, add_features = self.read_binary(filename_queue)
 
     # Distort image
-    processed_image, processed_filter = self.config.dataset.process_inputs(image, add_filter, distort=distorted)
+    processed_image, processed_filter = self.model.dataset.process_inputs(image, add_filter, distort=distorted)
     
     # Generate a batch of images and labels by building up a queue of examples.
     return self._generate_image_and_label_batch(id=id, 
@@ -107,5 +106,5 @@ class InputManager:
                                                 add_filter=processed_filter, 
                                                 add_features=add_features,
                                                 min_queue_examples=min_queue_examples, 
-                                                batch_size=self.config.training_params.batch_size, 
+                                                batch_size=self.model.params['batch_size'], 
                                                 shuffle=shuffle)

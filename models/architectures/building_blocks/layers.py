@@ -1,5 +1,5 @@
 import tensorflow as tf
-from configurations.models.variables import weight_variable, bias_variable, conv2d
+from models.architectures.building_blocks.variables import weight_variable, bias_variable, conv2d
 
 #%%
 def normalize(input):

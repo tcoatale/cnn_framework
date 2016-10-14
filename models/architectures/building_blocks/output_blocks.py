@@ -1,5 +1,5 @@
 import tensorflow as tf
-from configurations.models.blocks.layers import flat, fc_layer, readout_layer, conv2d_layer
+from models.architectures.building_blocks.layers import flat, fc_layer, readout_layer, conv2d_layer
 
 def fc_stream(input, fc_units_list, name):
   reshape = flat(input)
