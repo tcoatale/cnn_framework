@@ -21,7 +21,7 @@ class AlexNet:
     return pool8
   
   def _output(self, input, dataset):  
-    return fc_output(input, dataset.classes, [128], name='output')    
+    return fc_output(input, dataset.data['classes'], [128], name='output')    
     
 class AlexNetFeatures(AlexNet):
   def _end(self, input, add_filters, features):
