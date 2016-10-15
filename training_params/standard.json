@@ -7,7 +7,7 @@
   "initial_learning_rate": 1e-2,
   "keep_prob": [0.5, 0.2],
 
-  "display_freq": 100,
+  "display_freq": 10,
   "save_freq": 2000, 
   "summary_freq": 50,
 
