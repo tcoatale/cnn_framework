@@ -11,5 +11,5 @@
   "save_freq": 2000, 
   "summary_freq": 50,
 
-  "continue": true
+  "continue": false
 }

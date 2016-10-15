@@ -60,7 +60,7 @@
     },
     "images_per_batch_file": 1000, 
     "set_sizes": {
-      "train": 5024, 
-      "test": 1385
+      "train": 4441, 
+      "test": 1968
     } 
 }

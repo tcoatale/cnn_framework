@@ -52,7 +52,7 @@ class PCLEDataset(Dataset):
     return training_sequences, testing_sequences
   
   def get_files_by_type(self):
-    np.random.seed(213)  
+    np.random.seed(122)  
     training_sequences, testing_sequences = self.split_videos()    
     training_files = reduce(list.__add__, list(map(self.get_files_of_sequence, training_sequences)))
     testing_files = reduce(list.__add__, list(map(self.get_files_of_sequence, testing_sequences)))

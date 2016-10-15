@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from preprocessing.managers.channel_manager import ChannelManager
-from preprocessing.managers.feature_manager import FeatureManager
+from formatting.channel_manager import ChannelManager
+from formatting.feature_manager import FeatureManager
 import skimage.io
 import skimage.transform
 import numpy as np

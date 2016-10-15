@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from preprocessing.managers.batch_manager import BatchManager
-from preprocessing.managers.image_manager import ImageManager
+from formatting.batch_manager import BatchManager
+from formatting.image_manager import ImageManager
 import os
 
 class PreprocessingManager:
