@@ -1,9 +1,5 @@
 {
     "name": "pcle",
-    "sets": {
-        "train": 4500,
-        "test": 1500
-    },
     "classes": 2,
     "images": {
         "normal": {
