@@ -108,6 +108,7 @@ def train(model):
         saver.save(sess, checkpoint_path, global_step=step)
 
 def main(argv=None):
+  tf.set_random_seed(1)
   model = Model()
   train(model)
 

@@ -23,7 +23,7 @@
     "augmentations": [
         {
             "name": "Frame Extraction",       
-            "input": "videos",
+            "input": "videos",  
             "output": "frames",
             "usage": "main",
             "priority": 1, 
