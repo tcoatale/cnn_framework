@@ -8,8 +8,8 @@ import numpy as np
 import tensorflow as tf
 from functools import reduce
 
-from input_manager import InputManager
-from session_manager import SessionManager
+from training.input_manager import InputManager
+from training.session_manager import SessionManager
 from models.model import Model
 
 #%%
