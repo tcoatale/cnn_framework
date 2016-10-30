@@ -7,7 +7,7 @@ from datasets.interface import get_dataset
 import os
 
 class Model:
-  def __init__(self, dataset_name='pcle', architecture_name='alex_full_1', params_name='standard'):
+  def __init__(self, dataset_name='pcle', architecture_name='alex_standard', params_name='standard'):
     self.architecture = get_architecture(architecture_name)
     self.dataset = get_dataset(dataset_name)
     self.params = get_params(params_name)

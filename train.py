@@ -54,6 +54,8 @@ def train(model):
     # Build a Graph that trains the model with one batch of examples and updates the model parameters.
     train_op = update_manager.update(total_loss, global_step)
 
+    step_increment = tf.assign_add(ref=global_step, value=1, name='step_update')
+
     # Create a saver.
     saver = tf.train.Saver(tf.all_variables())
 
@@ -76,7 +78,6 @@ def train(model):
     summary_writer = tf.train.SummaryWriter(model.log_dir, sess.graph)
 
     for step in xrange(int(current_step), model.params['max_steps']):
-      step_increment = global_step.assign(step)
       start_time = time.time()
 
       labels, logits = sess.run([training_labels, training_logits])
